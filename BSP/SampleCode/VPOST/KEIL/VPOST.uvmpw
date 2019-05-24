@@ -9,12 +9,16 @@
 
   <project>
     <PathAndName>.\VPOST_N9H26_GIANTPLUS_GPM1006D.uvproj</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>.\VPOST_N9H26_FW050TFT_800x480.uvproj</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\VPOST_N9H26_LCM.uvproj</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 

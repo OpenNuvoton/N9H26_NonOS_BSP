@@ -318,6 +318,88 @@ VOID vpostSetDataBusPin(E_DRVVPOST_DATABUS eDataBus)
 	}
 }
 
+VOID vpostSetDataBusPin_noDE(E_DRVVPOST_DATABUS eDataBus)
+{
+	if (eDataBus == eDRVVPOST_DATA_8BITS)
+	{
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&~MF_GPB15)|0x20000000);	// enable LPCLK pin
+		outpw(REG_GPCFUN0, 0x22222222);									// enable LVDATA[7:0] pins
+		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFFF00F)|0x00000220);	// enable HSYNC/VSYNC pins
+	}
+	else if (eDataBus == eDRVVPOST_DATA_9BITS)
+	{
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&~MF_GPB15)|0x20000000);	// enable LPCLK pin
+		outpw(REG_GPCFUN0, 0x22222222);									// enable LVDATA[7:0] pins
+		outpw(REG_GPCFUN1, (inpw(REG_GPCFUN1) & ~MF_GPC8)|0x02);		// enable LVDATA[8] pins		
+		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFFF00F)|0x00000220);	// enable HSYNC/VSYNC pins
+	}
+	else if (eDataBus == eDRVVPOST_DATA_16BITS)
+	{
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&~MF_GPB15)|0x20000000);	// enable LPCLK pin
+		outpw(REG_GPCFUN0, 0x22222222);									// enable LVDATA[7:0] pins
+		outpw(REG_GPCFUN1, 0x22222222);									// enable LVDATA[15:8] pins		
+		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFFF00F)|0x00000220);	// enable HSYNC/VSYNC pins
+	}
+	else if (eDataBus == eDRVVPOST_DATA_18BITS)
+	{
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&~MF_GPB15)|0x20000000);	// enable LPCLK pin
+		outpw(REG_GPCFUN0, 0x22222222);									// enable LVDATA[7:0] pins
+		outpw(REG_GPCFUN1, 0x22222222);									// enable LVDATA[15:8] pins		
+		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFFF00F)|0x00000220);	// enable HSYNC/VSYNC pins
+		outpw(REG_GPEFUN0, (inpw(REG_GPEFUN0)&~(MF_GPE0+MF_GPE1))|0x22);// enable LVDATA[17:16] pins
+	}
+	else if (eDataBus == eDRVVPOST_DATA_24BITS)
+	{
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&~MF_GPB15)|0x20000000);	// enable LPCLK pin
+		outpw(REG_GPCFUN0, 0x22222222);									// enable LVDATA[7:0] pins
+		outpw(REG_GPCFUN1, 0x22222222);									// enable LVDATA[15:8] pins		
+		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFFF00F)|0x00000220);	// enable HSYNC/VSYNC pins
+		outpw(REG_GPEFUN0, (inpw(REG_GPEFUN0)&~(MF_GPE0+MF_GPE1))|0x22);// enable LVDATA[17:16] pins
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&0xFFF00000)|0x00022222);  // enable LVDATA[23:18] pins	
+	}
+}
+
+VOID vpostSetDataBusPin_onlyDE(E_DRVVPOST_DATABUS eDataBus)
+{
+	if (eDataBus == eDRVVPOST_DATA_8BITS)
+	{
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&~MF_GPB15)|0x20000000);	// enable LPCLK pin
+		outpw(REG_GPCFUN0, 0x22222222);									// enable LVDATA[7:0] pins
+		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFF0FFF)|0x00002000);	// enable VDEN pin
+	}
+	else if (eDataBus == eDRVVPOST_DATA_9BITS)
+	{
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&~MF_GPB15)|0x20000000);	// enable LPCLK pin
+		outpw(REG_GPCFUN0, 0x22222222);									// enable LVDATA[7:0] pins
+		outpw(REG_GPCFUN1, (inpw(REG_GPCFUN1) & ~MF_GPC8)|0x02);		// enable LVDATA[8] pins		
+		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFF0FFF)|0x00002000);	// enable VDEN pin
+	}
+	else if (eDataBus == eDRVVPOST_DATA_16BITS)
+	{
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&~MF_GPB15)|0x20000000);	// enable LPCLK pin
+		outpw(REG_GPCFUN0, 0x22222222);									// enable LVDATA[7:0] pins
+		outpw(REG_GPCFUN1, 0x22222222);									// enable LVDATA[15:8] pins		
+		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFF0FFF)|0x00002000);	// enable VDEN pin
+	}
+	else if (eDataBus == eDRVVPOST_DATA_18BITS)
+	{
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&~MF_GPB15)|0x20000000);	// enable LPCLK pin
+		outpw(REG_GPCFUN0, 0x22222222);									// enable LVDATA[7:0] pins
+		outpw(REG_GPCFUN1, 0x22222222);									// enable LVDATA[15:8] pins		
+		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFF0FFF)|0x00002000);	// enable VDEN pin
+		outpw(REG_GPEFUN0, (inpw(REG_GPEFUN0)&~(MF_GPE0+MF_GPE1))|0x22);// enable LVDATA[17:16] pins
+	}
+	else if (eDataBus == eDRVVPOST_DATA_24BITS)
+	{
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&~MF_GPB15)|0x20000000);	// enable LPCLK pin
+		outpw(REG_GPCFUN0, 0x22222222);									// enable LVDATA[7:0] pins
+		outpw(REG_GPCFUN1, 0x22222222);									// enable LVDATA[15:8] pins		
+		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFF0FFF)|0x00002000);	// enable VDEN pin
+		outpw(REG_GPEFUN0, (inpw(REG_GPEFUN0)&~(MF_GPE0+MF_GPE1))|0x22);// enable LVDATA[17:16] pins
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&0xFFF00000)|0x00022222);  // enable LVDATA[23:18] pins	
+	}
+}
+
 // only for Sync LCM timing async with TV 
 VOID vpostSetSyncLCM_HTiming
 (

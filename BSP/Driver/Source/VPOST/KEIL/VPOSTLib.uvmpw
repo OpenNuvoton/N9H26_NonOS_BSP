@@ -9,12 +9,17 @@
 
   <project>
     <PathAndName>.\GIANTPLUS_GPM1006\GIANTPLUS_GPM1006.uvproj</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>.\FW050TFT_800X480\FW050TFT_800x480.uvproj</PathAndName>
+    <NodeIsExpanded>1</NodeIsExpanded>
+  </project>
+
+  <project>
+    <PathAndName>.\SYNC_MPU_LCM\SYNC_MPU_LCM.uvproj</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
