@@ -314,7 +314,8 @@ VOID vpostSetDataBusPin(E_DRVVPOST_DATABUS eDataBus)
 		outpw(REG_GPCFUN1, 0x22222222);									// enable LVDATA[15:8] pins		
 		outpw(REG_GPDFUN1, (inpw(REG_GPDFUN1)&0xFFFF000F)|0x00002220);	// enable HSYNC/VSYNC/VDEN pins	
 		outpw(REG_GPEFUN0, (inpw(REG_GPEFUN0)&~(MF_GPE0+MF_GPE1))|0x22);// enable LVDATA[17:16] pins
-		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&0xFFF00000)|0x00022222);  // enable LVDATA[23:18] pins	
+		outpw(REG_GPBFUN0, (inpw(REG_GPBFUN0)&0x0FFFFFFF)|0x20000000); 	// enable LVDATA[18] pin
+		outpw(REG_GPBFUN1, (inpw(REG_GPBFUN1)&0xFFF00000)|0x00022222);  // enable LVDATA[23:19] pins	
 	}
 }
 
