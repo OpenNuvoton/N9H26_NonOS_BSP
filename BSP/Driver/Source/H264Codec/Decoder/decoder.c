@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <string.h>
-#include "h264dec.h"
+#include "H264Dec.h"
 #include "wblib.h"
 //#include "h264_reg.h"
 #include "userdef.h"
-#include "avcdec.h"
+#include "AVCdec.h"
 //#include "slice.h"
 
 #include "N9H26_module.h"

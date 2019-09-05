@@ -154,7 +154,7 @@ typedef void (*PFN_USBD_CALLBACK)(void);
 typedef BOOL (PFN_USBD_EXIT_CALLBACK)(void);
 typedef void (*PFN_USBD_EP_CALLBACK)(UINT32 u32IntEn,UINT32 u32IntStatus);
 
-__packed  typedef struct{
+typedef struct  __attribute__((__packed__)) {
 /* Descriptor pointer */
     PUINT32 pu32DevDescriptor;
     PUINT32 pu32QulDescriptor;
@@ -261,7 +261,7 @@ __packed  typedef struct{
 
 }USBD_INFO_T;
 
-__packed  typedef struct{
+typedef struct __attribute__((__packed__)) {
     UINT32  appConnected;
     UINT32  usbConnected;
     UINT32  appConnected_Audio;

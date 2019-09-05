@@ -10,7 +10,7 @@
  *****************************************************************************/
 
 
-#include "N9H26_gnand.h"
+#include "N9H26_GNAND.h"
 
 typedef struct Disk_Par_Inf {
     UINT32  partition_size,

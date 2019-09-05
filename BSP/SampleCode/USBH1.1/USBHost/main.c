@@ -24,6 +24,7 @@
 #include "N9H26.h"
 
 /* USB */
+#include "N9H26_USBH.h"
 #include "usbvideo.h"
 
 #ifdef ECOS

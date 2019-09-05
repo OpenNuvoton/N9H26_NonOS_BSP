@@ -188,7 +188,7 @@ typedef struct ohci_hcca
  * region.  This is Memory Mapped I/O.  You must use the readl() and
  * writel() macros defined in asm/io.h to access these!!
  */
-__align(32) struct ohci_regs 
+struct __attribute__((aligned(32))) ohci_regs 
 {
     /* control and status registers */
     UINT32   HcRevision;

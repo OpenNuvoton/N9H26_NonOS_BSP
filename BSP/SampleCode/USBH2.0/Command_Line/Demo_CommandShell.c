@@ -23,7 +23,7 @@
 extern INT  UMAS_InitUmasDriver(void);
 //#define DIRECT_MODE
 
-extern void  fsGetErrorDescription(INT nErrCode, CHAR *szDescription, INT bIsPrint);
+void  fsGetErrorDescription(INT nErrCode, CHAR *szDescription, INT bIsPrint);
 extern INT   fsBIG5toUnicode(void *bstr, void *ustr);
 
 /* imported from WBFILE_DISK.C */
@@ -31,7 +31,7 @@ extern PDISK_T        *_fs_ptPDiskList;
 
 #define DUMMY_BUFFER_SIZE        (64 * 1024)
 
-__align(32) UINT8  _pucDummy[DUMMY_BUFFER_SIZE];
+UINT8  _pucDummy[DUMMY_BUFFER_SIZE] __attribute__((aligned(32)));
 
 static CHAR *_pcFileCommads[] = 
 {

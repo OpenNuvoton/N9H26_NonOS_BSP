@@ -85,9 +85,9 @@ typedef struct usb_port_status
 
 typedef struct usb_hub_status 
 {
-    __packed UINT16 wHubStatus;
-    __packed UINT16 wHubChange;
-} USB_HUB_STATUS_T;
+    UINT16 wHubStatus;
+    UINT16 wHubChange;
+} __attribute__((packed)) USB_HUB_STATUS_T;
 
 /*
  * Hub Status & Hub Change bit masks
@@ -117,15 +117,15 @@ typedef struct usb_hub_status
  */
 typedef struct usb_hub_descriptor 
 {
-    __packed UINT8  bDescLength;
-    __packed UINT8  bDescriptorType;
-    __packed UINT8  bNbrPorts;
-    __packed UINT16 wHubCharacteristics;
-    __packed UINT8  bPwrOn2PwrGood;
-    __packed UINT8  bHubContrCurrent;
-    __packed UINT8  DeviceRemovable[MAX_PORTS_PER_HUB/8];
-    __packed UINT8  PortPwrCtrlMask[MAX_PORTS_PER_HUB/8];
-} USB_HUB_DESC_T;
+    UINT8  bDescLength;
+    UINT8  bDescriptorType;
+    UINT8  bNbrPorts;
+    UINT16 wHubCharacteristics;
+    UINT8  bPwrOn2PwrGood;
+    UINT8  bHubContrCurrent;
+    UINT8  DeviceRemovable[MAX_PORTS_PER_HUB/8];
+    UINT8  PortPwrCtrlMask[MAX_PORTS_PER_HUB/8];
+} __attribute__((packed)) USB_HUB_DESC_T;
 
 struct usb_tt 
 {

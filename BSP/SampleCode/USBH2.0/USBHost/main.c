@@ -22,6 +22,7 @@
 #endif
 
 #include "N9H26.h"
+#include "N9H26_USBH20.h"
 /* USB */
 #include "usbvideo.h"
 
@@ -441,7 +442,7 @@ void _ttywrch(int ch)
 }
 
 
-__value_in_regs struct R0_R3 {unsigned heap_base, stack_base, heap_limit, stack_limit;} 
+struct __attribute__((value_in_regs)) R0_R3 {unsigned heap_base, stack_base, heap_limit, stack_limit;}
     __user_initial_stackheap(unsigned int R0, unsigned int SP, unsigned int R2, unsigned int SL)
 {
     struct R0_R3 config;

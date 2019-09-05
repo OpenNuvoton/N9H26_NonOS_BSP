@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "N9H26.h"
+#include "Writer.h"
 #include "pcm.h"
 
 static UINT16 u16IntCount = 2;

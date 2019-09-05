@@ -8,14 +8,4 @@
  * @note
  * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
-#include ".\USBH2.0\usb.h"
-#include ".\USBH2.0\MASSCLS\umas.h"
-
-#define HOST_LIKE_PORT1_0             0
-#define HOST_LIKE_PORT1_1             1
-#define HOST_LIKE_PORT2_0             2
-#define HOST_LIKE_PORT2_1             3
-#define HOST_LIKE_PORT2_2             4
-#define HOST_LIKE_PORT2_3             5
-#define HOST_LIKE_PORT1_DISABLE    0xFF
-#define HOST_LIKE_PORT2_DISABLE    0xFF
+#include "./USBH1.1/USB.h"

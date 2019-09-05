@@ -174,9 +174,10 @@ Configuration:
 
 /* USB */
 #include "N9H26.h"
+#include "N9H26_USBH20.h"
 #include "usbvideo.h"
-#include "w99683ini.h"
-#include "w99683.h"
+#include "W99683ini.h"
+#include "W99683.h"
 
 #ifdef ECOS
 #define sysGetTicks(TIMER0)  cyg_current_time()
@@ -502,7 +503,7 @@ VOID  W99683Cam_StopDataPump()
  * W99683 USB Video Camera driver
  */
 
-__align(32) UINT8  _dma_data_pool[4096];
+UINT8  _dma_data_pool[4096] __attribute__((aligned(32)));
 UINT8    *_dma_data;
 
 static  INT W99683Cam_read_register(UINT16 index, UINT8 *regb)

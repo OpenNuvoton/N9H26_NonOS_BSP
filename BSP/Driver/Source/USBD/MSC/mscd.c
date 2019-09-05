@@ -19,8 +19,8 @@
 
 #define MSC_BUFFER_SECTOR 256
 #ifdef __ARRAY_BUFFER__
-__align(64)    UINT8 MSC_DATA_BUFFER[MSC_BUFFER_SECTOR * 512];
-__align(64)    UINT8 MSC_CMD_BUFFER[4096];
+UINT8 MSC_DATA_BUFFER[MSC_BUFFER_SECTOR * 512]  __attribute__((aligned(64)));
+UINT8 MSC_CMD_BUFFER[4096]  __attribute__((aligned(64)));
 #endif
 
 UINT8 Flash_Identify(UINT8 tLUN);
@@ -38,12 +38,12 @@ BOOL volatile bFirstCMD = 0xFF, bIsDeviceReady = FALSE;
 extern UINT8 CD_Tracks[];
 #endif
 #ifdef TEST_SD
-#include "N9H26_sic.h"
+#include "N9H26_SIC.h"
 #endif
 
 #ifdef TEST_SM
-#include "N9H26_gnand.h"
-#include "N9H26_sic.h"
+#include "N9H26_GNAND.h"
+#include "N9H26_SIC.h"
 NDISK_T *ptMassNDisk;
 NDISK_T *ptMassNDisk1;
 NDISK_T *ptMassNDisk2;
@@ -127,10 +127,10 @@ UINT32 volatile g_MSC_NAND_CS_ENABLE = MSC_NAND_CS0;
 extern USB_CMD_T    _usb_cmd_pkt;
 
 /* MSC Device Property */
-__align(4) volatile MSC_INFO_T mscdInfo = {0};
+volatile MSC_INFO_T mscdInfo  __attribute__((aligned(4))) = {0};
 
 /* MSC Descriptor */
-__align(4) UINT8 MSC_DeviceDescriptor[MSC_DEVICE_DSCPT_LEN] =
+UINT8 MSC_DeviceDescriptor[MSC_DEVICE_DSCPT_LEN]  __attribute__((aligned(4))) =
 {
     MSC_DEVICE_DSCPT_LEN,
     0x01,
@@ -148,43 +148,43 @@ __align(4) UINT8 MSC_DeviceDescriptor[MSC_DEVICE_DSCPT_LEN] =
     0x01                /* bNumConfigurations */
 };
 
-__align(4) static UINT32 MSC_QualifierDescriptor[3] = 
+static UINT32 MSC_QualifierDescriptor[3]  __attribute__((aligned(4))) =
 {
     0x0200060a, 0x40000000, 0x00000001
 };
 
-__align(4) static UINT32 MSC_ConfigurationBlock[8] =
+static UINT32 MSC_ConfigurationBlock[8]  __attribute__((aligned(4))) =
 {
     0x00200209, 0xC0000101, 0x00040932, 0x06080200, 0x05070050, 
     0x02000281, 0x020507FF, 0xFF020002
 };
 
-__align(4) static UINT32 MSC_ConfigurationBlockFull[8] =
+static UINT32 MSC_ConfigurationBlockFull[8]  __attribute__((aligned(4))) =
 {
     0x00200209, 0xC0000101, 0x00040932, 0x06080200, 0x05070050, 
     0x00400281, 0x020507FF, 0xFF004002
 };
 
-__align(4) static UINT32 MSC_HOSConfigurationBlock[8] =
+static UINT32 MSC_HOSConfigurationBlock[8]  __attribute__((aligned(4))) =
 {
     0x00200709, 0xC0000101, 0x00040932, 0x06080200, 0x05070050, 
     0x00400281, 0x020507FF, 0xFF004002
 };
 
-__align(4) static UINT32 MSC_FOSConfigurationBlock[8] =
+static UINT32 MSC_FOSConfigurationBlock[8]  __attribute__((aligned(4))) =
 {
     0x00200709, 0xC0000101, 0x00040932, 0x06080200, 0x05070050, 
     0x02000281, 0x020507FF, 0xFF020002
 };
 
 /* Identifier Language */
-__align(4) static UINT32 MSC_StringDescriptor0[1] = 
+static UINT32 MSC_StringDescriptor0[1]  __attribute__((aligned(4))) =
 {
     LANGID_English_UnitedStates
 };
 
 /* iManufacturer */
-__align(4) UINT8 MSC_StringDescriptor1[] = 
+UINT8 MSC_StringDescriptor1[]  __attribute__((aligned(4))) =
 {
     0x10,                     /* bLength (Dafault Value is 0x10, the value will be set to actual value according to the Descriptor size wehn calling mscdInit) */
     0x03,                    /* bDescriptorType */
@@ -192,7 +192,7 @@ __align(4) UINT8 MSC_StringDescriptor1[] =
 };
 
 /* iProduct */
-__align(4) UINT8 MSC_StringDescriptor2[] = 
+UINT8 MSC_StringDescriptor2[]  __attribute__((aligned(4))) =
 {
     0x10,                     /* bLength (Dafault Value is 0x10, the value will be set to actual value according to the Descriptor size wehn calling mscdInit) */
     0x03,                    /* bDescriptorType */
@@ -200,7 +200,7 @@ __align(4) UINT8 MSC_StringDescriptor2[] =
 };
 
 /* iSerialNumber */
-__align(4) UINT8 MSC_StringDescriptor3[] = 
+UINT8 MSC_StringDescriptor3[]  __attribute__((aligned(4))) =
 {
     0x1A,                     /* bLength (Dafault Value is 0x1A, the value will be set to actual value according to the Descriptor size wehn calling mscdInit) */
     0x03,                     /* bDescriptorType */
@@ -244,7 +244,7 @@ UINT8 Flash_Buffer[512];
 #endif
 
 /* code = 12h, Inquiry */
-__align(4) static UINT8 InquiryID[36] = {
+static UINT8 InquiryID[36]  __attribute__((aligned(4))) = {
 /* Direct-access device */
     0x00, 
 /* Removable Media Bit */
@@ -267,7 +267,7 @@ __align(4) static UINT8 InquiryID[36] = {
 };
 
 /* Read-Write Error Recovery Page */
-__align(4) static UINT8 Mode_Page_01[12] = {
+static UINT8 Mode_Page_01[12]  __attribute__((aligned(4))) = {
 /* Page code (Fixed) */
     0x01,
 /* Page Length (Fixed) */
@@ -284,7 +284,7 @@ __align(4) static UINT8 Mode_Page_01[12] = {
     0x00, 0x00, 0x00 };
 
 /* Flexible Disk Page */
-__align(4) static UINT8 Mode_Page_05[32] = {
+static UINT8 Mode_Page_05[32]  __attribute__((aligned(4))) = {
 /* Page code (Fixed) */
     0x05,
 /* Page Length (Fixed) */
@@ -318,7 +318,7 @@ __align(4) static UINT8 Mode_Page_05[32] = {
 };
 
 /* Removable Block Access Capabilities Page */
-__align(4) static UINT8 Mode_Page_1B[12] = {
+static UINT8 Mode_Page_1B[12]  __attribute__((aligned(4))) = {
 /* Page code (Fixed) */
     0x1B, 
 /* Page Length (Fixed) */
@@ -332,7 +332,7 @@ __align(4) static UINT8 Mode_Page_1B[12] = {
 };
 
 /* Timer and Protect Page */
-__align(4) static UINT8 Mode_Page_1C[8] = {
+static UINT8 Mode_Page_1C[8]  __attribute__((aligned(4))) = {
 /* Page code (Fixed) */
     0x1C, 
 /* Page Length (Fixed) */
@@ -347,7 +347,7 @@ __align(4) static UINT8 Mode_Page_1C[8] = {
     0x00, 0x00, 0x00
 };
 
-__align(4) static UINT8 Mode_Page[24] = {
+static UINT8 Mode_Page[24]  __attribute__((aligned(4))) = {
 
     0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x02, 0x00, 0x1C, 0x0A, 0x80, 0x03,
@@ -4035,7 +4035,7 @@ VOID mscdCommand_46(void)
                     memcpy((char *)buff, &Command_46_21[0], 8);
                     break;
                 case 0x0023:
-                    memcpy((char *)buff, &Command_46_23[0], 8);
+                    memcpy((char *)buff, &Command_46_23[0], 4);
                     break;
                 case 0x0024:
                     memcpy((char *)buff, &Command_46_24[0], 8);
@@ -4101,7 +4101,7 @@ VOID mscdCommand_46(void)
                     memcpy((char *)buff, &Command_46_21[0], 8);
                     break;
                 case 0x0023:
-                    memcpy((char *)buff, &Command_46_23[0], 8);
+                    memcpy((char *)buff, &Command_46_23[0], 4);
                     break;
                 case 0x0024:
                     memcpy((char *)buff, &Command_46_24[0], 8);

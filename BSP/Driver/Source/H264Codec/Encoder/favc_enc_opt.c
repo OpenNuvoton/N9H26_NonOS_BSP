@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "wblib.h"
-#include "h264dec.h"
-#include "avcdec.h"
+#include "H264Dec.h"
+#include "AVCdec.h"
 
 #include "port.h"
 #include "register.h"

@@ -8,7 +8,7 @@
  * @note
  * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
-#include "N9H26_gnand.h"
+#include "N9H26_GNAND.h"
 
 typedef void (*PFN_MSCD_CDROM_CALLBACK)(PUINT32 pu32address, UINT32 u32Offset, UINT32 u32LengthInByte);
 

@@ -1,9 +1,9 @@
 /*
  * Boot support
  */
-#include "bzlib.h"
-#include "zlib.h"
-#include "image.h"
+#include "./ziplib/bzlib.h"
+#include "./ziplib/zlib.h"
+#include "./ziplib/image.h"
 #include "string.h"
 #include "stdlib.h"
 

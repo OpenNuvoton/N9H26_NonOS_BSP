@@ -2,13 +2,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include "memory.h"
-#include "avcdec.h"
+#include "AVCdec.h"
 #include "decoder.h"
 #include "encoder.h"
 #include "wbtypes.h"
 #include "N9H26_module.h"
 
-#include "h264dec.h"
+#include "H264Dec.h"
 #include "wblib.h"
 
 #include "N9H26_avcodec.h"

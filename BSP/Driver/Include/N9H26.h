@@ -17,7 +17,6 @@
 #include "N9H26_version.h"
 #include "N9H26_Font.h"
 #include "N9H26_JPEG.h"
-#include "N9H26_USBH.h"
 #include "N9H26_USBD.h"
 #include "N9H26_MSC.h"
 #include "N9H26_AAC.h"

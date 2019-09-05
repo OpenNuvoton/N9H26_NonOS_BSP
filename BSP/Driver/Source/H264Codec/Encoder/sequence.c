@@ -3,7 +3,7 @@
 
 #include "port.h"
 #include "wblib.h"
-#include "h264dec.h"
+#include "H264Dec.h"
 #include "wbtypes.h"
 #include "register.h"
 #include "sequence.h"

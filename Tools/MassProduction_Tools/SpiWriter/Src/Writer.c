@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "N9H26.h"
-#include "writer.h"
+#include "Writer.h"
 
 #ifdef __Security__
 void RPMC_CreateRootKey(unsigned char *u8uid, unsigned int id_len, unsigned char *rootkey);
@@ -43,9 +43,9 @@ UINT32 volatile IMAGE_LIST_SIZE  = 1024;
 /* global variables defined at SD driver (SDGlue.c) */
 extern PDISK_T *pDisk_SD0;
 
-__align(32) UINT8 infoBufArray[0x40000];
-__align(32) UINT8 StorageBufferArray[0x40000];
-__align(32) UINT8 CompareBufferArray[0x40000];
+UINT8 infoBufArray[0x40000] __attribute__((aligned(32)));
+UINT8 StorageBufferArray[0x40000] __attribute__((aligned(32)));
+UINT8 CompareBufferArray[0x40000] __attribute__((aligned(32)));
 UINT32 infoBuf, StorageBuffer, CompareBuffer, BufferSize=0;
 UINT8 *pInfo;
 CHAR suNvtFullName[2048], suNvtTargetFullName[2048];

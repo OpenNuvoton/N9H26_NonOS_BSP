@@ -51,6 +51,7 @@
 #include "wbtypes.h"
 #include "wblib.h"
 #endif
+#include "N9H26_USBH.h"
 #include "usbkbd.h"
 
 

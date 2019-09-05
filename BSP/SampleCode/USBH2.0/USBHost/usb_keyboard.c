@@ -47,6 +47,7 @@
 #include <string.h>
 #endif
 #include "N9H26.h"
+#include "N9H26_USBH20.h"
 #include "usbkbd.h"
 
 USB_KBD_T  *_my_usbkbd = NULL;

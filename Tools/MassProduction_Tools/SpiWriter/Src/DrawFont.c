@@ -12,14 +12,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include "N9H26.h"
-#include "writer.h"
+#include "Writer.h"
 
 #define  LAST_LINE  11
 
 UINT  g_Font_Height, g_Font_Width,g_Font_Step;
 
-__align(32) S_DEMO_FONT s_sDemo_Font;
-__align(32) UINT16 FrameBuffer[_LCM_WIDTH_*_LCM_HEIGHT_];
+S_DEMO_FONT s_sDemo_Font __attribute__((aligned(32)));
+#ifndef __NoLCM__
+UINT16 FrameBuffer[_LCM_WIDTH_*_LCM_HEIGHT_] __attribute__((aligned(32)));
+#endif
 
 #if 1
 #define dbgprintf sysprintf
@@ -27,7 +29,7 @@ __align(32) UINT16 FrameBuffer[_LCM_WIDTH_*_LCM_HEIGHT_];
 #define dbgprintf(...)
 #endif
 
-
+#ifndef __NoLCM__   
 /************************************************************************************
  *  initVPost :
  *            Call VPOST to initialize panel
@@ -307,4 +309,5 @@ void Draw_Init(void)
         &s_sRect,
         2);
 }
+#endif
 

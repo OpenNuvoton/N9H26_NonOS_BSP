@@ -168,14 +168,14 @@ struct ehci_hcd
 
 #if 0 /* YCHuang */
 /* Section 2.2 Host Controller Capability Registers */
-struct ehci_caps 
+struct__attribute__((packed)) ehci_caps 
 {
-	__packed UINT8	length;			/* CAPLENGTH - size of this struct */
-	__packed UINT8	reserved;       /* offset 0x1 */
-	__packed UINT16	hci_version;    /* HCIVERSION - offset 0x2 */
-	__packed UINT32	hcs_params;     /* HCSPARAMS - offset 0x4 */
-	__packed UINT32	hcc_params;     /* HCCPARAMS - offset 0x8 */
-	__packed UINT8	portroute [8];	/* nibbles for routing - offset 0xC */
+	UINT8	length;			/* CAPLENGTH - size of this struct */
+	UINT8	reserved;       /* offset 0x1 */
+	UINT16	hci_version;    /* HCIVERSION - offset 0x2 */
+	UINT32	hcs_params;     /* HCSPARAMS - offset 0x4 */
+	UINT32	hcc_params;     /* HCCPARAMS - offset 0x8 */
+	UINT8	portroute [8];	/* nibbles for routing - offset 0xC */
 };
 #endif
 
@@ -284,11 +284,11 @@ struct ehci_regs
 struct ehci_qtd 
 {
 	/* first part defined by EHCI spec */
-	__packed UINT32			hw_next;	  	/* see EHCI 3.5.1 */
-	__packed UINT32			hw_alt_next;    /* see EHCI 3.5.2 */
-	__packed UINT32			hw_token;       /* see EHCI 3.5.3 */       
-	__packed UINT32			hw_buf [5];     /* see EHCI 3.5.4 */
-	__packed UINT32			hw_buf_hi[5];	/* Appendix B */
+	UINT32			hw_next __attribute__((packed));	  	/* see EHCI 3.5.1 */
+	UINT32			hw_alt_next __attribute__((packed));    /* see EHCI 3.5.2 */
+	UINT32			hw_token __attribute__((packed));       /* see EHCI 3.5.3 */       
+	UINT32			hw_buf [5] __attribute__((packed));     /* see EHCI 3.5.4 */
+	UINT32			hw_buf_hi[5] __attribute__((packed));	/* Appendix B */
 
 	/* the rest is HCD-private */
 	//dma_addr_t	qtd_dma;				/* qtd address */
