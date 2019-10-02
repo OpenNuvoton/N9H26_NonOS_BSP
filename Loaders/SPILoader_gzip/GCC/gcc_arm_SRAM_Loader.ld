@@ -1,16 +1,12 @@
 ;/*****************************************************************************
 ; * @file     GCC.ld
-; * @brief    NUC980 link file
+; * @brief    N32926 link file
 ; *
 ; * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
 ; *****************************************************************************/
-#if defined(N9H26K5_64MB)
+#if defined(N9H26K5_32MB)
     #define MEMSIZE 0x2000000
     #define EXEADDR 0x900000
-#endif 
-#if defined(N9H26K3_8MB)
-    #define MEMSIZE 0x800000
-    #define EXEADDR 0x700000
 #endif 
 
 ENTRY(__vector)

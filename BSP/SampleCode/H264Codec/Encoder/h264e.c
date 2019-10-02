@@ -256,7 +256,7 @@ int main(void)
     //fmiSD_Set_clock(200);
 
 	fsInitFileSystem();
-	fmiInitDevice(); 
+	sicOpen(); 
 	if (sicSdOpen0() <=0)
 	{
 		Console_Printf("Error in initialize SD card !!\n");

@@ -9,6 +9,9 @@
 #include "N9H26.h"
 #include "nvtloader.h"
 
+#ifndef NULL
+#define NULL	0
+#endif
 
 typedef struct sd_info{
 	unsigned int startSector;
@@ -38,7 +41,7 @@ NVT_SD_INFO_T image;
 	};
 	static NDISK_T g_sNDisk0;
 #else
-	NDISK_T g_sNDisk0 = NULL;
+	//NDISK_T g_sNDisk0 = NULL;
 #endif
 
 #ifdef __ENABLE_NAND_1__	/* Only definition, Not Using */
@@ -56,7 +59,7 @@ NVT_SD_INFO_T image;
 	};
 	static NDISK_T g_sNDisk1;
 #else
-	NDISK_T g_sNDisk1 = {NULL};
+	//NDISK_T g_sNDisk1 = NULL;
 #endif
 
 #ifdef __ENABLE_NAND_2__
@@ -74,7 +77,7 @@ NVT_SD_INFO_T image;
 	};
 	static NDISK_T g_sNDisk2;
 #else
-	NDISK_T g_sNDisk2 = {NULL};
+	//NDISK_T g_sNDisk2 = NULL;
 #endif
 
 static int g_kfd;
@@ -169,7 +172,7 @@ UINT32 NVT_LoadKernelFromNAND(BOARD_S* ps_board,
 		if(udcIsAttached()){
 			//for mass's issue. sicSdClose();
 			sysprintf("Detect USB plug in\n");	
-			mass(&g_sNDisk0, NULL, NULL, NULL, NULL, NULL, 0);								
+			mass(&g_sNDisk0, NULL, NULL, (INT)NULL, (INT)NULL, (INT)NULL, 0);
 			sysprintf("USB plug out\n");
 			outp32(REG_MISCR, inp32(REG_MISCR) | CPURST);
 		}

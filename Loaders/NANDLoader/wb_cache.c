@@ -107,12 +107,54 @@ INT32 sysEnableCache(UINT32 uCacheOpMode)
 	
 	return Successful;
 }
+#if defined (__GNUC__) && !(__CC_ARM)
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+void sys_flush_and_clean_dcache(void)
+{
+	volatile register int reg2;
+	__asm
+	(
+		" tci_loop100:                              \n"
+		"     MRC p15, #0, r15, c7, c14, #3         \n"     /* test clean and invalidate */
+		"     BNE tci_loop100                       \n"
+		: : : "memory"
+	);
+}  
+#pragma GCC pop_options
+#else
+__asm void sys_flush_and_clean_dcache(void)
+{
+tci_loop
+    MRC p15, 0, r15, c7, c14, 3 // test clean and invalidate
+    BNE tci_loop
+    BX  lr
+}
+#endif
+#if defined(__CC_ARM)
 #pragma O1
+#endif
 VOID sysDisableCache()
 {
 	int temp;
 
 	sys_flush_and_clean_dcache();
+#if defined (__GNUC__) && !(__CC_ARM)
+	__asm
+    (
+        /*----- flush I, D cache & write buffer -----*/
+        "MOV %0, #0x0				\n\t"
+        "MCR p15, 0, %0, c7, c5, #0 	\n\t" /* flush I cache */
+        "MCR p15, 0, %0, c7, c6, #0  \n\t" /* flush D cache */
+        "MCR p15, 0, %0, c7, c10,#4  \n\t" /* drain write buffer */
+
+        /*----- disable Protection Unit -----*/
+        "MRC p15, 0, %0, c1, c0, #0   \n\t" /* read Control register */
+        "BIC %0, %0, #0x01            \n\t"
+        "MCR p15, 0, %0, c1, c0, #0   \n\t" /* write Control register */
+		: :"r"(temp) : "memory"
+    );
+#else
 	__asm
 	{
 		/*----- flush I, D cache & write buffer -----*/
@@ -136,38 +178,77 @@ VOID sysDisableCache()
 		bic temp, temp, #0x04
 		MCR p15, 0, temp, c1, c0, 0
 	}
+#endif
 	
 	_sys_IsCacheOn = FALSE;
 	_sys_CacheMode = CACHE_DISABLE;
 }
+#if defined(__CC_ARM)
 #pragma O2
+#endif
 VOID sysFlushCache(INT32 nCacheType)
 {
-	int temp;
+	volatile int temp;
 
 	switch (nCacheType)
 	{
 		case I_CACHE:
+	#if defined (__GNUC__) && !(__CC_ARM)
+			__asm
+	        (
+	            /*----- flush I-cache -----*/
+	            "MOV %0, #0x0  \n\t"
+	            "MCR p15, #0, %0, c7, c5, 0  \n\t" /* invalidate I cache */
+	            : "=r"(temp)
+	            : "0" (temp)
+	            : "memory"
+	        );
+	#else
 			__asm
 			{
 				/*----- flush I-cache -----*/
 				MOV temp, 0x0
 				MCR p15, 0, temp, c7, c5, 0 /* invalidate I cache */
 			}
+	#endif
 			break;
 
 		case D_CACHE:
 			sys_flush_and_clean_dcache();
+	#if defined (__GNUC__) && !(__CC_ARM)
+			__asm
+	        (
+	            /*----- flush D-cache & write buffer -----*/
+	            "MOV %0, #0x0 \n\t"
+	            "MCR p15, #0, %0, c7, c10, #4 \n\t" /* drain write buffer */
+	            :"=r" (temp)
+	            :"0"  (temp)
+	            :"memory"
+	        );
+	#else
 			__asm
 			{
 				/*----- flush D-cache & write buffer -----*/
 				MOV temp, 0x0			
 				MCR p15, 0, temp, c7, c10, 4 /* drain write buffer */
 			}
+	#endif
 			break;
 
 		case I_D_CACHE:
 			sys_flush_and_clean_dcache();
+	#if defined (__GNUC__) && !(__CC_ARM)
+			__asm
+	        (
+	            /*----- flush I, D cache & write buffer -----*/
+	            "MOV %0, #0x0  \n\t"
+	            "MCR p15, #0, %0, c7, c5, #0  \n\t" /* invalidate I cache */
+	            "MCR p15, #0, %0, c7, c10, #4 \n\t" /* drain write buffer */
+	            :"=r" (temp)
+	            :"0"  (temp)
+	            :"memory"
+	        );
+	#else
 			__asm
 			{
 				/*----- flush I, D cache & write buffer -----*/
@@ -175,6 +256,7 @@ VOID sysFlushCache(INT32 nCacheType)
 				MCR p15, 0, temp, c7, c5, 0 /* invalidate I cache */
 				MCR p15, 0, temp, c7, c10, 4 /* drain write buffer */		
 			}
+	#endif
 			break;
 
 		default:
@@ -184,13 +266,24 @@ VOID sysFlushCache(INT32 nCacheType)
 
 VOID sysInvalidCache()
 {
-	int temp;
+	volatile int temp;
 
+#if defined (__GNUC__) && !(__CC_ARM)
 	__asm
-	{		
+    (
+        "MOV %0, #0x0 \n\t"
+        "MCR p15, #0, %0, c7, c7, #0 \n\t" /* invalidate I and D cache */
+        :"=r" (temp)
+        :"0" (temp)
+        :"memory"
+    );
+#else
+	__asm
+    {
 		MOV temp, 0x0
 		MCR p15, 0, temp, c7, c7, 0 /* invalidate I and D cache */
 	}
+#endif
 }
 
 BOOL sysGetCacheState()
@@ -207,8 +300,20 @@ INT32 sysGetCacheMode()
 
 INT32 _sysLockCode(UINT32 addr, INT32 size)
 {
-	int i, cnt, temp;
-		
+    volatile int i, cnt, temp;
+
+#if defined (__GNUC__) && !(__CC_ARM)
+    __asm
+    (
+        /* use way3 to lock instructions */
+        "MRC p15, #0, %0, c9, c0, #1 \n\t"
+        "ORR %0, %0, #0x07 \n\t"
+        "MCR p15, #0, %0, c9, c0, #1 \n\t"
+        :"=r" (temp)
+        :"0" (temp)
+        :"memory"
+    );
+#else
 	__asm
 	{
 	    /* use way3 to lock instructions */
@@ -216,21 +321,41 @@ INT32 _sysLockCode(UINT32 addr, INT32 size)
 		ORR temp, temp, 0x07 ;
 		MCR p15, 0, temp, c9, c0, 1 ;
 	}
+#endif
 	
 	if (size % 16)  cnt = (size/16) + 1;
 	else            cnt = size / 16;
 	
 	for (i=0; i<cnt; i++)
 	{
+#if defined (__GNUC__) && !(__CC_ARM)
+		__asm
+        (
+            "MCR p15, #0, r0, c7, c13, #1 \n\t"
+        );
+#else
 		__asm
 		{
 			MCR p15, 0, addr, c7, c13, 1;
 		}
+#endif
 	
 		addr += 16;
 	}
 	
-	
+#if defined (__GNUC__) && !(__CC_ARM)
+	__asm
+    (
+        /* use way3 to lock instructions */
+        "MRC p15, #0, %0, c9, c0, #1 \n\t"
+        "BIC %0, %0, #0x07  \n\t"
+        "ORR %0, %0, #0x08 \n\t"
+        "MCR p15, #0, %0, c9, c0, #1 \n\t"
+        :"=r" (temp)
+        :"0"  (temp)
+        :"memory"
+    );
+#else
 	__asm
 	{
 	    /* use way3 to lock instructions */
@@ -239,6 +364,7 @@ INT32 _sysLockCode(UINT32 addr, INT32 size)
 		ORR temp, temp, 0x08 ;
 		MCR p15, 0, temp, c9, c0, 1 ;
 	}
+#endif
 	
 	return Successful;
 
@@ -247,9 +373,20 @@ INT32 _sysLockCode(UINT32 addr, INT32 size)
 
 INT32 _sysUnLockCode()
 {
-	int temp;
+    volatile int temp;
 	
 	/* unlock I-cache way 3 */
+#if defined (__GNUC__) && !(__CC_ARM)
+    __asm
+    (
+        "MRC p15, #0, %0, c9, c0, #1  \n"
+        "BIC %0, %0, #0x08 \n"
+        "MCR p15, #0, %0, c9, c0, #1  \n"
+        :"=r" (temp)
+        :"0"  (temp)
+        :"memory"
+    );
+#else
 	__asm
 	{
 		MRC p15, 0, temp, c9, c0, 1;
@@ -257,6 +394,9 @@ INT32 _sysUnLockCode()
 		MCR p15, 0, temp, c9, c0, 1;
 	
 	}
+#endif
  
 	return Successful;
 }
+
+

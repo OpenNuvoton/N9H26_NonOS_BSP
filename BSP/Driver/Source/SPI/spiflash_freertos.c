@@ -123,7 +123,7 @@ int usiWriteDisable(UINT32 spiPort, UINT32 SSPin)
 	return Successful;
 }
 
-int usiStatusWrite(UINT32 spiPort, UINT32 SSPin, UINT8 data)
+INT usiStatusWrite(UINT32 spiPort, UINT32 SSPin, UINT8 data)
 {
 	usiWriteEnable(spiPort, SSPin);
 
@@ -161,6 +161,30 @@ INT usiStatusWrite1(UINT32 spiPort, UINT32 SSPin, UINT8 data0, UINT8 data1)
 	spiActive(spiPort);
 
 	outpw(REG_SPI0_TX0 + 0x400 * spiPort, data1);
+	spiTxLen(spiPort, 0, 8);
+	spiActive(spiPort);
+
+	spiSSDisable(spiPort, SSPin);
+
+	// check status
+	usiCheckBusy(spiPort, SSPin);
+
+	return Successful;
+}
+
+INT usiStatusWrite2(UINT32 spiPort, UINT32 SSPin, UINT8 data0)
+{
+	usiWriteEnable(spiPort, SSPin);
+
+	spiSSEnable(spiPort, SSPin, SPI_CLOCK_MODE);
+
+	// status command
+	outpw(REG_SPI0_TX0 + 0x400 * spiPort, 0x31);
+	spiTxLen(spiPort, 0, 8);
+	spiActive(spiPort);
+
+	// write status
+	outpw(REG_SPI0_TX0 + 0x400 * spiPort, data0);
 	spiTxLen(spiPort, 0, 8);
 	spiActive(spiPort);
 
@@ -461,9 +485,9 @@ INT spiFlashWrite(UINT32 spiPort, UINT32 SSPin, UINT32 addr, UINT32 len, UINT8 *
 						spiTxLen(spiPort, 0, 8);
 						outpw(REG_SPI0_TX0 + 0x400 * spiPort, *ptr);						
 						spiActive(spiPort);
-						ptr++;			
-						page -=1;
+						ptr++;							
 					}
+					page = 0;
 				}
 			}
 			
@@ -613,9 +637,9 @@ INT spiFlashQuadWrite(UINT32 spiPort, UINT32 SSPin, UINT32 addr, UINT32 len, UIN
 						spiTxLen(spiPort, 0, 8);
 						outpw(REG_SPI0_TX0 + 0x400 * spiPort, *ptr);						
 						spiActive(spiPort);
-						ptr++;			
-						page -=1;
+						ptr++;							
 					}
+					page = 0;
 				}
 			}
 			
@@ -795,9 +819,9 @@ INT spiEONFlashQuadWrite(UINT32 spiPort, UINT32 SSPin, UINT32 addr, UINT32 len, 
 						spiTxLen(spiPort, 0, 8);
 						outpw(REG_SPI0_TX0 + 0x400 * spiPort, *ptr);						
 						spiActive(spiPort);
-						ptr++;			
-						page -=1;
+						ptr++;							
 					}
+					page = 0;
 				}
 			}
 			

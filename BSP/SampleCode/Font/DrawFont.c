@@ -5,9 +5,16 @@
 #include "Font_demo.h"
 
 #define	 LAST_LINE	11
-UINT	g_Font_Height, g_Font_Width,g_Font_Step;
+UINT	g_Font_Height, g_Font_Width, g_Font_Step;
+
+#if defined(__GNUC__)
+S_DEMO_FONT s_sDemo_Font __attribute__((aligned (32)));
+UINT16 FrameBuffer[_LCM_WIDTH_*_LCM_HEIGHT_] __attribute__((aligned (32)));
+#else
 __align(32) S_DEMO_FONT s_sDemo_Font;
 __align(32) UINT16 FrameBuffer[_LCM_WIDTH_*_LCM_HEIGHT_];
+#endif
+
 
 #if 0
 #define dbgprintf sysprintf

@@ -54,11 +54,11 @@ extern UINT32 g_u32OpwBufferIndex;      /* Decode output Buffer index */
 
 #define PLANAR_DEC_BUFFER_SIZE  0x100000  /* Decode Output Buffer size for Planar */
                	
-#define PANEL_WIDTH   320    /* PANEL Width (Raw data output width for Panel Test) */
-#define PANEL_HEIGHT  240    /* PANEL Height (Raw data output height for Panel Test) */
+#define PANEL_WIDTH   800    /* PANEL Width (Raw data output width for Panel Test) */
+#define PANEL_HEIGHT  480    /* PANEL Height (Raw data output height for Panel Test) */
 
-#define TARGET_WIDTH  160    /* JPEG decode output width for __PANEL_TEST__ */
-#define TARGET_HEIGHT 120    /* JPEG decode output height for __PANEL_TEST__ */
+#define TARGET_WIDTH  320    /* JPEG decode output width for __PANEL_TEST__ */
+#define TARGET_HEIGHT 240    /* JPEG decode output height for __PANEL_TEST__ */
   
 VOID JpegDecTest(VOID);
 VOID JpegEncTest(VOID);

@@ -3,8 +3,11 @@
 #include <string.h>
 #include "N9H26.h"
 #include "ROT_demo.h"
-
-
+#if defined(__GNUC__)
+UINT8 Pattern[1024*1024] __attribute__((aligned (4)));
+#else
+__align(4) UINT8 Pattern[1024*1024];
+#endif
 
 INT32 FileSize(char* szAsciiName)
 {
@@ -73,7 +76,14 @@ INT32 ReadFile(char* szAsciiName,
 #define dst_w_step 	4
 #define dst_h_step 	3
 #endif 
-
+#ifdef __LCM_800x480__
+//src pattern 480*800
+#define src_w_step 	6
+#define src_h_step 	10
+//dst pattern 800*480
+#define dst_w_step 	10
+#define dst_h_step 	6
+#endif
 
 /*
 	Constraint : Width/height need to be multiple of 2
@@ -107,20 +117,34 @@ INT32 Emu_DestinationLineOffsetFineTune(UINT8* puDstAddr0, UINT8* puDstAddr1)
 	}T_ROT_FMT;
 	
 	T_ROT_FMT tRotFmt[] = {	
+#ifdef __LCM_320x240__
+	0x014000F0,				    E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	0, 0,	E_LBUF_16,		"SkyDivin_PACKET_RGB565_size240x320.dat",
+	(((320-8)<<16) | (240-6)),		E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	6, 8,	E_LBUF_16,		"SkyDivin_PACKET_RGB565_size240x320.dat",
+	(((320-8*2)<<16)| (240-6*2)),	E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	6*2, 8*2,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
+	(((320-8*3)<<16)| (240-6*3)),	E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	6*3, 8*3,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
+	(((320-8*4)<<16)| (240-6*4)),	E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	6*4, 8*4,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
+	
+	
+	0x014000F0,				    E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	0, 0,	E_LBUF_16,		"SkyDivin_PACKET_RGB565_size240x320.dat",
+	(((320-8)<<16)| (240-6)),		E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	6, 8,	E_LBUF_16,		"SkyDivin_PACKET_RGB565_size240x320.dat",
+	(((320-8*2)<<16)| (240-6*2)),	E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	6*2, 8*2,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
+	(((320-8*3)<<16)| (240-6*3)),	E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	6*3, 8*3,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
+	(((320-8*4)<<16)| (240-6*4)),	E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	6*4, 8*4,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
+#endif
+#ifdef __LCM_800x480__
+	(((800)<<16) | (480)),           E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	   0, 0,	    E_LBUF_4,		"Vacation_PACKET_RGB565_size480x800.dat",
+	(((800-20)<<16)| (480-12)),     E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	   12, 20,	    E_LBUF_4,		"Vacation_PACKET_RGB565_size480x800.dat",
+	(((800-20*2)<<16)| (480-12*2)), E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	   12*2, 20*2,	E_LBUF_4,		"Vacation_PACKET_RGB565_size480x800.dat",
+	(((800-20*3)<<16)| (480-12*3)), E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	   12*3, 20*3,	E_LBUF_4,		"Vacation_PACKET_RGB565_size480x800.dat",
+	(((800-20*4)<<16)| (480-12*4)), E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	   12*4, 20*4,	E_LBUF_4,		"Vacation_PACKET_RGB565_size480x800.dat",
+	
+	(((800)<<16)| (480)),           E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	   0, 0,	    E_LBUF_4,		"Vacation_PACKET_RGB565_size480x800.dat",
+	(((800-20)<<16)| (480-12)),     E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	   12, 20,	    E_LBUF_4,		"Vacation_PACKET_RGB565_size480x800.dat",
+	(((800-20*2)<<16)| (480-12*2)), E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	   12*2, 20*2,	E_LBUF_4,		"Vacation_PACKET_RGB565_size480x800.dat",
+	(((800-20*3)<<16)| (480-12*3)), E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	   12*3, 20*3,	E_LBUF_4,		"Vacation_PACKET_RGB565_size480x800.dat",
+	(((800-20*4)<<16)| (480-12*4)), E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	   12*4, 20*4,	E_LBUF_4,		"Vacation_PACKET_RGB565_size480x800.dat",
 
-	0x014000F0,				E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	0, 0,	E_LBUF_16,		"SkyDivin_PACKET_RGB565_size240x320.dat",
-	((320-8)<<16| (240-6)),		E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	6, 8,	E_LBUF_16,		"SkyDivin_PACKET_RGB565_size240x320.dat",
-	((320-8*2)<<16| (240-6*2)),	E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	6*2, 8*2,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
-	((320-8*3)<<16| (240-6*3)),	E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	6*3, 8*3,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
-	((320-8*4)<<16| (240-6*4)),	E_ROT_PACKET_RGB565, E_ROT_ROT_R90, 	6*4, 8*4,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
-	
-	
-	0x014000F0,				E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	0, 0,	E_LBUF_16,		"SkyDivin_PACKET_RGB565_size240x320.dat",
-	((320-8)<<16| (240-6)),		E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	6, 8,	E_LBUF_16,		"SkyDivin_PACKET_RGB565_size240x320.dat",
-	((320-8*2)<<16| (240-6*2)),	E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	6*2, 8*2,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
-	((320-8*3)<<16| (240-6*3)),	E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	6*3, 8*3,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
-	((320-8*4)<<16| (240-6*4)),	E_ROT_PACKET_RGB565, E_ROT_ROT_L90, 	6*4, 8*4,	E_LBUF_16,	"SkyDivin_PACKET_RGB565_size240x320.dat",
-	
+#endif
 				};	
    	rotOpen();
    	rotInstallISR(E_ROT_COMP_INT, (PVOID)rotDoneHandler);
@@ -176,16 +200,16 @@ INT32 Emu_DestinationLineOffsetFineTune(UINT8* puDstAddr0, UINT8* puDstAddr1)
 					sprintf(szFileName, "C:\\pattern\\");
 					strcat(szFileName, tRotFmt[u32TestIdx].pszFileName);
 					i32FileSize= FileSize(szFileName);    				
-					ReadFile(szFileName,(PUINT16)ADDR_ROT_SRC_ADDR, i32FileSize);
+					ReadFile(szFileName,(PUINT16)Pattern, i32FileSize);
 					bIsReadFile = FALSE;
 							
 				}	
 				/* Clear ROT destination buffer */		
 				if(VpostUseBuf==1){
-					memset((char*)(((UINT32)puDstAddr0) | E_NONCACHE_BIT), 0x0, 240*320*2); //Offset need to extra space	
+					memset((char*)(((UINT32)puDstAddr0) | E_NONCACHE_BIT), 0x0, OPT_LCM_HEIGHT*OPT_LCM_WIDTH*2); //Offset need to extra space
 				}	
 				else{
-					memset((char*)(((UINT32)puDstAddr1) | E_NONCACHE_BIT), 0x0, 240*320*2); //Offset need to extra space	
+					memset((char*)(((UINT32)puDstAddr1) | E_NONCACHE_BIT), 0x0, OPT_LCM_HEIGHT*OPT_LCM_WIDTH*2); //Offset need to extra space
 				}	
 									
 				/* Set parameter then trtigger ROT */
@@ -199,7 +223,7 @@ INT32 Emu_DestinationLineOffsetFineTune(UINT8* puDstAddr0, UINT8* puDstAddr1)
 					bIsBuffer1Dirty = TRUE;
 				sysprintf("Delay 1 second\n");	
 				sysDelay(100);								
-
+                
 			}//for(u32Offset=0; u32Offset< 1; u32Offset=u32Offset+1)	
 		}//for(u32TestIdx=0; u32TestIdx<2; u32TestIdx=u32TestIdx+1)		
 	}

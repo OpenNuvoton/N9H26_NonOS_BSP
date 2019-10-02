@@ -426,9 +426,14 @@
               <FilePath>..\..\..\..\Library\IPLib\N9H26_SYS.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_ADC.lib</FileName>
+              <FileName>N9H26_KPI_2x3.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\Library\IPLib\N9H26_ADC.lib</FilePath>
+              <FilePath>..\..\..\..\Library\IPLib\N9H26_KPI_2x3.lib</FilePath>
+            </File>
+            <File>
+              <FileName>N9H26_GPIO.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\..\Library\IPLib\N9H26_GPIO.lib</FilePath>
             </File>
           </Files>
         </Group>
@@ -854,9 +859,14 @@
               <FilePath>..\..\..\..\Library\IPLib\N9H26_SYS.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_ADC.lib</FileName>
+              <FileName>N9H26_KPI_2x3.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\Library\IPLib\N9H26_ADC.lib</FilePath>
+              <FilePath>..\..\..\..\Library\IPLib\N9H26_KPI_2x3.lib</FilePath>
+            </File>
+            <File>
+              <FileName>N9H26_GPIO.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\..\Library\IPLib\N9H26_GPIO.lib</FilePath>
             </File>
           </Files>
         </Group>
@@ -1282,9 +1292,14 @@
               <FilePath>..\..\..\..\Library\IPLib\N9H26_SYS.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_ADC.lib</FileName>
+              <FileName>N9H26_KPI_2x3.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\Library\IPLib\N9H26_ADC.lib</FilePath>
+              <FilePath>..\..\..\..\Library\IPLib\N9H26_KPI_2x3.lib</FilePath>
+            </File>
+            <File>
+              <FileName>N9H26_GPIO.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\..\Library\IPLib\N9H26_GPIO.lib</FilePath>
             </File>
           </Files>
         </Group>
@@ -1710,9 +1725,14 @@
               <FilePath>..\..\..\..\Library\IPLib\N9H26_SYS.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_ADC.lib</FileName>
+              <FileName>N9H26_KPI_2x3.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\Library\IPLib\N9H26_ADC.lib</FilePath>
+              <FilePath>..\..\..\..\Library\IPLib\N9H26_KPI_2x3.lib</FilePath>
+            </File>
+            <File>
+              <FileName>N9H26_GPIO.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\..\Library\IPLib\N9H26_GPIO.lib</FilePath>
             </File>
           </Files>
         </Group>

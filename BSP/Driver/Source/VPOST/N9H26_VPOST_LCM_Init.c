@@ -1,7 +1,7 @@
 #include <string.h>
 #include "wblib.h"
 //#include "w55fa92_reg.h"
-#include "N9H26_vpost.h"
+#include "N9H26_VPOST.h"
 
 //extern volatile S_DRVVPOST_LCM_WINDOW *psLcmWindow;
 //extern volatile S_DRVVPOST_SYNCLCM_INIT sLcmInit, *psLcmInit;

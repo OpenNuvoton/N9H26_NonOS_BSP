@@ -1,7 +1,7 @@
 #include "N9H26.h"
 
 #include "GUI.h"
-#include "LCDconf.h"
+#include "LCDConf.h"
 
 #include "WM.h"
 #include "TEXT.h"
@@ -9,7 +9,12 @@
 
 #include "N9H26TouchPanel.h"
 
-__align(32) UINT8 u8FrameBuf[XSIZE_PHYS*YSIZE_PHYS*2];
+#ifdef __ICCARM__
+#pragma data_alignment = 32
+UINT8 u8FrameBuf[XSIZE_PHYS*YSIZE_PHYS*2];
+#else
+UINT8 u8FrameBuf[XSIZE_PHYS*YSIZE_PHYS*2] __attribute__((aligned(32)));
+#endif
 
 UINT8 *u8FrameBufPtr;
 

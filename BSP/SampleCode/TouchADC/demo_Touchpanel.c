@@ -3,6 +3,7 @@
 #include "N9H26.h"
 #include "demo.h"
 static volatile BOOL TouchPanel_time = FALSE;
+static volatile UINT32 tick = 0;
 static volatile UINT16 u16X, u16Y;
 //static volatile UINT32 u32TouchPressure = FALSE;
 //static volatile BOOL bIsValidTouchPanel = FALSE;
@@ -10,6 +11,7 @@ static volatile UINT16 u16X, u16Y;
 static void TouchPanel_timer(void)
 {
 	TouchPanel_time = TRUE;
+	tick = tick + 1;
 }
 
 static void TouchPanel_callback(UINT32 u32code)
@@ -105,7 +107,8 @@ INT32 Raw_TouchPanel(void)
 						
 	btime = sysGetTicks(TIMER0);
 	etime = btime;
-	while ((etime - btime) <= 300)	
+	//while ((etime - btime) <= 300)	
+	while (1)	
 	{
 		while(TouchPanel_time==TRUE){
 			TouchPanel_time = FALSE;
@@ -136,10 +139,27 @@ INT32 Polling_Processed_TouchPanel(void)
 			TouchPanel_time = FALSE;
 			if(IsPenDown()==TRUE)
 			{
+#if 1				
 				if(adc_read(0, &x, &y)==1)
 					sysprintf("(x, y)= (0x%x, 0x%x)\n", x, y);
 				else
-					DBG_PRINTF("Invaliable data\n");	
+					DBG_PRINTF("Invaliable data\n");
+#else
+				/* 10s convese 2065 time */
+				UINT32 u32Begin = tick, count = 0;
+				while((tick- u32Begin) < 500)
+				{
+					if(adc_read(0, &x, &y)==1)
+					{
+						count = count +1; 		
+					}
+					else
+					{
+						count = count +1;
+					}
+				}
+				sysprintf("count = %d\n", count);
+#endif				
 			}
 		}	
 	}

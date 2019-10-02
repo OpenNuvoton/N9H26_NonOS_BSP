@@ -8,7 +8,7 @@ INT32 Emu_DestinationLineOffsetFineTune(UINT8* puDstAddr00, UINT8* puDstAddr1);
 #define __ENABLE_CACHE__
 
 //#define ADDR_ROT_SRC_ADDR			0x1000004	
-#define ADDR_ROT_SRC_ADDR			0x100000
+#define ADDR_ROT_SRC_ADDR			0x500000
 
 #define ADDR_ROT_DST_ADDR			0x2000004
 #ifdef __ENABLE_CACHE__
@@ -20,8 +20,12 @@ INT32 Emu_DestinationLineOffsetFineTune(UINT8* puDstAddr00, UINT8* puDstAddr1);
 #define ADDR_ROT_GOLDEN_ADDR		0x1000008
 
 #ifdef __LCM_320x240__
-#define OPT_LCM_WIDTH		320
+#define OPT_LCM_WIDTH	320
 #define OPT_LCM_HEIGHT	240
+#endif
+#ifdef __LCM_800x480__
+#define OPT_LCM_WIDTH	800
+#define OPT_LCM_HEIGHT	480
 #endif
 
 void rotDoneHandler(void);

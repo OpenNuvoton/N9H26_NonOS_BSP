@@ -8,7 +8,6 @@
 #include <string.h>
 #include "wblib.h"
 #include "turbowriter.h"
-#include "N9H26_vpost.h"
 
 // define DATE CODE and show it when running to make maintaining easy.
 #define DATE_CODE   "20181017"
@@ -113,6 +112,22 @@ INT MoveData(NVT_SD_INFO_T *image, BOOL IsExecute)
             volatile int temp;
 
             sys_flush_and_clean_dcache();
+#if defined (__GNUC__) && !(__CC_ARM)
+			__asm
+			(
+				/*----- flush I, D cache & write buffer -----*/
+				"MOV %0, #0x0				\n\t"
+				"MCR p15, 0, %0, c7, c5, #0 	\n\t" /* flush I cache */
+				"MCR p15, 0, %0, c7, c6, #0  \n\t" /* flush D cache */
+				"MCR p15, 0, %0, c7, c10,#4  \n\t" /* drain write buffer */
+
+				/*----- disable Protection Unit -----*/
+				"MRC p15, 0, %0, c1, c0, #0   \n\t" /* read Control register */
+				"BIC %0, %0, #0x01            \n\t"
+				"MCR p15, 0, %0, c1, c0, #0   \n\t" /* write Control register */
+				: :"r"(temp) : "memory"
+			);
+#else
             __asm
             {
                 /*----- flush I, D cache & write buffer -----*/
@@ -128,6 +143,7 @@ INT MoveData(NVT_SD_INFO_T *image, BOOL IsExecute)
                 BIC temp, temp, 0x4
                 MCR p15, 0, temp, c1, c0, 0     /* write Control register */
             }
+#endif
         }
 
         fw_func = (void(*)(void))(image->executeAddr);

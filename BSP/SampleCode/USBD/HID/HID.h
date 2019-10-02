@@ -95,10 +95,10 @@ void hidInit(void);
 void HID_UpdateMouseData(void);
 void HID_SetInReport(void);
 
-#define ENTER_KEY			(1)
-#define HOME_KEY			(2)
-#define LEFT_KEY			(0x8)
-#define RIGHT_KEY			(0x4)
+#define ENTER_KEY			(0x2)
+#define HOME_KEY			(0X8)
+#define LEFT_KEY			(0x4)
+#define RIGHT_KEY			(0x1)
 #define UP_KEY				(0x10)
 #define DOWN_KEY			(0x20)
 #define MASK_KEY			(LEFT_KEY | RIGHT_KEY | UP_KEY | DOWN_KEY)

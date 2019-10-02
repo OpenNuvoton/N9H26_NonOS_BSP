@@ -49,6 +49,7 @@
 #if defined(ENABLE_RAM) 
 void FormatRamDisk(void);
 INT32  InitRAMDisk(UINT32 uStartAddr, UINT32 uDiskSize);
+INT32 RemoveRAMDisk(void);
 #endif
 
 #ifdef ENABLE_GNAND

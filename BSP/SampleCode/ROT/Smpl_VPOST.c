@@ -5,7 +5,7 @@
 
 #include "wbio.h"
 #include "wbtypes.h" 
-#include "N9H26_vpost.h"
+#include "N9H26_VPOST.h"
 #include "ROT_demo.h"
 
 extern VOID vpostEnableInt(E_DRVVPOST_INT eInt);

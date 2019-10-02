@@ -46,8 +46,15 @@ UINT32 u32ExtFreq, u32UPllHz, u32SysHz, u32CpuHz, u32Hclk1Hz, u32ApbHz, u32APllH
 #define SECTOR_SIZE         512
 #define SECTOR_MAX_COUNT    1024
 #define BUF_SIZE    (SECTOR_SIZE * SECTOR_MAX_COUNT)
-__align (32) UINT8 g_ram0[BUF_SIZE];
-__align (32) UINT8 g_ram1[BUF_SIZE];
+
+#if defined (__GNUC__)
+    UINT8 g_ram0[BUF_SIZE] __attribute__((aligned (32)));
+    UINT8 g_ram1[BUF_SIZE] __attribute__((aligned (32)));
+#else
+    __align (32) UINT8 g_ram0[BUF_SIZE];
+    __align (32) UINT8 g_ram1[BUF_SIZE];
+#endif
+
 UINT8 *ptr_g_ram0;
 UINT8 *ptr_g_ram1;
 
@@ -344,7 +351,10 @@ int main(void)
     //--- get and show system clock setting
     get_system_clock();
 
+#if defined (__GNUC__)
+#else
     srand(time(NULL));
+#endif
 
     sysprintf("\n=====> N9H26K Non-OS GNAND Library Sampe Code [tick %d] <=====\n", sysGetTicks(0));
 

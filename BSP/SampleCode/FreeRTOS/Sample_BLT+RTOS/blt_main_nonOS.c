@@ -2,11 +2,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-
-#include "wblib.h"
-#include "blt.h"
-#include "N9H26_vpost.h"
-#include "N9H26_reg.h"
+#include "N9H26.h"
 
 static uint8_t src_pat[] = {
 #include "Pat_RGB888_size160x120.txt"
@@ -16,9 +12,21 @@ static uint8_t src_pat[] = {
 #define SRCIMG_STRIDE       (SRCIMG_WIDTH * 4)
 #define SRCIMG_HEIGHT       120
 
+#if defined(__LCD_320x240__)
 #define DISP_WIDTH          320
-#define DISP_STRIDE         (DISP_WIDTH * 2)
 #define DISP_HEIGHT         240
+
+#elif defined(__LCD_800x480__)
+#define DISP_WIDTH          800
+#define DISP_HEIGHT         480
+
+#else
+#define DISP_WIDTH          320
+#define DISP_HEIGHT         240
+
+#endif
+
+#define DISP_STRIDE         (DISP_WIDTH * 2)
 
 #define SIZE_SRCIMG         (SRCIMG_STRIDE * SRCIMG_HEIGHT)
 #define SIZE_SRCIMG_BUF     ((SIZE_SRCIMG + 31) / 32 * 32)
@@ -27,9 +35,15 @@ static uint8_t src_pat[] = {
 
 #define SIZE_TXMEM          (SIZE_SRCIMG_BUF + SIZE_DISP_BUF)
 
+#if defined (__GNUC__)
+uint8_t txmem[SIZE_TXMEM] __attribute__((aligned (32)));
+#else
 __align (32) uint8_t txmem[SIZE_TXMEM];
+#endif
 
-#define ADDR_SRCIMG         (((uint32_t) txmem))
+/* To avoid error-prone cache synchronization, the txmem for CPU and BLT operation is always
+ * non-cacheable. */
+#define ADDR_SRCIMG         (sysGetCacheState() ? (((uint32_t) txmem) | 0x80000000) : (((uint32_t) txmem)))
 #define ADDR_DISP           (ADDR_SRCIMG + SIZE_SRCIMG_BUF)
 
 #define FMT_DST             eDRVBLT_DEST_RGB565
@@ -86,13 +100,13 @@ void clr_disp_buf(uint32_t fill_color)
   * Inv(Ms) = | 0    1/sy 0 |  Inv(Mt) = | 0 1 -ty |  Inv(Ma) = | 0 1 0.5 |
   *           \ 0    0    1 /            \ 0 0 1   /            \ 0 0 1   /
   *
-  *                               / 1/sx 0    -(1/sx)*tx+0.5*(a+b) \   / a b src.xoffset \
-  * Inv(Ms) * Inv(Mt) * Inv(Ma) = | 0    1/sy -(1/sy)*ty+0.5*(c+d) | = | c d src.yoffset |
+  *                               / 1/sx 0    -(1/sx)*tx+0.5*(a+c) \   / a c src.xoffset \
+  * Inv(Ms) * Inv(Mt) * Inv(Ma) = | 0    1/sy -(1/sy)*ty+0.5*(b+d) | = | b d src.yoffset |
   *                               \ 0    0    1                    /   \ 0 0 0           /
   */
 void demo_scale(float ox, float oy, float sx, float sy, int is_tiling)
 {
-    bltSetFillOP((E_DRVBLT_FILLOP) FALSE);  // Blit operaiton.
+    bltSetFillOP((E_DRVBLT_FILLOP) FALSE);  // Blit operation.
     bltSetDisplayFormat(FMT_DST);           // Set destination format.
     bltSetSrcFormat(eDRVBLT_SRC_ARGB8888);  // Set source image format to RGB888/ARGB8888.
     bltSetRevealAlpha(eDRVBLT_EFFECTIVE);   // Set source image format to premultiplied alpha.
@@ -145,13 +159,13 @@ void demo_scale(float ox, float oy, float sx, float sy, int is_tiling)
             
             // Apply amendment to mapping point error.
             bltGetTransformMatrix(&xform_mx);
-            src_img.i32XOffset += (xform_mx.a + xform_mx.b) / 2;
-            src_img.i32YOffset += (xform_mx.c + xform_mx.d) / 2;
+            src_img.i32XOffset += (xform_mx.a + xform_mx.c) / 2;
+            src_img.i32YOffset += (xform_mx.b + xform_mx.d) / 2;
         }
         src_img.i16Width = SRCIMG_WIDTH;
         src_img.i32Stride = SRCIMG_STRIDE;
         src_img.i16Height = SRCIMG_HEIGHT;
-        
+    
         bltSetSrcImage(src_img);
     }
     
@@ -165,17 +179,11 @@ void demo_scale(float ox, float oy, float sx, float sy, int is_tiling)
         
         bltSetDestFrameBuf(dst_img);
     }
-    
-    if (sysGetCacheState ()) {  // Flush source/destination buffers beflore Blit operation.
-        sysFlushCache(I_D_CACHE);
-    }
-    
+
+    /* We assume txmem for CPU and BLT is non-cacheable, so we needn't do any cache-related
+     * synchronization. */
     bltTrigger();   // Trigger Blit operation.  
-    bltFlush(); // Wait for complete.
-        
-    if (sysGetCacheState ()) {  // Invalidate CPU cache.
-        sysInvalidCache ();
-    }
+    bltFlush();     // Wait for complete.
 }
 
 #define PI_OVER_180 0.01745329252f
@@ -199,13 +207,13 @@ void demo_scale(float ox, float oy, float sx, float sy, int is_tiling)
   * Inv(Mr) = | -sin£c con£c 0 |  Inv(Mt) = | 0 1 -ty |  Inv(Ma) = | 0 1 0.5 |
   *           \ 0     0    1 /            \ 0 0 1   /            \ 0 0 1   /
   *
-  *                               / con£c  sin£c -con£c*tx-sin£c*ty+0.5*(a+b) \   / a b src.xoffset \
-  * Inv(Mr) * Inv(Mt) * Inv(Ma) = | -sin£c con£c sin£c*tx-con£c*ty+0.5*(c+d)  | = | c d src.yoffset |
+  *                               / con£c  sin£c -con£c*tx-sin£c*ty+0.5*(a+c) \   / a c src.xoffset \
+  * Inv(Mr) * Inv(Mt) * Inv(Ma) = | -sin£c con£c sin£c*tx-con£c*ty+0.5*(b+d)  | = | b d src.yoffset |
   *                               \ 0     0    1                          /   \ 0 0 0           /
   */
 void demo_rotate(float ox, float oy, float deg)
 {
-    bltSetFillOP((E_DRVBLT_FILLOP) FALSE);  // Blit operaiton.
+    bltSetFillOP((E_DRVBLT_FILLOP) FALSE);  // Blit operation.
     bltSetDisplayFormat(FMT_DST);           // Set destination format.
     bltSetSrcFormat(eDRVBLT_SRC_ARGB8888);  // Set source image format to RGB888/ARGB8888.
     bltSetRevealAlpha(eDRVBLT_EFFECTIVE);   // Set source image format to premultiplied alpha.
@@ -259,8 +267,8 @@ void demo_rotate(float ox, float oy, float deg)
             
             // Apply amendment to mapping point error.
             bltGetTransformMatrix(&xform_mx);
-            src_img.i32XOffset += (xform_mx.a + xform_mx.b) / 2;
-            src_img.i32YOffset += (xform_mx.c + xform_mx.d) / 2;
+            src_img.i32XOffset += (xform_mx.a + xform_mx.c) / 2;
+            src_img.i32YOffset += (xform_mx.b + xform_mx.d) / 2;
         }
         src_img.i16Width = SRCIMG_WIDTH;
         src_img.i32Stride = SRCIMG_STRIDE;
@@ -279,17 +287,11 @@ void demo_rotate(float ox, float oy, float deg)
         
         bltSetDestFrameBuf(dst_img);
     }
-    
-    if (sysGetCacheState ()) {  // Flush source/destination buffers beflore Blit operation.
-        sysFlushCache(I_D_CACHE);
-    }
-    
+
+    /* We assume txmem for CPU and BLT is non-cacheable, so we needn't do any cache-related
+     * synchronization. */
     bltTrigger();   // Trigger Blit operation.  
-    bltFlush(); // Wait for complete.
-        
-    if (sysGetCacheState ()) {  // Invalidate CPU cache.
-        sysInvalidCache ();
-    }
+    bltFlush();     // Wait for complete.
 }
 
 /**
@@ -313,13 +315,13 @@ void demo_rotate(float ox, float oy, float deg)
   * Inv(Mm) = | 0       mx?-1:1 0 |  Inv(Mt) = | 0 1 -ty |  Inv(Ma) = | 0 1 0.5 |
   *           \ 0       0       1 /            \ 0 0 1   /            \ 0 0 1   /
   *
-  *                               / my?-1:1 0       -(my?-1:1)*tx+0.5*(a+b) \   / a b src.xoffset \
-  * Inv(Mr) * Inv(Mt) * Inv(Ma) = | 0       mx?-1:1 -(mx?-1:1)*ty+0.5*(c+d) | = | c d src.yoffset |
+  *                               / my?-1:1 0       -(my?-1:1)*tx+0.5*(a+c) \   / a c src.xoffset \
+  * Inv(Mm) * Inv(Mt) * Inv(Ma) = | 0       mx?-1:1 -(mx?-1:1)*ty+0.5*(b+d) | = | b d src.yoffset |
   *                               \ 0       0       1                       /   \ 0 0 0           /
   */
 void demo_reflect(float ox, float oy, int mx, int my)
 {
-    bltSetFillOP((E_DRVBLT_FILLOP) FALSE);  // Blit operaiton.
+    bltSetFillOP((E_DRVBLT_FILLOP) FALSE);  // Blit operation.
     bltSetDisplayFormat(FMT_DST);           // Set destination format.
     bltSetSrcFormat(eDRVBLT_SRC_ARGB8888);  // Set source image format to RGB888/ARGB8888.
     bltSetRevealAlpha(eDRVBLT_EFFECTIVE);   // Set source image format to premultiplied alpha.
@@ -373,8 +375,8 @@ void demo_reflect(float ox, float oy, int mx, int my)
             
             // Apply amendment to mapping point error.
             bltGetTransformMatrix(&xform_mx);
-            src_img.i32XOffset += (xform_mx.a + xform_mx.b) / 2;
-            src_img.i32YOffset += (xform_mx.c + xform_mx.d) / 2;
+            src_img.i32XOffset += (xform_mx.a + xform_mx.c) / 2;
+            src_img.i32YOffset += (xform_mx.b + xform_mx.d) / 2;
         }
         src_img.i16Width = SRCIMG_WIDTH;
         src_img.i32Stride = SRCIMG_STRIDE;
@@ -393,22 +395,16 @@ void demo_reflect(float ox, float oy, int mx, int my)
         
         bltSetDestFrameBuf(dst_img);
     }
-    
-    if (sysGetCacheState ()) {  // Flush source/destination buffers beflore Blit operation.
-        sysFlushCache(I_D_CACHE);
-    }
-    
+
+    /* We assume txmem for CPU and BLT is non-cacheable, so we needn't do any cache-related
+     * synchronization. */
     bltTrigger();   // Trigger Blit operation.  
-    bltFlush(); // Wait for complete.
-        
-    if (sysGetCacheState ()) {  // Invalidate CPU cache.
-        sysInvalidCache ();
-    }
+    bltFlush();     // Wait for complete.
 }
 
 void demo_alpha(float ox, float oy, float alpha)
 {
-    bltSetFillOP((E_DRVBLT_FILLOP) FALSE);  // Blit operaiton.
+    bltSetFillOP((E_DRVBLT_FILLOP) FALSE);  // Blit operation.
     bltSetDisplayFormat(FMT_DST);           // Set destination format.
     bltSetSrcFormat(eDRVBLT_SRC_ARGB8888);  // Set source image format to RGB888/ARGB8888.
     bltSetRevealAlpha(eDRVBLT_EFFECTIVE);   // Set source image format to premultiplied alpha.
@@ -472,17 +468,11 @@ void demo_alpha(float ox, float oy, float alpha)
         
         bltSetDestFrameBuf(dst_img);
     }
-    
-    if (sysGetCacheState ()) {  // Flush source/destination buffers beflore Blit operation.
-        sysFlushCache(I_D_CACHE);
-    }
-    
+
+    /* We assume txmem for CPU and BLT is non-cacheable, so we needn't do any cache-related
+     * synchronization. */
     bltTrigger();   // Trigger Blit operation.  
-    bltFlush(); // Wait for complete.
-        
-    if (sysGetCacheState ()) {  // Invalidate CPU cache.
-        sysInvalidCache ();
-    }
+    bltFlush();     // Wait for complete.
 }
 
 int main()
@@ -524,7 +514,7 @@ int main()
     }
 
     sysSetLocalInterrupt (ENABLE_IRQ);  // Enable CPSR I bit
-    
+
     do {
         
         memcpy((void *) ADDR_SRCIMG, src_pat, SIZE_SRCIMG);

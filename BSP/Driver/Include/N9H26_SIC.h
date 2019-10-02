@@ -140,6 +140,7 @@ VOID sicSdClose(void);
 VOID sicSdClose0(void);
 VOID sicSdClose1(void);
 VOID sicSdClose2(void);
+VOID fmiSMClose(INT chipSel);
 
 INT sicSdRead(INT32 sdSectorNo, INT32 sdSectorCount, INT32 sdTargetAddr);
 INT sicSdRead0(INT32 sdSectorNo, INT32 sdSectorCount, INT32 sdTargetAddr);
@@ -153,7 +154,7 @@ INT sicSdWrite2(INT32 sdSectorNo, INT32 sdSectorCount, INT32 sdSourceAddr);
 
 
 /* gnand use */
-#include "N9H26_gnand.h"
+#include "N9H26_GNAND.h"
 
 // function prototype for SM that end user can called
 INT nand_ioctl(INT param1, INT param2, INT param3, INT param4);
@@ -178,6 +179,10 @@ INT nandRegionProtect1(INT PBA, INT page);
 
 
 /* Declare callback function in waiting loop of SD driver */
-__weak void schedule(void);
+#if defined (__GNUC__)
+    __attribute__((weak)) void schedule(void);
+#else
+    __weak void schedule(void);
+#endif
 
 #endif  //end of _N9H26_SIC_H

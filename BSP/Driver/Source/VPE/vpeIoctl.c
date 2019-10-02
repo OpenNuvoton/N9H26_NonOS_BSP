@@ -26,7 +26,6 @@
  *     None
  **************************************************************************/
 #include "string.h"
-#include "port.h"
 #include "wblib.h"
 #include "N9H26_VPE.h"
 

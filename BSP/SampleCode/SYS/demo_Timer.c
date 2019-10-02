@@ -313,7 +313,7 @@ void DemoAPI_WDT(void)
 	sysprintf("The first WDT interrupt should not reset system by clear WTR bit\n");
 	//sysSetWatchDogTimerInterval(WDT_INTERVAL_1);  /* The reset time is about 0.371 base on 12MHz*/ 
 	//sysSetWatchDogTimerInterval(WDT_INTERVAL_2);  /* The reset time is about 5.614s base on 12MHz*/
-	sysStartTimer(WDTIMER, NULL, NULL); 			/* Enable WDT timer */
+	sysStartTimer(WDTIMER, (UINT32)NULL, (UINT32)NULL); 			/* Enable WDT timer */
 	sysSetWatchDogTimerInterval(WDT_INTERVAL_3);  /* The reset time is about 22.391s base on 12MHz*/ 
 	sysInstallWatchDogTimerISR(IRQ_LEVEL_1, (PVOID)WatchDog_ISR);
 	sysEnableWatchDogTimer();

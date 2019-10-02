@@ -4,9 +4,13 @@
 
 #include "N9H26.h"
 
-#define VPOST_FRAME_BUFSZ		(720*480*2)
+#define VPOST_FRAME_BUFSZ		(800*480*2)
 
+#if defined (__GNUC__)
+UINT8  _VpostFrameBufferPool[VPOST_FRAME_BUFSZ] __attribute__((aligned (256)));
+#else
 static __align(256) UINT8  _VpostFrameBufferPool[VPOST_FRAME_BUFSZ];
+#endif
 static UINT8   *_VpostFrameBuffer;
 
 

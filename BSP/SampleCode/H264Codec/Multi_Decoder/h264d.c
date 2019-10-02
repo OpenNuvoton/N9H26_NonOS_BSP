@@ -16,9 +16,6 @@
 #define  INFO_FOLDER "../info/"
 #define MAX_FILE_NAME_LEN       	514
 
-#define DECODE_OUTPUT_PACKET_YUV422 0
-#define MAX_IMG_WIDTH                   1280
-#define MAX_IMG_HEIGHT                  720
 
 #define DISPLAY_MODE_CBYCRY	4
 #define DISPLAY_MODE_YCBYCR	5
@@ -38,13 +35,7 @@
 #define	Console_Printf	sysprintf
 #define printf sysprintf
 
-#if DECODE_OUTPUT_PACKET_YUV422
-#define LCM_WIDTH 	640
-#define LCM_HEIGHT 	480
-#else
-#define LCM_WIDTH 	320
-#define LCM_HEIGHT 	240
-#endif
+
 
 int fb_fd=0;
 UINT32 g_u32VpostWidth, g_u32VpostHeight,fb_bpp;
@@ -513,7 +504,7 @@ int main(void)
 
 
 	fsInitFileSystem();
-	fmiInitDevice(); 
+	sicOpen(); 
 	if (sicSdOpen0() <=0)
 	{
 		Console_Printf("Error in initialize SD card !!\n");

@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "wblib.h"
-#include "N9H26_sic.h"
-#include "N9H26_gnand.h"
+#include "N9H26_SIC.h"
+#include "N9H26_GNAND.h"
 #include "wblib.h"
 
 #include "nvtloader.h"

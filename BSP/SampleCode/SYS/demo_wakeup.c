@@ -7,9 +7,11 @@
 #include <stdio.h>
 #include "N9H26.h"
 #include "demo.h"
-
-__align(32) UINT8 u32Array[1024*1024];
-
+#if defined(__GNUC__)
+UINT8 u32Array[100*1024] __attribute__((aligned(32)));
+#else
+__align(32) UINT8 u32Array[100*1024];
+#endif
 
 
 /* For SPU disable DAC off */
@@ -83,7 +85,8 @@ VOID DrvSPU_WriteDACReg (
 #endif	
 }
 
-
+#define PA0_H  outp32(REG_GPIOC_DOUT, inp32(REG_GPIOC_DOUT) | 0x1);
+#define PA0_L  outp32(REG_GPIOC_DOUT, inp32(REG_GPIOC_DOUT) & ~0x1);
 
 /*--------------------------------------------------------------------------------------------------------*
  *                                                                                                        					     *
@@ -113,13 +116,13 @@ void Demo_PowerDownWakeUp(void)
 	u32MPllOutHz = sysGetPLLOutputHz(eSYS_MPLL, u32ExtFreq);	
 	sysprintf("eSYS_MPLL %d\n",u32MPllOutHz);	
 		
-#if 0	
+#if 1	
 	{
 		PUINT8 pu8Buf, pu8Tmp;	
 		pu8Buf = u32Array;	
 		sysprintf("Allocate memory address =0x%x\n", pu8Buf);
 		pu8Tmp = pu8Buf;
-		for(u32Idx=0; u32Idx<(1024*1024);u32Idx=u32Idx+1)
+		for(u32Idx=0; u32Idx<(100*1024);u32Idx=u32Idx+1)
 			*pu8Tmp++= (UINT8)((u32Idx>>8) + u32Idx);
 	}	
 #endif 
@@ -222,6 +225,7 @@ void Demo_PowerDownWakeUp(void)
 	outp32(REG_GPEFUN0, 0x0);	
 	outp32(REG_GPEFUN1, 0x0);			
 
+	
 	//Bon suggest
     	outp32(REG_GPIOG_PUEN, inp32(REG_GPIOG_PUEN)&~(BIT11|BIT12|BIT13|BIT14|BIT15));	
 	
@@ -236,7 +240,7 @@ void Demo_PowerDownWakeUp(void)
 
 	outp32(REG_GPIOA_OMD, 0x0);
 	outp32(REG_GPIOB_OMD, 0x0);
-	outp32(REG_GPIOC_OMD, 0x0);
+	outp32(REG_GPIOC_OMD, 0x1);
 	outp32(REG_GPIOD_OMD, 0x0);
 	outp32(REG_GPIOE_OMD, 0x0);
 	outp32(REG_GPIOG_OMD, 0x0);
@@ -247,6 +251,7 @@ void Demo_PowerDownWakeUp(void)
 	outp32(REG_GPIOD_PUEN, 0xFFFF);
 	outp32(REG_GPIOE_PUEN, 0x0FFF);	
 	
+	PA0_L;
 
 	outp32(REG_GPIOG_PUEN, ~0xF85C);		//Pull up is inverse !	1.634~1.682mA
 
@@ -267,22 +272,24 @@ void Demo_PowerDownWakeUp(void)
 	outp32(REG_APBCLK, reg_APBCLK);
 	
 	sysprintf("Exit power down\n");		
-#if 0	
-	pu8Tmp = pu8Buf;
-	for(u32Idx=0; u32Idx<(1024*1024);u32Idx=u32Idx+1)
-	{
-		if( *pu8Tmp !=  (UINT8)((u32Idx>>8) + u32Idx))
+#if 1	
+    {
+		PUINT8 pu8Buf, pu8Tmp;	
+		pu8Buf = u32Array;	
+		pu8Tmp = pu8Buf;
+		for(u32Idx=0; u32Idx<(100*1024);u32Idx=u32Idx+1)
 		{
-			sysprintf("!!!!!!!!!!!!!!!Data is noconsisient after power down\n");
-			sysprintf("0x%x, 0x%x, 0x%x)\n",u32Idx, *pu8Tmp, (UINT8)((u32Idx>>8) + u32Idx) );
-			free(pu8Buf);	
-			return;
-		}	
-		pu8Tmp++;
+			if( *pu8Tmp !=  (UINT8)((u32Idx>>8) + u32Idx))
+			{
+				sysprintf("!!!!!!!!!!!!!!!Data is noconsisient after power down\n");
+				sysprintf("0x%x, 0x%x, 0x%x)\n",u32Idx, *pu8Tmp, (UINT8)((u32Idx>>8) + u32Idx) );
+				return;
+			}	
+			pu8Tmp++;
+		}
 	}
 	sysprintf("Data is consisient\n");
-#endif	
-	//free(pu8Buf);	
+#endif
 }
 
 

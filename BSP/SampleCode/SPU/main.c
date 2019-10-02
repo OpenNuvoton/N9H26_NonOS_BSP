@@ -35,9 +35,15 @@ static UINT32 u32FragSize;
 static volatile UINT8 bPlaying = TRUE;
 static UINT16 u16IntCount = 2;
 
-__align (32) UINT8 g_AudioPattern[] = {
-		#include "pcm16_raw.dat"
+#if defined (__GNUC__) && !(__CC_ARM)
+__attribute__ ((aligned (32))) UINT8 g_AudioPattern[] = {
+		#include "PCM16_raw.dat"
 };
+#else
+__align (32) UINT8 g_AudioPattern[] = {
+		#include "PCM16_raw.dat"
+};
+#endif
 
 extern VOID spuDacOn(UINT8 level);
 extern VOID spuSetDacSlaveMode(void);
@@ -65,16 +71,13 @@ int main(void)
 	WB_UART_T uart;
 	UINT32 u32ExtFreq;	
 
-	/* set UART baud rate */
-	u32ExtFreq = sysGetExternalClock();	
-	uart.uiFreq = u32ExtFreq*1000;		
-    uart.uiBaudrate = 115200;
-    uart.uiDataBits = WB_DATA_BITS_8;
-    uart.uiStopBits = WB_STOP_BITS_1;
-    uart.uiParity = WB_PARITY_NONE;
-    uart.uiRxTriggerLevel = LEVEL_1_BYTE;
-    sysInitializeUART(&uart);
-	
+#if 0
+	/* enable U10 ISD8101 in N9H26 HMI demo board */
+	outpw(REG_GPAFUN0, inpw(REG_GPAFUN0)&~MF_GPA0);	// enable LPCLK pin
+	outpw(REG_GPIOA_OMD, REG_GPIOA_OMD| 0x00000001);
+	outpw(REG_GPIOA_DOUT, inpw(REG_GPIOA_DOUT)| 0x00000001);
+#endif
+
 	/* enable cache */
 	sysEnableCache(I_D_CACHE);
 	

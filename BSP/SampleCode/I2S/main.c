@@ -8,7 +8,11 @@
 #define 	BUFSIZE		0x100000
 volatile S_DRVI2S_PLAY g_sPlay;
 volatile S_DRVI2S_RECORD g_sRrecord;
+#if defined (__GNUC__) && !(__CC_ARM)
+__attribute__ ((aligned (32))) char g_baAudioBuf[BUFSIZE];
+#else
 __align (32) char g_baAudioBuf[BUFSIZE];
+#endif
 
 int main(void)
 {

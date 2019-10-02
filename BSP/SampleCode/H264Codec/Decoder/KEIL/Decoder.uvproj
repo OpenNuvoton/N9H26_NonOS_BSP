@@ -421,11 +421,6 @@
               <FilePath>..\..\..\..\Library\IPLib\N9H26_SIC.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_GIANTPLUS_GPM1006D.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>..\..\..\..\Library\IPLib\N9H26_GIANTPLUS_GPM1006D.lib</FilePath>
-            </File>
-            <File>
               <FileName>N9H26_VPE.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\..\..\..\Library\IPLib\N9H26_VPE.lib</FilePath>
@@ -444,6 +439,11 @@
               <FileName>N9H26_H264Codec.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\..\..\..\Library\IPLib\N9H26_H264Codec.lib</FilePath>
+            </File>
+            <File>
+              <FileName>N9H26_VPOST_FW050TFT_800x480.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\..\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib</FilePath>
             </File>
           </Files>
         </Group>

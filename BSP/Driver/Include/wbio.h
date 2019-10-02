@@ -35,9 +35,9 @@
 #include "wbtypes.h"
 #endif
 
-
+#ifndef  LITTLE_ENDIAN
 #define LITTLE_ENDIAN
-
+#endif
 
 #define outpb(port,value)     (*((UINT8 volatile *) (port))=value)
 #define inpb(port)            (*((UINT8 volatile *) (port)))
@@ -47,7 +47,7 @@
 #define inpw(port)            (*((UINT32 volatile *) (port)))
 
 #define readb(addr)           (*(UINT8 volatile *)(addr))
-#define writeb(addr,x)        ((*(UINT8 volatile *)(addr)) = (UINT8)x)
+#define writeb(addr,x)        ((*(UINT8 volatile *)(addr)) = (UINT8 volatile)x)
 #define readhw(addr)          (*(UINT16 volatile *)(addr))
 #define writehw(addr,x)       ((*(UINT16 volatile *)(addr)) = (UINT16 volatile)x)
 #define readw(addr)           (*(UINT32 volatile *)(addr))

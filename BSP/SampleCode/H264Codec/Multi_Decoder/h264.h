@@ -10,6 +10,18 @@
 #define OUTPUT_FMT_YUV420       4
 #define OUTPUT_FMT_YUV422       5
 */
+#define DECODE_OUTPUT_PACKET_YUV422 0
+#define MAX_IMG_WIDTH                   1280
+#define MAX_IMG_HEIGHT                  720
+
+#if DECODE_OUTPUT_PACKET_YUV422
+#define LCM_WIDTH 	640
+#define LCM_HEIGHT 	480
+#else
+#define LCM_WIDTH 	800
+#define LCM_HEIGHT 	480
+#endif
+
 #define USE_MMAP
 
 #define TEST_WIDTH  176 //720

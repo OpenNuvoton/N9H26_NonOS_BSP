@@ -35,7 +35,7 @@
  **************************************************************************/
 #include "stdio.h"
 #include "stdlib.h"
-#include "N9H26_vpost.h"
+#include "N9H26_VPOST.h"
 
 volatile UINT32 u32SpiCs_offset, u32SpiClk_offset, u32SpiData_offset;
 volatile UINT32 u32SpiCs_port, u32SpiClk_port, u32SpiData_port;
@@ -559,7 +559,7 @@ void vpostSyncLCMInit(S_DRVVPOST_SYNCLCM_INIT* pLCM)
 			break;
 	}
 	sWindow.u16LinePerPanel = pLCM->u16VSize;
-	vpostSetSyncLCM_ImageWindow(&sWindow);
+	vpostSetSyncLCM_ImageWindow((S_DRVVPOST_SYNCLCM_WINDOW *)&sWindow);
 
 	// set frame buffer size	
 	sFSize.u16HSize = pLCM->u16HSize;

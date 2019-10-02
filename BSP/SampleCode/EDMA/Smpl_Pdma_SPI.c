@@ -4,8 +4,13 @@
 #include "N9H26.h"
 
 #define TEST_SIZE	100 * 1024
+#if defined(__GNUC__)
+__attribute__((aligned(4096))) UINT8 WriteBuffer[TEST_SIZE];
+__attribute__((aligned(4096))) UINT8 ReadBuffer[TEST_SIZE];
+#else
 __align(4096) UINT8 WriteBuffer[TEST_SIZE];
 __align(4096) UINT8 ReadBuffer[TEST_SIZE];
+#endif
 
 static INT32 g_PdmaCh = 0;
 volatile static BOOL g_bPdmaInt = FALSE;

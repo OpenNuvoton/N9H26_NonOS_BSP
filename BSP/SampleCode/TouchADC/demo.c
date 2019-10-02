@@ -55,7 +55,7 @@ int main(VOID)
 		{
 						
 			case '1': 	
-					DBG_PRINTF("Please input test channel AIN1, AIN2 or AIN3\n");
+					DBG_PRINTF("Please input test channel AIN1, AIN2 or AIN3 (DEV:Default AIN2, HMI: Change to GPIO IP)\n");
 					u32Item = sysGetChar();
 					if( (u32Item>'0')||(u32Item<'4') )
 						KeyPad((u32Item-0x30));		
@@ -63,7 +63,7 @@ int main(VOID)
 						DBG_PRINTF("Input Wrong Channel\n");	
 					break; 	
 			case '2': 	
-					DBG_PRINTF("Please input test channel AIN1, AIN2 or AIN3\n");
+					DBG_PRINTF("Please input test channel AIN1, AIN2 or AIN3 (DEV:Default AIN1, HMI: Don't Support)\n");
 					u32Item = sysGetChar();
 					if( (u32Item>'0')||(u32Item<'4') )
 						VoltageDetection((u32Item-0x30));		
@@ -71,11 +71,12 @@ int main(VOID)
 						DBG_PRINTF("Input Wrong Channel\n");	
 					break;
 			case '3':	
+				    DBG_PRINTF("Please input test channel AIN1, AIN2 or AIN3 (Default XP, XM, YP, YM 4 wires)\n");
 					Raw_TouchPanel();
 					break;	
 	    		case '4':	
-	    				Integration();
-	    				break;
+					Integration();
+					break;
 			case '5':			
 					Raw_TouchPanel();		
 					DrvADC_Wakeup(eADC_WAKEUP_TOUCH);

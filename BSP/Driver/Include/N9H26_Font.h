@@ -68,7 +68,12 @@ typedef	struct
 	#define _LCM_WIDTH_		800
 	#define _LCM_HEIGHT_	480
 #endif
-
+#ifdef _DEMO_SVGA_
+	#define _FONT_STRIDE_	800
+	#define _FONT_LINE_		79			//800/10 = 80,
+	#define _LCM_WIDTH_		800
+	#define _LCM_HEIGHT_	600
+#endif
 
 #define _FONT_ASCII_START_		32
 #define _FONT_ASCII_END_		126
@@ -88,54 +93,15 @@ typedef	struct
 #define NULL 0
 #endif
 
-void
-InitFont(
-	S_DEMO_FONT* 	ptFont,
-	UINT32 			u32FrameBufAddr	
-);
-
-void
-UnInitFont(S_DEMO_FONT* ptFont);
-
-void
-DemoFont_PaintA(
-	S_DEMO_FONT* ptFont,
-	UINT32	u32x,
-	UINT32	u32y,
-	PCSTR	pszString
-);
-
-void
-DemoFont_Rect(
-	S_DEMO_FONT* ptFont,
-	S_DEMO_RECT* ptRect
-);
-
-void
-DemoFont_RectClear(
-	S_DEMO_FONT* ptFont,
-	S_DEMO_RECT* ptRect
-);
-
-void
-DemoFont_Border(
-	S_DEMO_FONT* ptFont,
-	S_DEMO_RECT* ptRect,
-	UINT32 u32Width
-);
-
+void InitFont(S_DEMO_FONT* ptFont, UINT32 u32FrameBufAddr);
+void UnInitFont(S_DEMO_FONT* ptFont);
+void DemoFont_PaintA(S_DEMO_FONT* ptFont, UINT32 u32x, UINT32 u32y, PCSTR pszString);
+void DemoFont_Rect(S_DEMO_FONT* ptFont, S_DEMO_RECT* ptRect);
+void DemoFont_RectClear(S_DEMO_FONT* ptFont, S_DEMO_RECT* ptRect);
+void DemoFont_Border(S_DEMO_FONT* ptFont, S_DEMO_RECT* ptRect, UINT32 u32Width);
 void Font_ClrFrameBuffer(UINT32 u32FrameBufAddr);
-
-void
-DemoFont_ChangeFontColor(
-	S_DEMO_FONT* ptFont,
-	UINT16	u16TRGB565
-);
-
-UINT16
-DemoFont_GetFontColor(
-	S_DEMO_FONT* ptFont
-);
+void DemoFont_ChangeFontColor(S_DEMO_FONT* ptFont, UINT16	u16TRGB565);
+UINT16 DemoFont_GetFontColor(S_DEMO_FONT* ptFont);
 
 #ifdef	__cplusplus
 }

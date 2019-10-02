@@ -26,8 +26,8 @@
 #include "N9H26_BLT.h"
 #include "N9H26_CRC.h"
 #include "N9H26_EDMA.h"
-#include "N9H26_gnand.h"
-#include "GNAND_global.h"	/* Place behind N9H26_gnand.h */
+#include "N9H26_GNAND.h"
+#include "GNAND_Global.h"	/* Place behind N9H26_GNAND.h */
 #include "N9H26_GPIO.h"
 #include "N9H26_I2C.h"
 #include "N9H26_I2S.h"
@@ -35,8 +35,8 @@
 #include "N9H26_RF.h"
 #include "N9H26_RS.h"
 #include "N9H26_ROT.h"
-#include "N9H26_sdio.h"
-#include "N9H26_sic.h"
+#include "N9H26_SDIO.h"
+#include "N9H26_SIC.h"
 #include "N9H26_SPI.h"
 #include "N9H26_SPU.h"
 #include "N9H26_VPE.h"

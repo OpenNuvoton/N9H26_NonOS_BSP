@@ -401,6 +401,11 @@
               <FilePath>..\wb_init.s</FilePath>
             </File>
             <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\main.c</FilePath>
+            </File>
+            <File>
               <FileName>main_2.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\main_2.c</FilePath>

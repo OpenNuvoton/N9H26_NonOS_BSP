@@ -69,9 +69,16 @@ NDRV_T _nandDiskDriver1 =
 /**********************************/
 #define COMPARE_LEN     128*1024
 
-__align(32) UINT8 infoBufArray[0x40000];
-__align(32) UINT8 StorageBufferArray[0x50000];
-__align(32) UINT8 CompareBufferArray[0x50000];
+#if defined (__GNUC__)
+    UINT8 infoBufArray[0x40000] __attribute__((aligned (32)));
+    UINT8 StorageBufferArray[0x50000] __attribute__((aligned (32)));
+    UINT8 CompareBufferArray[0x50000] __attribute__((aligned (32)));
+#else
+    __align(32) UINT8 infoBufArray[0x40000];
+    __align(32) UINT8 StorageBufferArray[0x50000];
+    __align(32) UINT8 CompareBufferArray[0x50000];
+#endif
+
 UINT32 infoBuf, StorageBuffer, CompareBuffer, BufferSize=0;
 UINT32 NAND_BACKUP_BASE;
 UINT8 *tmpBackPtr;

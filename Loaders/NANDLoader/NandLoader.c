@@ -8,10 +8,13 @@
 #include <string.h>
 #include "wblib.h"
 #include "turbowriter.h"
-#include "N9H26_vpost.h"
 
 // define DATE CODE and show it when running to make maintaining easy.
+#ifdef __USER_DEFINE_FUNC
+#define DATE_CODE   "20181017_Logo"
+#else
 #define DATE_CODE   "20181017"
+#endif
 
 /* global variable */
 typedef struct nand_info
@@ -146,6 +149,22 @@ _read_:
             volatile int temp;
 
             sys_flush_and_clean_dcache();
+#if defined (__GNUC__) && !(__CC_ARM)
+			__asm
+			(
+				/*----- flush I, D cache & write buffer -----*/
+				"MOV %0, #0x0				\n\t"
+				"MCR p15, 0, %0, c7, c5, #0 	\n\t" /* flush I cache */
+				"MCR p15, 0, %0, c7, c6, #0  \n\t" /* flush D cache */
+				"MCR p15, 0, %0, c7, c10,#4  \n\t" /* drain write buffer */
+
+				/*----- disable Protection Unit -----*/
+				"MRC p15, 0, %0, c1, c0, #0   \n\t" /* read Control register */
+				"BIC %0, %0, #0x01            \n\t"
+				"MCR p15, 0, %0, c1, c0, #0   \n\t" /* write Control register */
+				: :"r"(temp) : "memory"
+			);
+#else
             __asm
             {
                 /*----- flush I, D cache & write buffer -----*/
@@ -161,6 +180,7 @@ _read_:
                 BIC temp, temp, 0x4
                 MCR p15, 0, temp, c1, c0, 0     /* write Control register */
             }
+#endif
         }
 
         fw_func = (void(*)(void))(image->executeAddr);
@@ -204,7 +224,7 @@ void initClock(void)
         outp32(REG_MISC_SSEL, 0x00000155);  // set MISC_SSEL to Reduced Strength to improve EMI
     #endif
 
-    // initial DRAM clock BEFORE inital system clock since we change it from low (216MHz by IBR) to high (288MHz)
+    // initial DRAM clock BEFORE initial system clock since we change it from low (216MHz by IBR) to high (288MHz)
     sysSetDramClock(eSYS_MPLL, 288000000, 288000000);   // change from 216MHz (IBR) to 288MHz
 
     // initial system clock
@@ -227,7 +247,7 @@ void initClock(void)
         outp32(REG_MISC_SSEL, 0x00000155);  // set MISC_SSEL to Reduced Strength to improve EMI
     #endif
 
-    // initial DRAM clock BEFORE inital system clock since we change it from low (216MHz by IBR) to high (360MHz)
+    // initial DRAM clock BEFORE initial system clock since we change it from low (216MHz by IBR) to high (360MHz)
     sysSetDramClock(eSYS_MPLL, 360000000, 360000000);   // change from 216MHz (IBR) to 360MHz,
 
     // initial system clock
@@ -250,7 +270,7 @@ void initClock(void)
         outp32(REG_MISC_SSEL, 0x00000155);  // set MISC_SSEL to Reduced Strength to improve EMI
     #endif
 
-    // initial DRAM clock BEFORE inital system clock since we change it from low (216MHz by IBR) to high (396MHz)
+    // initial DRAM clock BEFORE initial system clock since we change it from low (216MHz by IBR) to high (396MHz)
     sysSetDramClock(eSYS_MPLL, 396000000, 396000000);   // change from 216MHz (IBR) to 396MHz,
 
     // initial system clock
@@ -322,7 +342,7 @@ int main()
 #endif
 
     outp32(REG_APBCLK, inp32(REG_APBCLK) | RTC_CKE);     // enable RTC clock since N9H26 IBR disable it.
-    RTC_Check();    // waiting for RTC regiesters ready for access
+    RTC_Check();    // waiting for RTC registers ready for access
 
     // RTC H/W Power Off Function Configuration
     outp32(PWRON, (inp32(PWRON) & ~PCLR_TIME) | 0x00060005);   // Press Power Key during 6 sec to Power off (0x'6'0005)

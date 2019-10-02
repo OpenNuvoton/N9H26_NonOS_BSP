@@ -28,8 +28,13 @@
 NDISK_T *ptMassNDisk;
 NDISK_T MassNDisk;
 
-__align (32) UINT8 g_ram0[BUF_SIZE];
-__align (32) UINT8 g_ram1[BUF_SIZE];
+#if defined (__GNUC__)
+    UINT8 g_ram0[BUF_SIZE] __attribute__((aligned (32)));
+    UINT8 g_ram1[BUF_SIZE] __attribute__((aligned (32)));
+#else
+    __align (32) UINT8 g_ram0[BUF_SIZE];
+    __align (32) UINT8 g_ram1[BUF_SIZE];
+#endif
 
 
 /*-----------------------------------------------------------------------------
@@ -168,7 +173,10 @@ int main(void)
     sysFlushCache(I_D_CACHE);
     sysEnableCache(CACHE_WRITE_BACK);
 
+#if defined (__GNUC__)
+#else
     srand(time(NULL));
+#endif
 
     //--- initial SIC/NAND driver for target_port
     sicOpen();

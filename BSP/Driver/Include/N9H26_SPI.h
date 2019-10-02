@@ -74,7 +74,9 @@ INT  spiEONFlashQuadWrite(UINT32 spiPort, UINT32 SSPin, UINT32 addr, UINT32 len,
 INT  spiEONFlashFastReadQuad(UINT32 spiPort, UINT32 SSPin, UINT32 addr, UINT32 len, UINT8 *buf);
 INT  spiFlashEnter4ByteMode(UINT32 spiPort, UINT32 SSPin);
 INT  spiFlashExit4ByteMode(UINT32 spiPort, UINT32 SSPin);
+INT  usiStatusWrite(UINT32 spiPort, UINT32 SSPin, UINT8 data);
 INT  usiStatusWrite1(UINT32 spiPort, UINT32 SSPin, UINT8 data0, UINT8 data1);
+INT  usiStatusWrite2(UINT32 spiPort, UINT32 SSPin, UINT8 data0);
 INT  usiStatusRead(UINT32 spiPort, UINT32 SSPin, UINT8 cmd, PUINT8 data);
 #else
 INT  spiFlashInit(void);
@@ -90,7 +92,9 @@ INT  spiEONFlashQuadWrite(UINT32 addr, UINT32 len, UINT8 *buf);
 INT  spiEONFlashFastReadQuad(UINT32 addr, UINT32 len, UINT8 *buf);
 INT  spiFlashEnter4ByteMode(void);
 INT  spiFlashExit4ByteMode(void);
+INT  usiStatusWrite(UINT8 data);
 INT  usiStatusWrite1(UINT8 data0, UINT8 data1);
+INT  usiStatusWrite2(UINT8 data0);
 INT  usiStatusRead(UINT8 cmd, PUINT8 data);
 #endif
 

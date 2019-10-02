@@ -32,12 +32,12 @@ INT32 WriteFile(char* szAsciiName,
 	fsCloseFile(hFile);
 	return Successful;	
 }
-__align(4) char WaveHeader[]= {'R', 'I', 'F', 'F', 0x00, 0x00, 0x00, 0x00,	   //ForthCC code+(RAW-data-size+0x24)	
+char WaveHeader[] __attribute__((aligned(4))) = {'R', 'I', 'F', 'F', 0x00, 0x00, 0x00, 0x00,	   //ForthCC code+(RAW-data-size+0x24)
 					'W', 'A', 'V', 'E', 'f', 'm', 't', ' ',			
 					0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00,//Chunk-size, audio format, and NUMChannel
 					0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,//Sample-Rate and Byte-Count-Per-Sec 
 					0x02, 0x00, 0x10, 0x00,						   //Align and Bits-per-sample.
-					'd', 'a', 't', 'a', 0x00, 0x00, 0x00, 0x00};   //"data"and RAW-data-size		
+					'd', 'a', 't', 'a', 0x00, 0x00, 0x00, 0x00};   //"data"and RAW-data-size
 						
 INT32 AudioWriteFile(char* szAsciiName, 
 					PUINT16 pu16BufAddr, 

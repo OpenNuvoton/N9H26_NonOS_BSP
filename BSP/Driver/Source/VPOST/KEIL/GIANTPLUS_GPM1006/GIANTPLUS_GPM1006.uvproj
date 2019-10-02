@@ -391,19 +391,19 @@
           <GroupName>Src</GroupName>
           <Files>
             <File>
-              <FileName>N92H26_VPOST.C</FileName>
+              <FileName>N9H26_VPOST.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\N92H26_VPOST.C</FilePath>
+              <FilePath>..\..\N9H26_VPOST.c</FilePath>
             </File>
             <File>
-              <FileName>N92H26_VPOST_Driver.c</FileName>
+              <FileName>N9H26_VPOST_Driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\N92H26_VPOST_Driver.c</FilePath>
+              <FilePath>..\..\N9H26_VPOST_Driver.c</FilePath>
             </File>
             <File>
-              <FileName>N92H26_VPOST_GIANTPLUS_GPM1006D0.c</FileName>
+              <FileName>N9H26_VPOST_GIANTPLUS_GPM1006D0.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\N92H26_VPOST_GIANTPLUS_GPM1006D0.c</FilePath>
+              <FilePath>..\..\N9H26_VPOST_GIANTPLUS_GPM1006D0.c</FilePath>
             </File>
           </Files>
         </Group>

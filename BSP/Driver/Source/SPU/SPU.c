@@ -17,7 +17,11 @@ extern const int ear_Ana_table[11];
 
 /* buffer */
 UINT8	*_pucPlayAudioBuff;
+#if defined (__GNUC__) && !(__CC_ARM)
+__attribute__ ((aligned (256))) UINT8 playbuffer[FRAG_SIZE];
+#else
 __align(256) UINT8 playbuffer[FRAG_SIZE];
+#endif
 
 /* function declaration */
 ERRCODE DrvSPU_InstallCallBack(

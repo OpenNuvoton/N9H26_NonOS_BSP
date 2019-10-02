@@ -347,7 +347,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>__LCM_320x240__ __ENABLE_SD_CARD_0__ __NVT_DEV_DEMO_SD__</Define>
+              <Define>__LCM_QVGA__ __ENABLE_SD_CARD_0__ __NVT_DEV_DEMO_SD__</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\BSP\Driver\Include</IncludePath>
             </VariousControls>
@@ -984,7 +984,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>__LCM_320x240__ __ENABLE_NAND_0__ __NVT_DEV_DEMO_NAND__</Define>
+              <Define>__LCM_QVGA__ __ENABLE_NAND_0__ __NVT_DEV_DEMO_NAND__</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\BSP\Driver\Include</IncludePath>
             </VariousControls>

@@ -33,7 +33,8 @@ int main(void)
     sysprintf("Sample code Start\n");
 
 #ifdef HID_KEYPAD
-    DrvADC_Open();
+	kpi_init();
+	kpi_open(3); // use nIRQ0 as external interrupt source
 #endif
     /* Enable USB */
     udcOpen();

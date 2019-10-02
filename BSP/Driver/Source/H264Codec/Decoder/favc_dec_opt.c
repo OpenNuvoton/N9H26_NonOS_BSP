@@ -52,11 +52,14 @@ int favc_decoder_ioctl(void *handle, unsigned int cmd, void *arg)
     FAVC_DEC_PARAM      tDecParam;
 //    FAVC_DEC_RESULT     tDecResult;
 
-    idx = *(int *)handle;
-	
-    if ((dec_data[idx].idx_ex->signature == SIGNATURE) && (dec_data[idx].idx_ex->decoder_idx == idx))
+	if (handle != NULL)
     {
-    	dev=idx;
+        idx = *(int *)handle;
+        
+        if ((dec_data[idx].idx_ex->signature == SIGNATURE) && (dec_data[idx].idx_ex->decoder_idx == idx))
+        {
+            dev=idx;
+        }
     }
     else
     	dev=0;

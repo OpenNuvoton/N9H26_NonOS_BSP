@@ -391,11 +391,6 @@
           <GroupName>Src</GroupName>
           <Files>
             <File>
-              <FileName>demo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\demo.c</FilePath>
-            </File>
-            <File>
               <FileName>demo_AIC.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\demo_AIC.c</FilePath>
@@ -439,6 +434,11 @@
               <FileName>wb_init.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\wb_init.s</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\main.c</FilePath>
             </File>
           </Files>
         </Group>

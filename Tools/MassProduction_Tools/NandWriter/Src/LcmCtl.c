@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "wblib.h"
-//#include "nvtloader.h"
-#include ""N9H26K_gpio.h"
-//#include ""N9H26K_kpi.h"
+#include "N9H26_GPIO.h"
+
 /*
 	Mute Control : 
 	LGE: LCM power : GPA5   = 1 (Enable LCM power)

@@ -30,8 +30,13 @@
 /*-----------------------------------------------------------------------------
  * For global variables
  *---------------------------------------------------------------------------*/
-__align (32) UINT8 g_ram0[BUF_SIZE];
-__align (32) UINT8 g_ram1[BUF_SIZE];
+#if defined (__GNUC__)
+    UINT8 g_ram0[BUF_SIZE] __attribute__((aligned (32)));
+    UINT8 g_ram1[BUF_SIZE] __attribute__((aligned (32)));
+#else
+    __align (32) UINT8 g_ram0[BUF_SIZE];
+    __align (32) UINT8 g_ram1[BUF_SIZE];
+#endif
 
 
 /*-----------------------------------------------------------------------------
@@ -161,7 +166,10 @@ int main(void)
 
     sysprintf("\n=====> N9H26 Non-OS SIC/SD Driver Sample Code [tick %d] <=====\n", sysGetTicks(0));
 
+#if defined (__GNUC__)
+#else
     srand(time(NULL));
+#endif
 
     //--- Initial system clock for SD
     sicIoctl(SIC_SET_CLOCK, sysGetPLLOutputHz(eSYS_UPLL, sysGetExternalClock())/1000, 0, 0);    // clock from PLL

@@ -3,7 +3,7 @@
 * Copyright (c) 2009 Nuvoton Tech. Corp. All rights reserved.               *
 *                                                                           *
 *****************************************************************************/
-#include "N9H26_gnand.h"
+#include "N9H26_GNAND.h"
 
 #define KERNEL_PATH_SD 	"x:\\conprog.bin"
 #define MOVIE_PATH_SD 		"x:\\movie.avi"

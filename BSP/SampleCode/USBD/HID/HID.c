@@ -265,7 +265,7 @@ void HID_UpdateMouseData(void)
     
     if (g_u8EPAReady)
     {
-        DrvADC_KeyDetection(KEY_ADC_CHANNEL, &u32KpiReport);
+        u32KpiReport = kpi_read(KPI_NONBLOCK);
         
         u32KpiReport &= MASK_KEY;
         if(u32KpiReport != 0)
@@ -370,7 +370,7 @@ void HID_SetInReport(void)
         buf = g_au8KeyboardReport;
 #ifdef HID_KEYPAD
 
-        DrvADC_KeyDetection(KEY_ADC_CHANNEL, &u32KpiReport);
+        u32KpiReport = kpi_read(KPI_NONBLOCK);
 
         if(u32KpiReport == 0) 
         {

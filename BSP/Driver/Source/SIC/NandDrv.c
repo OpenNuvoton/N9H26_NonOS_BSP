@@ -64,7 +64,12 @@ extern BOOL volatile _fmi_bIsSMDataReady;
 INT fmiSMCheckBootHeader(INT chipSel, FMI_SM_INFO_T *pSM);
 static int _nand_init0 = 0, _nand_init1 = 0;
 
-__align(4096) UCHAR _fmi_ucSMBuffer[8192];
+#if defined (__GNUC__)
+    UCHAR _fmi_ucSMBuffer[8192] __attribute__((aligned (4096)));
+#else
+    __align(4096) UCHAR _fmi_ucSMBuffer[8192];
+#endif
+
 UINT8 *_fmi_pSMBuffer;
 
 

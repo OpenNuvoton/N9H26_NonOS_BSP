@@ -8,7 +8,7 @@
 #include "stdlib.h"
 
 #include "wblib.h"
-#include "N9H26_spu.h"
+#include "N9H26_SPU.h"
 
 #define E_SUCCESS   0
 

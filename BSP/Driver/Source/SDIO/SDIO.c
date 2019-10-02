@@ -52,7 +52,12 @@
 UINT32 _fmiSDIO_uR3_CMD=0;
 UINT32 _fmiSDIO_uR7_CMD=0;
 
-__align(4096) UCHAR _fmi_ucSDIOHCBuffer[512];
+#if defined (__GNUC__)
+    UCHAR _fmi_ucSDIOHCBuffer[512] __attribute__((aligned (4096)));
+#else
+    __align(4096) UCHAR _fmi_ucSDIOHCBuffer[512];
+#endif
+
 UINT8 *_fmi_pSDIOHCBuffer;
 
 

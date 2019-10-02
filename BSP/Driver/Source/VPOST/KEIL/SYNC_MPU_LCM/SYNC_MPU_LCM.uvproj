@@ -391,14 +391,14 @@
           <GroupName>Src</GroupName>
           <Files>
             <File>
-              <FileName>N92H26_VPOST.C</FileName>
+              <FileName>N9H26_VPOST.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\N92H26_VPOST.C</FilePath>
+              <FilePath>..\..\N9H26_VPOST.c</FilePath>
             </File>
             <File>
-              <FileName>N92H26_VPOST_Driver.c</FileName>
+              <FileName>N9H26_VPOST_Driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\N92H26_VPOST_Driver.c</FilePath>
+              <FilePath>..\..\N9H26_VPOST_Driver.c</FilePath>
             </File>
             <File>
               <FileName>N9H26_VPOST_LCM_Init.c</FileName>

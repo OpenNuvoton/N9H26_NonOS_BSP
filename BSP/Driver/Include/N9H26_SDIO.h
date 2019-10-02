@@ -93,6 +93,10 @@ INT sdioSdWrite0(INT32 sdSectorNo, INT32 sdSectorCount, INT32 sdSourceAddr);
 INT sdioSdWrite1(INT32 sdSectorNo, INT32 sdSectorCount, INT32 sdSourceAddr);
 
 /* Declare callback function in waiting loop of SD driver */
-__weak void schedule(void);
+#if defined (__GNUC__)
+    __attribute__((weak)) void schedule(void);
+#else
+    __weak void schedule(void);
+#endif
 
 #endif  //end of _N9H26_SDIO_H

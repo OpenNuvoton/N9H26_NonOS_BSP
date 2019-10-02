@@ -35,7 +35,7 @@
  **************************************************************************/
 #include "stdio.h"
 #include "stdlib.h"
-#include "N9H26_vpost.h"
+#include "N9H26_VPOST.h"
 
 extern void LCDDelay(unsigned int nCount);
 
@@ -152,16 +152,16 @@ INT vpostLCMInit_FW050TFT_800x480(PLCDFORMATEX plcdformatex, UINT32 *pFramebuf)
 #endif    
     
     // set Horizontal scanning line timing for Syn type LCD 
-    vpostSetSyncLCM_HTiming(&sHTiming);
+    vpostSetSyncLCM_HTiming((S_DRVVPOST_SYNCLCM_HTIMING *)&sHTiming);
 
 	// set Vertical scanning line timing for Syn type LCD   
-    vpostSetSyncLCM_VTiming(&sVTiming);
+    vpostSetSyncLCM_VTiming((S_DRVVPOST_SYNCLCM_VTIMING *)&sVTiming);
 	
 	// set both "active pixel per line" and "active lines per screen" for Syn type LCD   
-	vpostSetSyncLCM_ImageWindow(&sWindow);
+	vpostSetSyncLCM_ImageWindow((S_DRVVPOST_SYNCLCM_WINDOW *)&sWindow);
 
   	// set Hsync/Vsync/Vden/Pclk poalrity
-	vpostSetSyncLCM_SignalPolarity(&sPolarity);  	
+	vpostSetSyncLCM_SignalPolarity((S_DRVVPOST_SYNCLCM_POLARITY *)&sPolarity);
     
 	sFSize.u16HSize = 800;
 	sFSize.u16VSize = 480;  

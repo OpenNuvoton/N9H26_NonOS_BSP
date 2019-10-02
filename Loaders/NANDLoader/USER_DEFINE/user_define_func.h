@@ -18,7 +18,7 @@
 #include <string.h>
 #include "wblib.h"
 #include "turbowriter.h"
-#include "N9H26_vpost.h"
+#include "N9H26_VPOST.h"
 
 typedef struct {
     void (*backlight_init)(void);

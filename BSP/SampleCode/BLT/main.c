@@ -12,9 +12,21 @@ static uint8_t src_pat[] = {
 #define SRCIMG_STRIDE       (SRCIMG_WIDTH * 4)
 #define SRCIMG_HEIGHT       120
 
+#if defined(__LCD_320x240__)
 #define DISP_WIDTH          320
-#define DISP_STRIDE         (DISP_WIDTH * 2)
 #define DISP_HEIGHT         240
+
+#elif defined(__LCD_800x480__)
+#define DISP_WIDTH          800
+#define DISP_HEIGHT         480
+
+#else
+#define DISP_WIDTH          320
+#define DISP_HEIGHT         240
+
+#endif
+
+#define DISP_STRIDE         (DISP_WIDTH * 2)
 
 #define SIZE_SRCIMG         (SRCIMG_STRIDE * SRCIMG_HEIGHT)
 #define SIZE_SRCIMG_BUF     ((SIZE_SRCIMG + 31) / 32 * 32)
