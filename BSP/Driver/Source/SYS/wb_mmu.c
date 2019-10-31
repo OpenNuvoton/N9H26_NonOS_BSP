@@ -59,8 +59,7 @@ void sysSetupCP15(unsigned int addr)
 {
 	register int reg1, reg0;
 	reg0 = addr;
-	__asm
-	(
+    __asm volatile(
     "MOV     %0, %1                \n" // _mmuSectionTable
     "MCR     p15, #0, %0, c2, c0, #0  \n" // write translation table base register c2
 

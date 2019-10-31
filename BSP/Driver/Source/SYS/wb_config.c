@@ -919,8 +919,8 @@ void _dramClockSwitch(register E_SYS_SRC_CLK eSrcClk,
 	UINT32 tmp,i, change;
 	UINT32 skew_19, skew_1a, skew_1b, skew_1c, skew_1d, skew_1e, skew_1f;
 #else
-	INT32 i; //tmp,i;
-	UINT32 skew = 0;
+	//INT32 i; //tmp,i;
+	//UINT32 skew = 0;
 	//UINT32 High_Freq;
 #endif 	
     UINT32 dly;
@@ -1737,7 +1737,7 @@ void _dramClockSwitchStart(E_SYS_SRC_CLK eSrcClk,
 	aic_statush = inpw(REG_AIC_IMRH);				
 	outpw(REG_AIC_MDCR, 0xFFFFFFFF);	//Disable interrupt 
 	outpw(REG_AIC_MDCRH, 0xFFFFFFFF);	//Disable interrupt 
-    sysprintf("MCLK = %d\n", u32DramClock);
+
 	vram_base = PD_RAM_BASE;		
 
 //	outp32(0xff000f80,8);

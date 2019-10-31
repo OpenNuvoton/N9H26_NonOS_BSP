@@ -41,6 +41,7 @@
 #include "N9H26_SPU.h"
 #include "N9H26_VPE.h"
 #include "N9H26_VPOST.h"
+#include "N9H26_VideoIn.h"
 #include "N9H26_NVTFAT.h"
 #include "port.h"
 #include "N9H26_PWM.h"

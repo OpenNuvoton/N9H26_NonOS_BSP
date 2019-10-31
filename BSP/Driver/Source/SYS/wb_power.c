@@ -90,7 +90,7 @@ static void Sample_PowerDown(void)
     /*********** DRAM enter self refresh mode ************/	
 
 #if defined (__GNUC__)
-	__asm
+	__asm volatile
 	(
 		"  mov 	%0, #100       \n"
 		"  mov  %1, #0         \n"
@@ -118,7 +118,7 @@ static void Sample_PowerDown(void)
 	outp32(REG_CLKDIV0, (inp32(REG_CLKDIV0) & (~0x18)) );	
 
 #if defined (__GNUC__)
-	__asm
+	__asm volatile
 	(
 		"  mov 	%0, #100       \n"
 		"  mov  %1, #0         \n"
@@ -145,7 +145,7 @@ static void Sample_PowerDown(void)
 	outp32(REG_APLLCON, inp32(REG_APLLCON) | 0x4000);	
 
 #if defined (__GNUC__)
-	__asm
+	__asm volatile
 	(
 		"  mov 	%0, #100       \n"
 		"  mov  %1, #0         \n"
@@ -171,7 +171,7 @@ static void Sample_PowerDown(void)
 	outp32(REG_PWRCON, (inp32(REG_PWRCON)  & ~0xFFFF00) | 0xFF02);     // 25ms ~ 75ms depends on system power and PLL character
 
 #if defined (__GNUC__)
-	__asm
+	__asm volatile
 	(
 		"  mov 	%0, #10        \n"
 		"  mov  %1, #0         \n"
@@ -197,7 +197,7 @@ static void Sample_PowerDown(void)
 	///////////////////////////////////////////////////////////////
 	/*  Enter power down. (Stop the external clock */
 #if defined (__GNUC__)
-	__asm
+	__asm volatile
 	(
 		"MOV     %0,#0xb0000000 \n"
         "LDR     %0,[%0,#0x200] \n"
@@ -217,7 +217,7 @@ static void Sample_PowerDown(void)
 	}   
 #endif
 #if defined (__GNUC__)
-	__asm
+	__asm volatile
 	(
 		"  mov 	%0, #300       \n"
 		"  mov  %1, #0         \n"
@@ -246,7 +246,7 @@ static void Sample_PowerDown(void)
 	while((inp32(REG_POR_LVRD)&APLL_LKDT)==0);				// Wait PLL lock bit.
 	{//Waitting for PLL stable if enable PLL again
 #if defined (__GNUC__)
-	__asm
+	__asm volatile
 	(
 		"  mov 	%0, #500       \n"
 		"  mov  %1, #0         \n"
@@ -273,7 +273,7 @@ static void Sample_PowerDown(void)
 	outp32(REG_CLKDIV0, inp32(REG_CLKDIV0) | 0x18);	
 
 #if defined (__GNUC__)
-	__asm
+	__asm volatile
 	(
 		"  mov 	%0, #500       \n"
 		"  mov  %1, #0         \n"
@@ -300,7 +300,7 @@ static void Sample_PowerDown(void)
 	/*********** DRAM escape self refresh mode ************/
 	
 #if defined (__GNUC__)
-	__asm
+	__asm volatile
 	(
 		"  mov 	%0, #100       \n"
 		"  mov  %1, #0         \n"
@@ -326,7 +326,7 @@ static void Sample_PowerDown(void)
 	outp32(REG_SDMR,  0x532);   								// RESET DLL(bit[8]) of DDR2 
 
 #if defined (__GNUC__)
-	__asm
+	__asm volatile
 	(
 		"  mov 	%0, #100       \n"
 		"  mov  %1, #0         \n"
@@ -352,7 +352,8 @@ static void Sample_PowerDown(void)
 	outp32(REG_SDMR,  0x432);  									// RESET DLL(bit[8]) of DDR2 		
 
 #if defined (__GNUC__)
-	__asm
+	outp32(REG_DLLMODE,   inp32(REG_DLLMODE_R)       | 0x18);	// Enable chip's DLL
+	__asm volatile
 	(
 		"  mov 	%0, #4000     \n"
 		"  mov  %1, #0         \n"
@@ -390,28 +391,37 @@ static void Sample_PowerDown(void)
 static void Entry_PowerDown(UINT32 u32WakeUpSrc)
 {
 	UINT32 j;
-	UINT32 u32IntEnable, u32IntEnableH;
+	UINT32 u32IntEnable, u32IntEnableH, bIsCacheState, u32CacheMode;
 	void (*wb_fun)(void);
+
 	UINT32 u32RamBase = PD_RAM_BASE;
-	UINT32 u32RamSize = PD_RAM_SIZE;	
-	BOOL bIsEnableIRQ = FALSE;
-	
-	if( sysGetIBitState()==TRUE )
-	{
-		bIsEnableIRQ = TRUE;
-		sysSetLocalInterrupt(DISABLE_IRQ);	
-	}		
-	memcpy((char*)((UINT32)_tmp_buf| 0x80000000), (char*)(u32RamBase | 0x80000000), u32RamSize);
-	memcpy((char*)(u32RamBase | 0x80000000), (char*)((UINT32)Sample_PowerDown | 0x80000000), u32RamSize);
-	if(memcmp((char*)(u32RamBase | 0x80000000), (char*)((UINT32)Sample_PowerDown | 0x80000000), u32RamSize)!=0)
+	//UINT32 u32RamSize = PD_RAM_SIZE;
+
+	//memcpy((char*)((UINT32)_tmp_buf| 0x80000000), (char*)(u32RamBase | 0x80000000), u32RamSize);
+	memcpy((VOID *)((UINT32)u32RamBase | 0x80000000),
+			(VOID *)( ((UINT32)Sample_PowerDown -(PD_RAM_START-PD_RAM_BASE)) | 0x80000000),
+			PD_RAM_SIZE);
+#if 0
+	if(memcmp((char*)(u32RamBase | 0x80000000), (char*)((UINT32)((UINT32)Sample_PowerDown -(PD_RAM_START-PD_RAM_BASE)) | 0x80000000), u32RamSize)!=0)
 	{
 		sysprintf("Memcpy copy wrong\n");
 	}
-	sysFlushCache(I_CACHE);		
-	wb_fun = (void(*)(void)) u32RamBase;
+#endif
+
+	if(sysGetCacheState()==TRUE){
+		DBG_PRINTF("Cache enable\n");
+		bIsCacheState = TRUE;
+		u32CacheMode = sysGetCacheMode();
+		sysDisableCache();
+		sysFlushCache(I_D_CACHE);
+	}else{
+		DBG_PRINTF("Cache disable\n");
+	}
 	
-	DBG_PRINTF("Jump to SRAM (Suspend)\n");
-	
+	wb_fun = (void(*)(void))(PD_RAM_START);
+	sysprintf("Jump to SRAM (Suspend)\n");
+
+
 	u32IntEnable = inp32(REG_AIC_IMR);
 	u32IntEnableH = inp32(REG_AIC_IMRH);	
 	
@@ -419,6 +429,7 @@ static void Entry_PowerDown(UINT32 u32WakeUpSrc)
 	outp32(REG_AIC_MDCRH, 0xFFFFFFFE);	
 	outp32(REG_AIC_MECR, 0x00000000);	
 	outp32(REG_AIC_MECRH, 0x00000000);
+	
 	j = 0x800;
 	while(j--);
 	if(u32WakeUpSrc>WE_UHC20)
@@ -427,16 +438,18 @@ static void Entry_PowerDown(UINT32 u32WakeUpSrc)
 		outp32(REG_MISSR, ((u32WakeUpSrc<<14)|(u32WakeUpSrc<<6)));
 	wb_fun();
 
+	
 	if(u32WakeUpSrc>WE_EMAC)
 		outp32(REG_MISSR, ((u32WakeUpSrc<<16)|(u32WakeUpSrc<<8)));	//Enable and Clear interrupt
 	else	
 		outp32(REG_MISSR, ((u32WakeUpSrc<<14)|(u32WakeUpSrc<<6)));
-	memcpy((VOID *)u32RamBase, (VOID *)_tmp_buf, PD_RAM_SIZE);
+	
+	//memcpy((VOID *)u32RamBase, (VOID *)_tmp_buf, PD_RAM_SIZE);
 	DBG_PRINTF("Exit to SRAM (Suspend)\n");
 	outp32(REG_AIC_MECR, u32IntEnable);								/*  Restore the interrupt channels */		
 	outp32(REG_AIC_MECRH, u32IntEnableH);	
-	if(bIsEnableIRQ==TRUE)
-		sysSetLocalInterrupt(ENABLE_IRQ);	
+	if(bIsCacheState==TRUE)
+		sysEnableCache(u32CacheMode);		
 }
 ERRCODE sysPowerDown(UINT32 u32WakeUpSrc)
 {
