@@ -115,7 +115,7 @@ INT32 main()
         sysprintf("\nPlease Select Test Item\n");
         sysprintf("[*]Decode Test\n");
         sysprintf(" 0 : Panel Test ");g_bDecPanelTest?sysprintf("Disable\n"):sysprintf("Enable\n");
-        sysprintf("     -> Decode Downscale to QQVGA\n");
+        sysprintf("     -> Decode Downscale to QVGA if image is larger than %dx%d\n",PANEL_WIDTH,PANEL_HEIGHT);
         sysprintf("     -> Decode Stride is %d\n",PANEL_WIDTH);
         sysprintf("     -> Output data size is %dx%d\n",PANEL_WIDTH,PANEL_HEIGHT);
         sysprintf(" 1 : Input Wait ");g_bDecIpwTest?sysprintf("Disable\n"):sysprintf("Enable\n");

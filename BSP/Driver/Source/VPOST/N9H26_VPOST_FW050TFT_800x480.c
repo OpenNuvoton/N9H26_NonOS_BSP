@@ -52,34 +52,6 @@ typedef enum
 	eUPLL  	= 3
 }E_CLK;
 
-
-static UINT32 GetPLLOutputKhz(
-	E_CLK eSysPll,
-	UINT32 u32FinKHz
-	)
-{
-	UINT32 u32Freq, u32PllCntlReg;
-	UINT32 NF, NR, NO;
-	
-	UINT8 au8Map[4] = {1, 2, 2, 4};
-	if(eSysPll==eSYS_APLL)
-		u32PllCntlReg = inp32(REG_APLLCON);
-	else if(eSysPll==eSYS_UPLL)	
-		u32PllCntlReg = inp32(REG_UPLLCON);		
-	
-	NF = (u32PllCntlReg&FB_DV)+2;
-	NR = ((u32PllCntlReg & IN_DV)>>9)+2;
-	NO = au8Map[((u32PllCntlReg&OUT_DV)>>14)];
-//	sysprintf("PLL regster = 0x%x\n", u32PllCntlReg);	
-//	sysprintf("NF = %d\n", NF);
-//	sysprintf("NR = %d\n", NR);
-//	sysprintf("NOr = %d\n", NO);
-		
-	u32Freq = u32FinKHz*NF/NR/NO;
-//	sysprintf("PLL Freq = %d\n", u32Freq);
-	return u32Freq;
-}
-
 static void BacklightControl(int OnOff)
 {	
 	// GPD[0] set OUTPUT mode  => control the backlight
@@ -106,7 +78,7 @@ INT vpostLCMInit_FW050TFT_800x480(PLCDFORMATEX plcdformatex, UINT32 *pFramebuf)
 
 	volatile S_DRVVPOST_FRAME_SIZE sFSize;
 	volatile S_DRVVPOST_SCALING_OUTPUT sScal;	
-	UINT32 nBytesPixel, u32PLLclk, u32ClockDivider;
+	UINT32 nBytesPixel, u32PLLclk, u32ClockDivider, u32Clkin;
 
 #define OPT_24BIT_MODE
 
@@ -115,14 +87,14 @@ INT vpostLCMInit_FW050TFT_800x480(PLCDFORMATEX plcdformatex, UINT32 *pFramebuf)
 	outpw(REG_AHBIPRST, inpw(REG_AHBIPRST) | VPOST_RST);
 	outpw(REG_AHBIPRST, inpw(REG_AHBIPRST) & ~VPOST_RST);	
 	
-	u32PLLclk = GetPLLOutputKhz(eUPLL, 12000);			// CLK_IN = 12 MHz
-	u32ClockDivider = u32PLLclk / 30000;		
-
+	u32Clkin = sysGetExternalClock();
+	u32PLLclk = sysGetPLLOutputHz(eUPLL, u32Clkin);		// CLK_IN = 12 MHz
+	u32ClockDivider = u32PLLclk / 30000000;
 	u32ClockDivider--;
-	outpw(REG_CLKDIV1, (inpw(REG_CLKDIV1) & ~VPOST_N0));
+	outpw(REG_CLKDIV1, inpw(REG_CLKDIV1) & ~VPOST_N0 );						
 	outpw(REG_CLKDIV1, (inpw(REG_CLKDIV1) & ~VPOST_N1) | ((u32ClockDivider & 0xFF) << 8));						
 	outpw(REG_CLKDIV1, inpw(REG_CLKDIV1) & ~VPOST_S);
-	outpw(REG_CLKDIV1, inpw(REG_CLKDIV1) | (3<<3));		// VPOST clock from UPLL
+	outpw(REG_CLKDIV1, inpw(REG_CLKDIV1) | (3<<3));		// VPOST clock from UPLL	
 
 	vpostVAStopTrigger();	
 
