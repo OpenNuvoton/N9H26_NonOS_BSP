@@ -4,9 +4,9 @@
 #include "N9H26.h"
 #include "ROT_demo.h"
 #if defined(__GNUC__)
-UINT8 Pattern[1024*1024] __attribute__((aligned (4)));
+UINT8 Pattern[1024*1024] __attribute__((aligned (32)));
 #else
-__align(4) UINT8 Pattern[1024*1024];
+__align(32) UINT8 Pattern[1024*1024];
 #endif
 
 INT32 FileSize(char* szAsciiName)
