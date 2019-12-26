@@ -24,6 +24,7 @@ const int sp_Ana_table[11] = {4,4,4,4,4,4,4,4,4,4,4};
 const int ear_Digi_table[11] = {110,100,89,76,66,55,44,33,22,11,0};
 const int ear_Ana_table[11] = {4,4,4,4,4,4,4,4,4,4,4};
 
+extern volatile int g_i32FragSize;
 
 static void delay(UINT32 kk)
 {
@@ -188,7 +189,7 @@ void DrvSPU_IntHandler(void)
 			if (u32InterruptFlag & DRVSPU_ENDADDRESS_INT)				
 			{
 				if ( inp32(REG_SPU_CH_EVENT) & END_EN)
-					g_pfnEndAddressEventCallBack[ii]((UINT8*)((UINT32)_pucPlayAudioBuff + HALF_FRAG_SIZE));
+					g_pfnEndAddressEventCallBack[ii]((UINT8*)((UINT32)_pucPlayAudioBuff + g_i32FragSize/2));
 			}				
 	
 			if (u32InterruptFlag & DRVSPU_THADDRESS_INT)				

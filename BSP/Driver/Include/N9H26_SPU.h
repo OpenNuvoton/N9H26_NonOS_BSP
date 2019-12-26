@@ -67,6 +67,7 @@
 #define SPU_IOCTL_SET_MONO				4
 #define SPU_IOCTL_GET_FRAG_SIZE			5
 #define SPU_IOCTL_SET_STEREO			6
+#define SPU_IOCTL_SET_FRAG_SIZE			7
 
 typedef int (PFN_DRVSPU_CB_FUNC)(UINT8 *);
 typedef int (*PFN_DRVSPU_INT_CALLBACK)(UINT8*, UINT32);

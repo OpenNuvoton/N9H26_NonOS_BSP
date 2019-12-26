@@ -15,6 +15,7 @@ extern const int sp_Ana_table[11];
 extern const int ear_Digi_table[11];
 extern const int ear_Ana_table[11];
 
+volatile int g_i32FragSize = FRAG_SIZE;
 /* buffer */
 UINT8	*_pucPlayAudioBuff;
 #if defined (__GNUC__) && !(__CC_ARM)
@@ -260,6 +261,7 @@ void spuSetStereo(void)
 void spuSetMono(void)
 {
 	DrvSPU_SetSrcType((E_DRVSPU_CHANNEL)0, eDRVSPU_MONO_PCM16);		// Mono PCM16	
+	DrvSPU_SetSrcType((E_DRVSPU_CHANNEL)1, eDRVSPU_MONO_PCM16);		// Mono PCM16	
 }
 
 BOOL spuIsMono(void)
@@ -402,7 +404,7 @@ VOID spuStartPlay(PFN_DRVSPU_CB_FUNC *fnCallBack, UINT8 *data)
 {	
 	DrvSPU_EnableInt(eDRVSPU_CHANNEL_0, DRVSPU_THADDRESS_INT, (PFN_DRVSPU_CB_FUNC*) fnCallBack);
 	DrvSPU_EnableInt(eDRVSPU_CHANNEL_0, DRVSPU_ENDADDRESS_INT, (PFN_DRVSPU_CB_FUNC*) fnCallBack);	
-	memcpy(playbuffer, data, FRAG_SIZE);
+	memcpy(playbuffer, data, g_i32FragSize);
 	DrvSPU_StartPlay();	
 }
 
@@ -435,8 +437,16 @@ VOID spuIoctl(UINT32 cmd, UINT32 arg0, UINT32 arg1)
 			spuSetStereo();
 			break;			
 		case SPU_IOCTL_GET_FRAG_SIZE:
-			*((UINT32 *)arg0) = FRAG_SIZE;
+			*((UINT32 *)arg0) = g_i32FragSize;
 			break;
+		case SPU_IOCTL_SET_FRAG_SIZE:
+			if ( arg0 && (*((UINT32 *)arg0) <= FRAG_SIZE) )
+			{
+				g_i32FragSize = *((UINT32 *)arg0);
+				spuSetThresholdAddress((UINT32)_pucPlayAudioBuff + (g_i32FragSize>>1) );	
+				spuSetEndAddress((UINT32)_pucPlayAudioBuff + g_i32FragSize);				
+			}		
+			break;		
 		default:
 			break;
 	}		

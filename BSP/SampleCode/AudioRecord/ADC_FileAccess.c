@@ -32,7 +32,7 @@ INT32 WriteFile(char* szAsciiName,
 	fsCloseFile(hFile);
 	return Successful;	
 }
-char WaveHeader[] __attribute__((aligned(4))) = {'R', 'I', 'F', 'F', 0x00, 0x00, 0x00, 0x00,	   //ForthCC code+(RAW-data-size+0x24)
+char WaveHeader[] __attribute__((aligned(32))) = {'R', 'I', 'F', 'F', 0x00, 0x00, 0x00, 0x00,	   //ForthCC code+(RAW-data-size+0x24)
 					'W', 'A', 'V', 'E', 'f', 'm', 't', ' ',			
 					0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00,//Chunk-size, audio format, and NUMChannel
 					0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,//Sample-Rate and Byte-Count-Per-Sec 

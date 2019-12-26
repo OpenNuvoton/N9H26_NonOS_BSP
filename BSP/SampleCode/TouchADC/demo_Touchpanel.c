@@ -17,9 +17,9 @@ static void TouchPanel_timer(void)
 static void TouchPanel_callback(UINT32 u32code)
 {
 	if(u32code==1)
-		sysprintf("\ndown\n");
+		sysprintf("\nValid touching\n");
 	else
-		sysprintf("\nup\n");	
+		sysprintf("\nInvalid touching\n");
 }
 static void Pressure_callback(UINT32 u32code)
 {

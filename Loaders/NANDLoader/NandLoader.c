@@ -11,9 +11,9 @@
 
 // define DATE CODE and show it when running to make maintaining easy.
 #ifdef __USER_DEFINE_FUNC
-#define DATE_CODE   "20181017_Logo"
+#define DATE_CODE   "20191218_Logo"
 #else
-#define DATE_CODE   "20181017"
+#define DATE_CODE   "20191218"
 #endif
 
 /* global variable */
@@ -290,7 +290,12 @@ void initClock(void)
 }
 
 
-UINT8 image_buffer[8192];
+#if defined (__GNUC__)
+    UINT8 image_buffer[8192] __attribute__((aligned (32)));
+#else
+    __align(32) UINT8 image_buffer[8192];
+#endif
+
 unsigned char *imagebuf;
 unsigned int *pImageList;
 

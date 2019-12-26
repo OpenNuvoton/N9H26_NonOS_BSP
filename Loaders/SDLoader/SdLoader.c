@@ -10,7 +10,7 @@
 #include "turbowriter.h"
 
 // define DATE CODE and show it when running to make maintaining easy.
-#define DATE_CODE   "20181017"
+#define DATE_CODE   "20191218"
 
 /* global variable */
 typedef struct sd_info
@@ -253,7 +253,12 @@ void initClock(void)
 }
 
 
-UINT8 dummy_buffer[512];
+#if defined (__GNUC__)
+    UINT8 dummy_buffer[512] __attribute__((aligned (32)));
+#else
+    __align(32) UINT8 dummy_buffer[512];
+#endif
+
 unsigned char *imagebuf;
 unsigned int *pImageList;
 
