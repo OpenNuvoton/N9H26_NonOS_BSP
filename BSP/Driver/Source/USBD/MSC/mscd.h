@@ -68,7 +68,6 @@ typedef struct{
     INT32   gTotalSectors_CDROM;
     UINT32  F_NAND0_LUN;
     UINT32  F_NAND1_LUN;
-    UINT32  F_NAND2_LUN;
     INT32   gTotalSectors_NAND0;
     INT32   gTotalSectors_NAND1;
     INT32   gTotalSectors_NAND2;

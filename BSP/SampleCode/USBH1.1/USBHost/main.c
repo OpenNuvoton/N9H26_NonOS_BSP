@@ -38,9 +38,9 @@ void usbSetFeature(void);
 INT  USBKeyboardInit(void);
 VOID  UMAS_RemoveUmasDriver(void);
 
+UINT8  _JpegImage[256 * 1024] __attribute__((aligned(32)));
+UINT8  _JpegImageR[256 * 1024] __attribute__((aligned(32)));
 
-UINT8  _JpegImage[256 * 1024];
-UINT8  _JpegImageR[256 * 1024];
 
 extern UINT32  _QueuedSize;
 

@@ -34,7 +34,8 @@ INT  USBKeyboardInit(void);
 #define sysGetTicks(TIMER0)      cyg_current_time()
 #endif
 
-UINT8  _JpegImage[256 * 1024];
+UINT8  _JpegImage[256 * 1024] __attribute__((aligned(32)));
+UINT8  _JpegImageR[256 * 1024] __attribute__((aligned(32)));
 
 extern UINT32  _QueuedSize;
 
@@ -290,8 +291,6 @@ reget:
     while (1)
         GetJpegImage(_JpegImage, &nJpegLen, 0);
 }
-UINT8  _JpegImage[256 * 1024];
-UINT8  _JpegImageR[256 * 1024];
 
 void PenDriverAccess(UINT32 u32Count)
 {
