@@ -153,9 +153,9 @@ INT main(void)
     sysprintf("<MSC>\n");
 #if !defined(__RAM_DISK_ONLY__) && !defined (__SPI_ONLY__)
 
-    u32SicRef = sysGetHCLK1Clock();
+    u32SicRef = sysGetPLLOutputHz(eSYS_UPLL, sysGetExternalClock());
 
-    sicIoctl(SIC_SET_CLOCK, u32SicRef / 1000, 0, 0);
+    sicIoctl(SIC_SET_CLOCK, u32SicRef / 1000, 0, 0);  /* clock from PLL */
 
     sicOpen();
     /* initial nuvoton file system */
