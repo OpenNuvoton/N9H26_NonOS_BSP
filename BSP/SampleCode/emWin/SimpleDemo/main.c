@@ -140,7 +140,9 @@ static void _SYS_Init(void)
     uart.uiRxTriggerLevel = LEVEL_1_BYTE;
     sysInitializeUART(&uart);
 
+    sysInvalidCache();
     sysEnableCache(CACHE_WRITE_BACK);
+    sysFlushCache(I_D_CACHE);
 
     /* start timer 0 */
     OS_TimeMS = 0;
@@ -181,13 +183,10 @@ WM_HWIN CreateFramewin(void);
 
 void MainTask(void)
 {
-    WM_HWIN hWin;
-    char     acVersion[40] = "Framewin: Version of emWin: ";
-
     GUI_Init();
-    hWin = CreateFramewin();
-    strcat(acVersion, GUI_GetVersionString());
-    FRAMEWIN_SetText(hWin, acVersion);
+
+    CreateFramewin();
+
     while (1)
     {
         GUI_Delay(500);
