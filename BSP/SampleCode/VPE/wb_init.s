@@ -19,7 +19,7 @@ F_BIT		EQU		0x40
 ;----------------------------
 ; System / User Stack Memory
 ;----------------------------
-RAM_Limit       	EQU     	0x2000000          	; For unexpanded hardw5are board
+RAM_Limit       	EQU     	0x4000000          	; For unexpanded hardw5are board
 USR_Stack	EQU		RAM_Limit
 UND_Stack	EQU		USR_Stack-2560
 Abort_Stack	EQU		UND_Stack-2560

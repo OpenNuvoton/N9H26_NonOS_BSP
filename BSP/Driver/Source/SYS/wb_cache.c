@@ -260,7 +260,7 @@ VOID sysFlushCache(INT32 nCacheType)
 
 VOID sysInvalidCache()
 {
-	volatile int temp;
+	int temp;
 
 #if defined (__GNUC__) && !(__CC_ARM)
     __asm volatile

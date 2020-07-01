@@ -83,9 +83,9 @@ Reset_Handler:
         //--------------------------------
         // Initial Stack Pointer register
         //--------------------------------
-#if (N9H26K5 == 1)
-		LDR    R0,=0x2000000
-#endif
+
+        LDR    R0,=0x4000000
+
 
 done:
         // Enter Undefined Instruction Mode and set Stack Pointer

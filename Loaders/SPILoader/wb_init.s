@@ -20,11 +20,7 @@ F_BIT       EQU        0x40
 ; System / User Stack Memory
 ;----------------------------
 
- IF :DEF:N9H26K3
-RAM_Limit       EQU     0x800000              ; For unexpanded hardware board
- ELSE
-RAM_Limit       EQU     0x2000000              ; For unexpanded hardware board
- ENDIF 
+RAM_Limit       EQU     0x4000000              ; For unexpanded hardware board
 
 USR_Stack        EQU        RAM_Limit
 SVC_Stack        EQU        (USR_Stack-1024)         ; SVC stack at top of memory

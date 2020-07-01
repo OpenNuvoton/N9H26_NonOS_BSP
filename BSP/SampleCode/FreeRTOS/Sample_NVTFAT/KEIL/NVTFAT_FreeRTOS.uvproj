@@ -151,7 +151,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\..\Script\N9H26\N9H26K5.ini</InitializationFile>
+            <InitializationFile>..\..\..\..\Script\N9H26\N9H26K6.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -363,7 +363,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>N9H26K5</Define>
+              <Define>N9H26K6</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>
@@ -377,7 +377,7 @@
             <useFile>0</useFile>
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0xF8002000</DataAddressRange>
-            <ScatterFile>..\..\..\..\Script\N9H26\N9H26K5.sct</ScatterFile>
+            <ScatterFile>..\..\..\..\Script\N9H26\N9H26K6.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--entry 0</Misc>
@@ -624,7 +624,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\..\Script\N9H26\N9H26K5.ini</InitializationFile>
+            <InitializationFile>..\..\..\..\Script\N9H26\N9H26K6.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -836,7 +836,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>N9H26K5</Define>
+              <Define>N9H26K6</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>
@@ -850,7 +850,7 @@
             <useFile>0</useFile>
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0xF8002000</DataAddressRange>
-            <ScatterFile>..\..\..\..\Script\N9H26\N9H26K5.sct</ScatterFile>
+            <ScatterFile>..\..\..\..\Script\N9H26\N9H26K6.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--entry 0</Misc>

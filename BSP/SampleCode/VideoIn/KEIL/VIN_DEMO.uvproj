@@ -151,7 +151,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\Script\N9H26\N9H26K5.ini</InitializationFile>
+            <InitializationFile>..\..\..\Script\N9H26\N9H26K6.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -377,7 +377,7 @@
             <useFile>0</useFile>
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0xF8002000</DataAddressRange>
-            <ScatterFile>..\..\..\Script\N9H26\N9H26K5.sct</ScatterFile>
+            <ScatterFile>..\..\..\Script\N9H26\N9H26K6.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--entry Reset_Go</Misc>
@@ -724,7 +724,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\Script\N9H26\N9H26K5.ini</InitializationFile>
+            <InitializationFile>..\..\..\Script\N9H26\N9H26K6.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -950,7 +950,7 @@
             <useFile>0</useFile>
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0xF8002000</DataAddressRange>
-            <ScatterFile>..\..\..\Script\N9H26\N9H26K5.sct</ScatterFile>
+            <ScatterFile>..\..\..\Script\N9H26\N9H26K6.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--entry Reset_Go</Misc>

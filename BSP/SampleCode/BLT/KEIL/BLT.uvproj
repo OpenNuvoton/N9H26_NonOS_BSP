@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>N9H26K5_GIANTPLUS_GPM1006D</TargetName>
+      <TargetName>N9H26K6_GIANTPLUS_GPM1006D</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -151,7 +151,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\Script\N9H26\N9H26K5.ini</InitializationFile>
+            <InitializationFile>..\..\..\Script\N9H26\N9H26K6.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -377,7 +377,7 @@
             <useFile>0</useFile>
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0xF8002000</DataAddressRange>
-            <ScatterFile>..\..\..\Script\N9H26\N9H26K5.sct</ScatterFile>
+            <ScatterFile>..\..\..\Script\N9H26\N9H26K6.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--entry 0</Misc>
@@ -453,7 +453,7 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>N9H26K5_FW050TFT_800x480</TargetName>
+      <TargetName>N9H26K6_FW050TFT_800x480</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -597,7 +597,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\Script\N9H26\N9H26K5.ini</InitializationFile>
+            <InitializationFile>..\..\..\Script\N9H26\N9H26K6.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -823,7 +823,7 @@
             <useFile>0</useFile>
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0xF8002000</DataAddressRange>
-            <ScatterFile>..\..\..\Script\N9H26\N9H26K5.sct</ScatterFile>
+            <ScatterFile>..\..\..\Script\N9H26\N9H26K6.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--entry 0</Misc>

@@ -4,9 +4,9 @@
 ; *
 ; * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
 ; *****************************************************************************/
-#if defined(N9H26K5_32MB)
-    #define MEMSIZE 0x2000000
-#endif 
+
+#define MEMSIZE 0x4000000
+
 
 ENTRY(__vector)
 /*

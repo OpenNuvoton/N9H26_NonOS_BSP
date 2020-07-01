@@ -1,0 +1,958 @@
+   1              		.cpu arm926ej-s
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"wb_huart.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sysHuartISR,"ax",%progbits
+  16              		.align	2
+  17              		.global	sysHuartISR
+  18              		.syntax unified
+  19              		.arm
+  20              		.fpu softvfp
+  22              	sysHuartISR:
+  23              	.LFB10:
+  24              		.file 1 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_huart.c"
+   1:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** /***************************************************************************
+   2:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *                                                                         *
+   3:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  * Copyright (c) 2016 Nuvoton Technolog. All rights reserved.              *
+   4:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *                                                                         *
+   5:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  ***************************************************************************/
+   6:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+   7:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** /****************************************************************************
+   8:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  * FILENAME
+   9:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *   wb_huart.c
+  10:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *
+  11:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  * VERSION
+  12:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *   1.0
+  13:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *
+  14:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  * DESCRIPTION
+  15:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *   The HUART related function of Nuvoton ARM9 MCU
+  16:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *
+  17:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  * HISTORY
+  18:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *   2008-06-25  Ver 1.0 draft by Min-Nan Cheng
+  19:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *
+  20:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  * REMARK
+  21:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  *   None
+  22:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****  **************************************************************************/
+  23:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #include <string.h>
+  24:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #include <stdio.h>
+  25:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #include "wblib.h"
+  26:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+  27:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** extern PFN_SYS_UART_CALLBACK (pfnUartIntHandlerTable)[2][2];    /* defined on wb_uart.c */
+  28:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+  29:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** UINT32 _sys_uHUARTClockRate = EXTERNAL_CRYSTAL_CLOCK;
+  30:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** PVOID  _sys_pvOldHuartVect;
+  31:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+  32:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #define sysHuartTxBufReadNextOne()	(((_sys_uHuartTxHead+1)==HUART_BUFFSIZE)? (UINT32)NULL: _sys_uHu
+  33:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #define sysHuartTxBufWriteNextOne()	(((_sys_uHuartTxTail+1)==HUART_BUFFSIZE)? (UINT32)NULL: _sys_uH
+  34:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #define HUART_BUFFSIZE	256
+  35:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** UINT8 _sys_ucHuartTxBuf[HUART_BUFFSIZE];
+  36:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** UINT32 volatile _sys_uHuartTxHead, _sys_uHuartTxTail;
+  37:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+  38:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #define RX_ARRAY_NUM 100
+  39:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** UINT8 huart_rx[RX_ARRAY_NUM] = {0};
+  40:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** UINT32 volatile huart_rx_cnt = 0;
+  41:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+  42:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+  43:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** void sysHuartInstallcallback(UINT32 u32IntType, PFN_SYS_UART_CALLBACK pfnCallback)
+  44:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** {
+  45:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     if(u32IntType>1)
+  46:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         return;
+  47:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     if(u32IntType == 0)
+  48:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     {
+  49:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         pfnUartIntHandlerTable[0][0] = (PFN_SYS_UART_CALLBACK)(pfnCallback);
+  50:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     }
+  51:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     else if(u32IntType == 1)
+  52:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     {
+  53:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         pfnUartIntHandlerTable[0][1] = (PFN_SYS_UART_CALLBACK)(pfnCallback);
+  54:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     }
+  55:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** }
+  56:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+  57:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+  58:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** VOID sysHuartISR()
+  59:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** {
+  25              		.loc 1 59 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 16
+  28              		@ frame_needed = 0, uses_anonymous_args = 0
+  29 0000 1F402DE9 		push	{r0, r1, r2, r3, r4, lr}
+  30              		.cfi_def_cfa_offset 24
+  31              		.cfi_offset 4, -8
+  32              		.cfi_offset 14, -4
+  60:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     UINT32 volatile regIIR, i;
+  61:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     UINT32 volatile regIER, u32EnableInt;
+  62:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     UINT32 u32Count;
+  63:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+  64:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     regIIR = inpb(REG_UART_ISR + 0);
+  33              		.loc 1 64 0
+  34 0004 D4219FE5 		ldr	r2, .L33
+  35 0008 1C30D2E5 		ldrb	r3, [r2, #28]	@ zero_extendqisi2
+  36 000c FF3003E2 		and	r3, r3, #255
+  37 0010 00308DE5 		str	r3, [sp]
+  65:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     regIER = inpb(REG_UART_IER + 0);
+  38              		.loc 1 65 0
+  39 0014 0430D2E5 		ldrb	r3, [r2, #4]	@ zero_extendqisi2
+  40 0018 FF3003E2 		and	r3, r3, #255
+  41 001c 08308DE5 		str	r3, [sp, #8]
+  66:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     u32EnableInt = regIER & regIIR;
+  42              		.loc 1 66 0
+  43 0020 08309DE5 		ldr	r3, [sp, #8]
+  44 0024 00109DE5 		ldr	r1, [sp]
+  45 0028 013003E0 		and	r3, r3, r1
+  46 002c 0C308DE5 		str	r3, [sp, #12]
+  67:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     if (u32EnableInt & THRE_IF)
+  47              		.loc 1 67 0
+  48 0030 0C309DE5 		ldr	r3, [sp, #12]
+  49 0034 020013E3 		tst	r3, #2
+  50 0038 0F00000A 		beq	.L3
+  68:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     {   /* buffer empty */
+  69:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         if (_sys_uHuartTxHead == _sys_uHuartTxTail)
+  51              		.loc 1 69 0
+  52 003c A0319FE5 		ldr	r3, .L33+4
+  53 0040 A0119FE5 		ldr	r1, .L33+8
+  54 0044 00C093E5 		ldr	ip, [r3]
+  55 0048 000091E5 		ldr	r0, [r1]
+  56 004c 00005CE1 		cmp	ip, r0
+  70:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         {
+  71:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             /* Disable interrupt if no any request! */
+  72:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             outpb((REG_UART_IER+0), inp32(REG_UART_IER+0) & (~THRE_IEN));
+  57              		.loc 1 72 0
+  58 0050 04309205 		ldreq	r3, [r2, #4]
+  59 0054 0100A0E1 		mov	r0, r1
+  60 0058 FD300302 		andeq	r3, r3, #253
+  61 005c 0430C205 		strbeq	r3, [r2, #4]
+  69:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         {
+  62              		.loc 1 69 0
+  63 0060 0500000A 		beq	.L3
+  73:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         }
+  74:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         else
+  75:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         {
+  76:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             /* Transmit data */
+  77:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             for (i=0; i<8; i++)
+  78:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             {
+  79:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                 #ifdef __HW_SIM__
+  80:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+  81:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                 #else
+  82:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                     outpb(REG_UART_THR+0, _sys_ucHuartTxBuf[_sys_uHuartTxHead]);
+  64              		.loc 1 82 0
+  65 0064 80C19FE5 		ldr	ip, .L33+12
+  77:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             {
+  66              		.loc 1 77 0
+  67 0068 0010A0E3 		mov	r1, #0
+  68 006c 04108DE5 		str	r1, [sp, #4]
+  69              	.L5:
+  77:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             {
+  70              		.loc 1 77 0 is_stmt 0 discriminator 1
+  71 0070 04109DE5 		ldr	r1, [sp, #4]
+  72 0074 070051E3 		cmp	r1, #7
+  73 0078 2D00009A 		bls	.L8
+  74              	.L3:
+  83:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                 #endif
+  84:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                 _sys_uHuartTxHead = sysHuartTxBufReadNextOne();
+  85:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                 if (_sys_uHuartTxHead == _sys_uHuartTxTail) /* buffer empty */
+  86:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                     break;
+  87:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             }
+  88:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         }
+  89:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     }
+  90:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     if(u32EnableInt & RDA_IF)
+  75              		.loc 1 90 0 is_stmt 1
+  76 007c 0C309DE5 		ldr	r3, [sp, #12]
+  77 0080 010013E3 		tst	r3, #1
+  78 0084 1200000A 		beq	.L9
+  91:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     {
+  92:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         u32Count = (inpw(REG_UART_FSR+0) & Rx_Pointer) >> 8;
+  79              		.loc 1 92 0
+  80 0088 50219FE5 		ldr	r2, .L33
+  81 008c 5C419FE5 		ldr	r4, .L33+16
+  82 0090 181092E5 		ldr	r1, [r2, #24]
+  93:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+  94:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         {
+  95:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             if ( huart_rx_cnt == RX_ARRAY_NUM )
+  96:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             {
+  97:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                 huart_rx_cnt = 0;
+  98:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             }
+  99:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             huart_rx[huart_rx_cnt] = (inpb(REG_UART_RBR+0));
+  83              		.loc 1 99 0
+  84 0094 58C19FE5 		ldr	ip, .L33+20
+  92:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+  85              		.loc 1 92 0
+  86 0098 2114A0E1 		lsr	r1, r1, #8
+  93:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+  87              		.loc 1 93 0
+  88 009c 0030A0E3 		mov	r3, #0
+  92:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+  89              		.loc 1 92 0
+  90 00a0 3F1001E2 		and	r1, r1, #63
+  91              	.LVL0:
+  93:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+  92              		.loc 1 93 0
+  93 00a4 04308DE5 		str	r3, [sp, #4]
+  94              	.L10:
+  93:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+  95              		.loc 1 93 0 is_stmt 0 discriminator 1
+  96 00a8 04009DE5 		ldr	r0, [sp, #4]
+  97 00ac 010050E1 		cmp	r0, r1
+  98 00b0 3000003A 		bcc	.L12
+ 100:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             huart_rx_cnt++;
+ 101:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         }
+ 102:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         /* callback to uplayer(bufptr, len); */
+ 103:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         if(pfnUartIntHandlerTable[0][0] !=0)
+  99              		.loc 1 103 0 is_stmt 1
+ 100 00b4 3C319FE5 		ldr	r3, .L33+24
+ 101 00b8 003093E5 		ldr	r3, [r3]
+ 102 00bc 000053E3 		cmp	r3, #0
+ 103 00c0 0100000A 		beq	.L13
+ 104:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             pfnUartIntHandlerTable[0][0](&(huart_rx[0]), u32Count);
+ 104              		.loc 1 104 0
+ 105 00c4 28019FE5 		ldr	r0, .L33+20
+ 106 00c8 33FF2FE1 		blx	r3
+ 107              	.LVL1:
+ 108              	.L13:
+ 105:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         huart_rx_cnt = 0;
+ 109              		.loc 1 105 0
+ 110 00cc 0030A0E3 		mov	r3, #0
+ 111 00d0 003084E5 		str	r3, [r4]
+ 112              	.L9:
+ 106:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     }
+ 107:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     if(u32EnableInt & Tout_IF)
+ 113              		.loc 1 107 0
+ 114 00d4 0C309DE5 		ldr	r3, [sp, #12]
+ 115 00d8 100013E3 		tst	r3, #16
+ 116 00dc 1200000A 		beq	.L1
+ 108:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     {
+ 109:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         u32Count = (inpw(REG_UART_FSR+0) & Rx_Pointer) >> 8;
+ 117              		.loc 1 109 0
+ 118 00e0 F8209FE5 		ldr	r2, .L33
+ 119 00e4 04419FE5 		ldr	r4, .L33+16
+ 120 00e8 181092E5 		ldr	r1, [r2, #24]
+ 110:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+ 111:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         {
+ 112:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             if ( huart_rx_cnt == RX_ARRAY_NUM )
+ 113:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             {
+ 114:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                 huart_rx_cnt = 0;
+ 115:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             }
+ 116:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             huart_rx[huart_rx_cnt] = (inpb(REG_UART_RBR+0));
+ 121              		.loc 1 116 0
+ 122 00ec 00C19FE5 		ldr	ip, .L33+20
+ 109:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+ 123              		.loc 1 109 0
+ 124 00f0 2114A0E1 		lsr	r1, r1, #8
+ 110:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+ 125              		.loc 1 110 0
+ 126 00f4 0030A0E3 		mov	r3, #0
+ 109:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+ 127              		.loc 1 109 0
+ 128 00f8 3F1001E2 		and	r1, r1, #63
+ 129              	.LVL2:
+ 110:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+ 130              		.loc 1 110 0
+ 131 00fc 04308DE5 		str	r3, [sp, #4]
+ 132              	.L15:
+ 110:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         for(i=0; i<u32Count; i++)
+ 133              		.loc 1 110 0 is_stmt 0 discriminator 1
+ 134 0100 04009DE5 		ldr	r0, [sp, #4]
+ 135 0104 010050E1 		cmp	r0, r1
+ 136 0108 2700003A 		bcc	.L17
+ 117:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             huart_rx_cnt++;
+ 118:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         }
+ 119:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         /* callback to uplayer(bufptr, len); */
+ 120:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         if(pfnUartIntHandlerTable[0][1] !=0)
+ 137              		.loc 1 120 0 is_stmt 1
+ 138 010c E4309FE5 		ldr	r3, .L33+24
+ 139 0110 043093E5 		ldr	r3, [r3, #4]
+ 140 0114 000053E3 		cmp	r3, #0
+ 141 0118 0100000A 		beq	.L18
+ 121:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             pfnUartIntHandlerTable[0][1](&(huart_rx[0]), u32Count);
+ 142              		.loc 1 121 0
+ 143 011c D0009FE5 		ldr	r0, .L33+20
+ 144 0120 33FF2FE1 		blx	r3
+ 145              	.LVL3:
+ 146              	.L18:
+ 122:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         huart_rx_cnt = 0;
+ 147              		.loc 1 122 0
+ 148 0124 0030A0E3 		mov	r3, #0
+ 149 0128 003084E5 		str	r3, [r4]
+ 150              	.L1:
+ 123:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     }
+ 124:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** }
+ 151              		.loc 1 124 0
+ 152 012c 10D08DE2 		add	sp, sp, #16
+ 153              		.cfi_remember_state
+ 154              		.cfi_def_cfa_offset 8
+ 155              		@ sp needed
+ 156 0130 1080BDE8 		pop	{r4, pc}
+ 157              	.L8:
+ 158              		.cfi_restore_state
+  82:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                 #endif
+ 159              		.loc 1 82 0
+ 160 0134 001093E5 		ldr	r1, [r3]
+ 161 0138 0110DCE7 		ldrb	r1, [ip, r1]	@ zero_extendqisi2
+ 162 013c 0010C2E5 		strb	r1, [r2]
+  84:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                 if (_sys_uHuartTxHead == _sys_uHuartTxTail) /* buffer empty */
+ 163              		.loc 1 84 0
+ 164 0140 001093E5 		ldr	r1, [r3]
+ 165 0144 FF0051E3 		cmp	r1, #255
+ 166 0148 00109315 		ldrne	r1, [r3]
+ 167 014c 0010A003 		moveq	r1, #0
+ 168 0150 01108112 		addne	r1, r1, #1
+ 169 0154 001083E5 		str	r1, [r3]
+  85:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****                     break;
+ 170              		.loc 1 85 0
+ 171 0158 00E093E5 		ldr	lr, [r3]
+ 172 015c 001090E5 		ldr	r1, [r0]
+ 173 0160 01005EE1 		cmp	lr, r1
+ 174 0164 C4FFFF0A 		beq	.L3
+  77:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             {
+ 175              		.loc 1 77 0 discriminator 2
+ 176 0168 04109DE5 		ldr	r1, [sp, #4]
+ 177 016c 011081E2 		add	r1, r1, #1
+ 178 0170 04108DE5 		str	r1, [sp, #4]
+ 179 0174 BDFFFFEA 		b	.L5
+ 180              	.LVL4:
+ 181              	.L12:
+  95:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             {
+ 182              		.loc 1 95 0
+ 183 0178 000094E5 		ldr	r0, [r4]
+ 184 017c 640050E3 		cmp	r0, #100
+  97:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             }
+ 185              		.loc 1 97 0
+ 186 0180 00308405 		streq	r3, [r4]
+  99:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             huart_rx_cnt++;
+ 187              		.loc 1 99 0
+ 188 0184 000094E5 		ldr	r0, [r4]
+ 189 0188 00E0D2E5 		ldrb	lr, [r2]	@ zero_extendqisi2
+ 190 018c 00E0CCE7 		strb	lr, [ip, r0]
+ 100:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         }
+ 191              		.loc 1 100 0
+ 192 0190 000094E5 		ldr	r0, [r4]
+ 193 0194 010080E2 		add	r0, r0, #1
+ 194 0198 000084E5 		str	r0, [r4]
+  93:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         {
+ 195              		.loc 1 93 0
+ 196 019c 04009DE5 		ldr	r0, [sp, #4]
+ 197 01a0 010080E2 		add	r0, r0, #1
+ 198 01a4 04008DE5 		str	r0, [sp, #4]
+ 199 01a8 BEFFFFEA 		b	.L10
+ 200              	.L17:
+ 112:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             {
+ 201              		.loc 1 112 0
+ 202 01ac 000094E5 		ldr	r0, [r4]
+ 203 01b0 640050E3 		cmp	r0, #100
+ 114:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             }
+ 204              		.loc 1 114 0
+ 205 01b4 00308405 		streq	r3, [r4]
+ 116:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             huart_rx_cnt++;
+ 206              		.loc 1 116 0
+ 207 01b8 000094E5 		ldr	r0, [r4]
+ 208 01bc 00E0D2E5 		ldrb	lr, [r2]	@ zero_extendqisi2
+ 209 01c0 00E0CCE7 		strb	lr, [ip, r0]
+ 117:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         }
+ 210              		.loc 1 117 0
+ 211 01c4 000094E5 		ldr	r0, [r4]
+ 212 01c8 010080E2 		add	r0, r0, #1
+ 213 01cc 000084E5 		str	r0, [r4]
+ 110:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         {
+ 214              		.loc 1 110 0
+ 215 01d0 04009DE5 		ldr	r0, [sp, #4]
+ 216 01d4 010080E2 		add	r0, r0, #1
+ 217 01d8 04008DE5 		str	r0, [sp, #4]
+ 218 01dc C7FFFFEA 		b	.L15
+ 219              	.L34:
+ 220              		.align	2
+ 221              	.L33:
+ 222 01e0 008000B8 		.word	-1207926784
+ 223 01e4 00000000 		.word	_sys_uHuartTxHead
+ 224 01e8 00000000 		.word	_sys_uHuartTxTail
+ 225 01ec 00000000 		.word	_sys_ucHuartTxBuf
+ 226 01f0 00000000 		.word	.LANCHOR0
+ 227 01f4 00000000 		.word	.LANCHOR1
+ 228 01f8 00000000 		.word	pfnUartIntHandlerTable
+ 229              		.cfi_endproc
+ 230              	.LFE10:
+ 232              		.section	.text.sysHuartInstallcallback,"ax",%progbits
+ 233              		.align	2
+ 234              		.global	sysHuartInstallcallback
+ 235              		.syntax unified
+ 236              		.arm
+ 237              		.fpu softvfp
+ 239              	sysHuartInstallcallback:
+ 240              	.LFB9:
+  44:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     if(u32IntType>1)
+ 241              		.loc 1 44 0
+ 242              		.cfi_startproc
+ 243              		@ args = 0, pretend = 0, frame = 0
+ 244              		@ frame_needed = 0, uses_anonymous_args = 0
+ 245              		@ link register save eliminated.
+ 246              	.LVL5:
+  45:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         return;
+ 247              		.loc 1 45 0
+ 248 0000 010050E3 		cmp	r0, #1
+ 249 0004 1EFF2F81 		bxhi	lr
+ 250 0008 0C309FE5 		ldr	r3, .L38
+  47:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     {
+ 251              		.loc 1 47 0
+ 252 000c 000050E3 		cmp	r0, #0
+  49:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     }
+ 253              		.loc 1 49 0
+ 254 0010 00108305 		streq	r1, [r3]
+  53:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     }
+ 255              		.loc 1 53 0
+ 256 0014 04108315 		strne	r1, [r3, #4]
+  55:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 257              		.loc 1 55 0
+ 258 0018 1EFF2FE1 		bx	lr
+ 259              	.L39:
+ 260              		.align	2
+ 261              	.L38:
+ 262 001c 00000000 		.word	pfnUartIntHandlerTable
+ 263              		.cfi_endproc
+ 264              	.LFE9:
+ 266              		.section	.text.sysHuartEnableInt,"ax",%progbits
+ 267              		.align	2
+ 268              		.global	sysHuartEnableInt
+ 269              		.syntax unified
+ 270              		.arm
+ 271              		.fpu softvfp
+ 273              	sysHuartEnableInt:
+ 274              	.LFB12:
+ 125:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 126:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 127:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** static VOID sysSetHuartBaudRate(UINT32 uBaudRate)
+ 128:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** {
+ 129:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     UINT32 _mBaudValue;
+ 130:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 131:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* First, compute the baudrate divisor. */
+ 132:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #if 0
+ 133:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* mode 0 */
+ 134:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     _mBaudValue = (_sys_uHUARTClockRate / (uBaudRate * 16));
+ 135:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     if ((_sys_uHUARTClockRate % (uBaudRate * 16)) > ((uBaudRate * 16) / 2))
+ 136:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         _mBaudValue++;
+ 137:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     _mBaudValue -= 2;
+ 138:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outpw(REG_UART_BAUD+0, _mBaudValue);
+ 139:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #else
+ 140:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* mode 3 */
+ 141:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     _mBaudValue = (_sys_uHUARTClockRate / uBaudRate) - 2;
+ 142:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outpw(REG_UART_BAUD+0, ((0x30<<24)| _mBaudValue));
+ 143:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #endif
+ 144:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** }
+ 145:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 146:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 147:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** void sysHuartEnableInt(INT32 eIntType)
+ 148:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** {
+ 275              		.loc 1 148 0
+ 276              		.cfi_startproc
+ 277              		@ args = 0, pretend = 0, frame = 0
+ 278              		@ frame_needed = 0, uses_anonymous_args = 0
+ 279              		@ link register save eliminated.
+ 280              	.LVL6:
+ 149:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     if(eIntType==UART_INT_RDA)
+ 281              		.loc 1 149 0
+ 282 0000 000050E3 		cmp	r0, #0
+ 283 0004 0400001A 		bne	.L41
+ 150:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         outp32(REG_UART_IER+0, inp32(REG_UART_IER+0) |RDA_IEN);
+ 284              		.loc 1 150 0
+ 285 0008 34209FE5 		ldr	r2, .L45
+ 286 000c 043092E5 		ldr	r3, [r2, #4]
+ 287 0010 013083E3 		orr	r3, r3, #1
+ 288              	.L44:
+ 151:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     else if (eIntType==UART_INT_RDTO)
+ 152:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         outp32(REG_UART_IER+0, inp32(REG_UART_IER+0) |RTO_IEN |Time_out_EN);
+ 289              		.loc 1 152 0
+ 290 0014 043082E5 		str	r3, [r2, #4]
+ 291 0018 1EFF2FE1 		bx	lr
+ 292              	.L41:
+ 151:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     else if (eIntType==UART_INT_RDTO)
+ 293              		.loc 1 151 0
+ 294 001c 010050E3 		cmp	r0, #1
+ 295              		.loc 1 152 0
+ 296 0020 1C209F05 		ldreq	r2, .L45
+ 297 0024 04309205 		ldreq	r3, [r2, #4]
+ 298 0028 813E8303 		orreq	r3, r3, #2064
+ 299 002c F8FFFF0A 		beq	.L44
+ 300              	.L43:
+ 153:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     else if (eIntType==UART_INT_NONE)
+ 301              		.loc 1 153 0
+ 302 0030 FF0050E3 		cmp	r0, #255
+ 154:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         outp32(REG_UART_IER+0, 0x0);
+ 303              		.loc 1 154 0
+ 304 0034 08309F05 		ldreq	r3, .L45
+ 305 0038 0020A003 		moveq	r2, #0
+ 306 003c 04208305 		streq	r2, [r3, #4]
+ 155:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** }
+ 307              		.loc 1 155 0
+ 308 0040 1EFF2FE1 		bx	lr
+ 309              	.L46:
+ 310              		.align	2
+ 311              	.L45:
+ 312 0044 008000B8 		.word	-1207926784
+ 313              		.cfi_endproc
+ 314              	.LFE12:
+ 316              		.global	__aeabi_uidiv
+ 317              		.section	.text.sysInitializeHUART,"ax",%progbits
+ 318              		.align	2
+ 319              		.global	sysInitializeHUART
+ 320              		.syntax unified
+ 321              		.arm
+ 322              		.fpu softvfp
+ 324              	sysInitializeHUART:
+ 325              	.LFB13:
+ 156:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 157:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 158:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** INT32 sysInitializeHUART(WB_UART_T *uart)
+ 159:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** {
+ 326              		.loc 1 159 0
+ 327              		.cfi_startproc
+ 328              		@ args = 0, pretend = 0, frame = 0
+ 329              		@ frame_needed = 0, uses_anonymous_args = 0
+ 330              	.LVL7:
+ 160:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     static BOOL bIsResetFIFO = FALSE;
+ 161:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 162:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Enable HUART multi-function pins*/
+ 163:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 	outp32(REG_CLKDIV3, (inp32(REG_CLKDIV3) & (~(UART0_N1| UART0_S| UART0_N0))));
+ 331              		.loc 1 163 0
+ 332 0000 0B32A0E3 		mov	r3, #-1342177280
+ 333 0004 182293E5 		ldr	r2, [r3, #536]
+ 334 0008 FF20C2E3 		bic	r2, r2, #255
+ 335 000c 182283E5 		str	r2, [r3, #536]
+ 164:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 	outp32(REG_GPDFUN0, (inp32(REG_GPDFUN0) & ~(MF_GPD1|MF_GPD2)) | 0x110);	
+ 336              		.loc 1 164 0
+ 337 0010 982093E5 		ldr	r2, [r3, #152]
+ 338 0014 FF2EC2E3 		bic	r2, r2, #4080
+ 339 0018 112E82E3 		orr	r2, r2, #272
+ 340 001c 982083E5 		str	r2, [r3, #152]
+ 165:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 	outp32(REG_APBCLK, inp32(REG_APBCLK) | UART0_CKE);
+ 341              		.loc 1 165 0
+ 342 0020 082293E5 		ldr	r2, [r3, #520]
+ 343 0024 082082E3 		orr	r2, r2, #8
+ 344 0028 082283E5 		str	r2, [r3, #520]
+ 166:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 167:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Check the supplied parity */
+ 168:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     if ((uart->uiParity != WB_PARITY_NONE) &&
+ 345              		.loc 1 168 0
+ 346 002c 0E30D0E5 		ldrb	r3, [r0, #14]	@ zero_extendqisi2
+ 347 0030 F72003E2 		and	r2, r3, #247
+ 169:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         (uart->uiParity != WB_PARITY_EVEN) &&
+ 348              		.loc 1 169 0
+ 349 0034 180053E3 		cmp	r3, #24
+ 350 0038 00005213 		cmpne	r2, #0
+ 351 003c 3800001A 		bne	.L50
+ 170:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         (uart->uiParity != WB_PARITY_ODD))
+ 171:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 172:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             /* The supplied parity is not valid */
+ 173:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             return (INT32)WB_INVALID_PARITY;
+ 174:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 175:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Check the supplied number of data bits */
+ 176:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     else if ((uart->uiDataBits != WB_DATA_BITS_5) &&
+ 352              		.loc 1 176 0
+ 353 0040 0C30D0E5 		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 354 0044 030053E3 		cmp	r3, #3
+ 355 0048 3700008A 		bhi	.L51
+ 177:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****              (uart->uiDataBits != WB_DATA_BITS_6) &&
+ 178:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****              (uart->uiDataBits != WB_DATA_BITS_7) &&
+ 179:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****              (uart->uiDataBits != WB_DATA_BITS_8))
+ 180:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 181:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             /* The supplied data bits value is not valid */
+ 182:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             return (INT32)WB_INVALID_DATA_BITS;
+ 183:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 184:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Check the supplied number of stop bits */
+ 185:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     else if ((uart->uiStopBits != WB_STOP_BITS_1) &&
+ 356              		.loc 1 185 0
+ 357 004c 0D30D0E5 		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 358 0050 FB0013E3 		tst	r3, #251
+ 359 0054 3600001A 		bne	.L52
+ 186:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****              (uart->uiStopBits != WB_STOP_BITS_2))
+ 187:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 188:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             /* The supplied stop bits value is not valid */
+ 189:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             return (INT32)WB_INVALID_STOP_BITS;
+ 190:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 191:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Verify the baud rate is within acceptable range */
+ 192:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     else if (uart->uiBaudrate < 1200)
+ 360              		.loc 1 192 0
+ 361 0058 083090E5 		ldr	r3, [r0, #8]
+ 362 005c 4B0E53E3 		cmp	r3, #1200
+ 363 0060 3500003A 		bcc	.L53
+ 193:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             /* The baud rate is out of range */
+ 194:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             return (INT32)WB_INVALID_BAUD;
+ 195:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 196:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Reset the TX/RX FIFOs */
+ 197:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     if(bIsResetFIFO==FALSE)
+ 364              		.loc 1 197 0
+ 365 0064 D8309FE5 		ldr	r3, .L58
+ 159:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     static BOOL bIsResetFIFO = FALSE;
+ 366              		.loc 1 159 0
+ 367 0068 10402DE9 		push	{r4, lr}
+ 368              		.cfi_def_cfa_offset 8
+ 369              		.cfi_offset 4, -8
+ 370              		.cfi_offset 14, -4
+ 371              		.loc 1 197 0
+ 372 006c D020D3E1 		ldrsb	r2, [r3]
+ 373 0070 0040A0E1 		mov	r4, r0
+ 374 0074 000052E3 		cmp	r2, #0
+ 198:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     {
+ 199:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         outpw(REG_UART_FCR+0, 0x07);
+ 375              		.loc 1 199 0
+ 376 0078 C8209F05 		ldreq	r2, .L58+4
+ 377 007c 0710A003 		moveq	r1, #7
+ 378 0080 08108205 		streq	r1, [r2, #8]
+ 200:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         bIsResetFIFO = TRUE;
+ 379              		.loc 1 200 0
+ 380 0084 0120A003 		moveq	r2, #1
+ 201:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     }
+ 202:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Setup reference clock */
+ 203:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     _sys_uHUARTClockRate = uart->uiFreq;
+ 381              		.loc 1 203 0
+ 382 0088 040090E5 		ldr	r0, [r0, #4]
+ 383              	.LVL8:
+ 200:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         bIsResetFIFO = TRUE;
+ 384              		.loc 1 200 0
+ 385 008c 0020C305 		strbeq	r2, [r3]
+ 386              		.loc 1 203 0
+ 387 0090 B4309FE5 		ldr	r3, .L58+8
+ 388              	.LBB4:
+ 389              	.LBB5:
+ 141:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outpw(REG_UART_BAUD+0, ((0x30<<24)| _mBaudValue));
+ 390              		.loc 1 141 0
+ 391 0094 081094E5 		ldr	r1, [r4, #8]
+ 392              	.LBE5:
+ 393              	.LBE4:
+ 394              		.loc 1 203 0
+ 395 0098 000083E5 		str	r0, [r3]
+ 396              	.LVL9:
+ 397              	.LBB7:
+ 398              	.LBB6:
+ 141:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outpw(REG_UART_BAUD+0, ((0x30<<24)| _mBaudValue));
+ 399              		.loc 1 141 0
+ 400 009c FEFFFFEB 		bl	__aeabi_uidiv
+ 401              	.LVL10:
+ 142:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #endif
+ 402              		.loc 1 142 0
+ 403 00a0 A0309FE5 		ldr	r3, .L58+4
+ 141:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outpw(REG_UART_BAUD+0, ((0x30<<24)| _mBaudValue));
+ 404              		.loc 1 141 0
+ 405 00a4 020040E2 		sub	r0, r0, #2
+ 142:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #endif
+ 406              		.loc 1 142 0
+ 407 00a8 030280E3 		orr	r0, r0, #805306368
+ 408 00ac 240083E5 		str	r0, [r3, #36]
+ 409              	.LBE6:
+ 410              	.LBE7:
+ 204:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 205:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Setup baud rate */
+ 206:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     sysSetHuartBaudRate(uart->uiBaudrate);
+ 207:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 208:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Set the modem control register. Set DTR, RTS to output to LOW,
+ 209:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****        and set INT output pin to normal operating mode */
+ 210:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* outpb(REG_UART_MCR, (WB_DTR_Low | WB_RTS_Low | WB_MODEM_En)); */
+ 211:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 212:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Setup parity, data bits, and stop bits */
+ 213:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outpw(REG_UART_LCR+0, (uart->uiParity | uart->uiDataBits | uart->uiStopBits));
+ 411              		.loc 1 213 0
+ 412 00b0 0C10D4E5 		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 413 00b4 0E20D4E5 		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 214:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 215:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Timeout if more than ??? bits xfer time */
+ 216:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outpw(REG_UART_TOR+0, 0x80+0x20);
+ 217:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 218:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Setup Fifo trigger level and enable FIFO */
+ 219:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outpw(REG_UART_FCR+0, (uart->uiRxTriggerLevel << 4) | 0x01);
+ 220:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 221:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Enable HUART interrupt Only (Receive Data Available Interrupt & RX Time out Interrupt) */
+ 222:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #if 0
+ 223:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #if 1   /* Enable RX data time out */
+ 224:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outp32(REG_UART_IER+0, inp32(REG_UART_IER+0) |RDA_IEN |RTO_IEN |Time_out_EN);
+ 225:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #else
+ 226:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outp32(REG_UART_IER+0, inp32(REG_UART_IER+0) |RDA_IEN);
+ 227:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #endif
+ 228:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** #endif
+ 229:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 230:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* Timeout if more than ??? bits xfer time */
+ 231:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** //    outpw(REG_UART_TOR+0, 0x7F);
+ 232:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     outpw(REG_UART_TOR+0, 0x20);
+ 233:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 234:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     /* hook HUART interrupt service routine */
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     _sys_uHuartTxHead = _sys_uHuartTxTail = (UINT32)NULL;
+ 236:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     _sys_pvOldHuartVect = sysInstallISR(IRQ_LEVEL_1, IRQ_HUART, (PVOID)sysHuartISR);
+ 414              		.loc 1 236 0
+ 415 00b8 0100A0E3 		mov	r0, #1
+ 213:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 416              		.loc 1 213 0
+ 417 00bc 012082E1 		orr	r2, r2, r1
+ 418 00c0 0D10D4E5 		ldrb	r1, [r4, #13]	@ zero_extendqisi2
+ 419 00c4 012082E1 		orr	r2, r2, r1
+ 420 00c8 0C2083E5 		str	r2, [r3, #12]
+ 216:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 421              		.loc 1 216 0
+ 422 00cc A020A0E3 		mov	r2, #160
+ 423 00d0 202083E5 		str	r2, [r3, #32]
+ 219:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 424              		.loc 1 219 0
+ 425 00d4 0F20D4E5 		ldrb	r2, [r4, #15]	@ zero_extendqisi2
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     _sys_pvOldHuartVect = sysInstallISR(IRQ_LEVEL_1, IRQ_HUART, (PVOID)sysHuartISR);
+ 426              		.loc 1 235 0
+ 427 00d8 0040A0E3 		mov	r4, #0
+ 428              	.LVL11:
+ 219:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 429              		.loc 1 219 0
+ 430 00dc 0222A0E1 		lsl	r2, r2, #4
+ 431 00e0 012082E3 		orr	r2, r2, #1
+ 432 00e4 082083E5 		str	r2, [r3, #8]
+ 232:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 433              		.loc 1 232 0
+ 434 00e8 2020A0E3 		mov	r2, #32
+ 435 00ec 202083E5 		str	r2, [r3, #32]
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     _sys_pvOldHuartVect = sysInstallISR(IRQ_LEVEL_1, IRQ_HUART, (PVOID)sysHuartISR);
+ 436              		.loc 1 235 0
+ 437 00f0 58309FE5 		ldr	r3, .L58+12
+ 438              		.loc 1 236 0
+ 439 00f4 58209FE5 		ldr	r2, .L58+16
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     _sys_pvOldHuartVect = sysInstallISR(IRQ_LEVEL_1, IRQ_HUART, (PVOID)sysHuartISR);
+ 440              		.loc 1 235 0
+ 441 00f8 004083E5 		str	r4, [r3]
+ 442 00fc 54309FE5 		ldr	r3, .L58+20
+ 443              		.loc 1 236 0
+ 444 0100 0E10A0E3 		mov	r1, #14
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     _sys_pvOldHuartVect = sysInstallISR(IRQ_LEVEL_1, IRQ_HUART, (PVOID)sysHuartISR);
+ 445              		.loc 1 235 0
+ 446 0104 004083E5 		str	r4, [r3]
+ 447              		.loc 1 236 0
+ 448 0108 FEFFFFEB 		bl	sysInstallISR
+ 449              	.LVL12:
+ 450 010c 48309FE5 		ldr	r3, .L58+24
+ 451 0110 000083E5 		str	r0, [r3]
+ 237:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     sysEnableInterrupt(IRQ_HUART);
+ 452              		.loc 1 237 0
+ 453 0114 0E00A0E3 		mov	r0, #14
+ 454 0118 FEFFFFEB 		bl	sysEnableInterrupt
+ 455              	.LVL13:
+ 238:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 239:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     return Successful;
+ 456              		.loc 1 239 0
+ 457 011c 0400A0E1 		mov	r0, r4
+ 240:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** }
+ 458              		.loc 1 240 0
+ 459 0120 1080BDE8 		pop	{r4, pc}
+ 460              	.LVL14:
+ 461              	.L50:
+ 462              		.cfi_def_cfa_offset 0
+ 463              		.cfi_restore 4
+ 464              		.cfi_restore 14
+ 173:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 465              		.loc 1 173 0
+ 466 0124 34009FE5 		ldr	r0, .L58+28
+ 467              	.LVL15:
+ 468 0128 1EFF2FE1 		bx	lr
+ 469              	.LVL16:
+ 470              	.L51:
+ 182:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 471              		.loc 1 182 0
+ 472 012c 30009FE5 		ldr	r0, .L58+32
+ 473              	.LVL17:
+ 474 0130 1EFF2FE1 		bx	lr
+ 475              	.LVL18:
+ 476              	.L52:
+ 189:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 477              		.loc 1 189 0
+ 478 0134 2C009FE5 		ldr	r0, .L58+36
+ 479              	.LVL19:
+ 480 0138 1EFF2FE1 		bx	lr
+ 481              	.LVL20:
+ 482              	.L53:
+ 194:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 483              		.loc 1 194 0
+ 484 013c 28009FE5 		ldr	r0, .L58+40
+ 485              	.LVL21:
+ 486              		.loc 1 240 0
+ 487 0140 1EFF2FE1 		bx	lr
+ 488              	.L59:
+ 489              		.align	2
+ 490              	.L58:
+ 491 0144 00000000 		.word	.LANCHOR2
+ 492 0148 008000B8 		.word	-1207926784
+ 493 014c 00000000 		.word	.LANCHOR3
+ 494 0150 00000000 		.word	_sys_uHuartTxTail
+ 495 0154 00000000 		.word	sysHuartISR
+ 496 0158 00000000 		.word	_sys_uHuartTxHead
+ 497 015c 00000000 		.word	_sys_pvOldHuartVect
+ 498 0160 010AFFFF 		.word	-62975
+ 499 0164 020AFFFF 		.word	-62974
+ 500 0168 030AFFFF 		.word	-62973
+ 501 016c 040AFFFF 		.word	-62972
+ 502              		.cfi_endproc
+ 503              	.LFE13:
+ 505              		.section	.text.sysHuartReceive,"ax",%progbits
+ 506              		.align	2
+ 507              		.global	sysHuartReceive
+ 508              		.syntax unified
+ 509              		.arm
+ 510              		.fpu softvfp
+ 512              	sysHuartReceive:
+ 513              	.LFB14:
+ 241:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 242:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 243:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** INT8 sysHuartReceive()
+ 244:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** {
+ 514              		.loc 1 244 0
+ 515              		.cfi_startproc
+ 516              		@ args = 0, pretend = 0, frame = 0
+ 517              		@ frame_needed = 0, uses_anonymous_args = 0
+ 518              		@ link register save eliminated.
+ 245:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     while (1)
+ 246:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     {
+ 247:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         if (inpw(REG_UART_ISR+0) & RDA_IF)
+ 519              		.loc 1 247 0
+ 520 0000 18309FE5 		ldr	r3, .L64
+ 521              	.L61:
+ 522 0004 1C2093E5 		ldr	r2, [r3, #28]
+ 523 0008 010012E3 		tst	r2, #1
+ 524 000c FCFFFF0A 		beq	.L61
+ 248:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             return (inpb(REG_UART_RBR+0));
+ 525              		.loc 1 248 0
+ 526 0010 0000D3E5 		ldrb	r0, [r3]	@ zero_extendqisi2
+ 249:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     }
+ 250:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** }
+ 527              		.loc 1 250 0
+ 528 0014 000CA0E1 		lsl	r0, r0, #24
+ 529 0018 400CA0E1 		asr	r0, r0, #24
+ 530 001c 1EFF2FE1 		bx	lr
+ 531              	.L65:
+ 532              		.align	2
+ 533              	.L64:
+ 534 0020 008000B8 		.word	-1207926784
+ 535              		.cfi_endproc
+ 536              	.LFE14:
+ 538              		.section	.text.sysHuartTransfer,"ax",%progbits
+ 539              		.align	2
+ 540              		.global	sysHuartTransfer
+ 541              		.syntax unified
+ 542              		.arm
+ 543              		.fpu softvfp
+ 545              	sysHuartTransfer:
+ 546              	.LFB15:
+ 251:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 252:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** 
+ 253:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** void sysHuartTransfer(char* pu8buf, UINT32 u32Len)
+ 254:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c **** {
+ 547              		.loc 1 254 0
+ 548              		.cfi_startproc
+ 549              		@ args = 0, pretend = 0, frame = 0
+ 550              		@ frame_needed = 0, uses_anonymous_args = 0
+ 551              		@ link register save eliminated.
+ 552              	.LVL22:
+ 255:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     do
+ 256:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     {
+ 257:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         if( (inp32(REG_UART_FSR+0) & Tx_Full) == 0 )
+ 553              		.loc 1 257 0
+ 554 0000 20309FE5 		ldr	r3, .L71
+ 555              	.L68:
+ 556              	.LVL23:
+ 557 0004 182093E5 		ldr	r2, [r3, #24]
+ 558 0008 020512E3 		tst	r2, #8388608
+ 258:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         {
+ 259:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             outpb(REG_UART_THR+0, *pu8buf++);
+ 559              		.loc 1 259 0
+ 560 000c 0020D005 		ldrbeq	r2, [r0]	@ zero_extendqisi2
+ 260:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             u32Len = u32Len - 1;
+ 561              		.loc 1 260 0
+ 562 0010 01104102 		subeq	r1, r1, #1
+ 563              	.LVL24:
+ 259:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****             u32Len = u32Len - 1;
+ 564              		.loc 1 259 0
+ 565 0014 0020C305 		strbeq	r2, [r3]
+ 566 0018 01008002 		addeq	r0, r0, #1
+ 567              	.LVL25:
+ 261:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****         }
+ 262:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_huart.c ****     } while(u32Len != 0) ;
+ 568              		.loc 1 262 0
+ 569 001c 000051E3 		cmp	r1, #0
+ 570 0020 F7FFFF1A 		bne	.L68
+ 571 0024 1EFF2FE1 		bx	lr
+ 572              	.L72:
+ 573              		.align	2
+ 574              	.L71:
+ 575 0028 008000B8 		.word	-1207926784
+ 576              		.cfi_endproc
+ 577              	.LFE15:
+ 579              		.global	huart_rx_cnt
+ 580              		.global	huart_rx
+ 581              		.comm	_sys_uHuartTxTail,4,4
+ 582              		.comm	_sys_uHuartTxHead,4,4
+ 583              		.comm	_sys_ucHuartTxBuf,256,1
+ 584              		.comm	_sys_pvOldHuartVect,4,4
+ 585              		.global	_sys_uHUARTClockRate
+ 586              		.section	.bss.bIsResetFIFO.5180,"aw",%nobits
+ 587              		.set	.LANCHOR2,. + 0
+ 590              	bIsResetFIFO.5180:
+ 591 0000 00       		.space	1
+ 592              		.section	.bss.huart_rx,"aw",%nobits
+ 593              		.set	.LANCHOR1,. + 0
+ 596              	huart_rx:
+ 597 0000 00000000 		.space	100
+ 597      00000000 
+ 597      00000000 
+ 597      00000000 
+ 597      00000000 
+ 598              		.section	.bss.huart_rx_cnt,"aw",%nobits
+ 599              		.align	2
+ 600              		.set	.LANCHOR0,. + 0
+ 603              	huart_rx_cnt:
+ 604 0000 00000000 		.space	4
+ 605              		.section	.data._sys_uHUARTClockRate,"aw",%progbits
+ 606              		.align	2
+ 607              		.set	.LANCHOR3,. + 0
+ 610              	_sys_uHUARTClockRate:
+ 611 0000 001BB700 		.word	12000000
+ 612              		.text
+ 613              	.Letext0:
+ 614              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 615              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 616              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\lib\\gcc\\arm-none-eab
+ 617              		.file 5 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 618              		.file 6 "f:\\arm_project\\w55fa92\\n9h20\\bsp\\driver\\include\\wbtypes.h"
+ 619              		.file 7 "f:\\arm_project\\w55fa92\\n9h20\\bsp\\driver\\include\\wblib.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 wb_huart.c
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:16     .text.sysHuartISR:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:22     .text.sysHuartISR:00000000 sysHuartISR
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:222    .text.sysHuartISR:000001e0 $d
+                            *COM*:00000004 _sys_uHuartTxHead
+                            *COM*:00000004 _sys_uHuartTxTail
+                            *COM*:00000100 _sys_ucHuartTxBuf
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:233    .text.sysHuartInstallcallback:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:239    .text.sysHuartInstallcallback:00000000 sysHuartInstallcallback
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:262    .text.sysHuartInstallcallback:0000001c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:267    .text.sysHuartEnableInt:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:273    .text.sysHuartEnableInt:00000000 sysHuartEnableInt
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:312    .text.sysHuartEnableInt:00000044 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:318    .text.sysInitializeHUART:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:324    .text.sysInitializeHUART:00000000 sysInitializeHUART
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:491    .text.sysInitializeHUART:00000144 $d
+                            *COM*:00000004 _sys_pvOldHuartVect
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:506    .text.sysHuartReceive:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:512    .text.sysHuartReceive:00000000 sysHuartReceive
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:534    .text.sysHuartReceive:00000020 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:539    .text.sysHuartTransfer:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:545    .text.sysHuartTransfer:00000000 sysHuartTransfer
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:575    .text.sysHuartTransfer:00000028 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:603    .bss.huart_rx_cnt:00000000 huart_rx_cnt
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:596    .bss.huart_rx:00000000 huart_rx
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:610    .data._sys_uHUARTClockRate:00000000 _sys_uHUARTClockRate
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:590    .bss.bIsResetFIFO.5180:00000000 bIsResetFIFO.5180
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:591    .bss.bIsResetFIFO.5180:00000000 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:597    .bss.huart_rx:00000000 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:599    .bss.huart_rx_cnt:00000000 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGBPSNV.s:606    .data._sys_uHUARTClockRate:00000000 $d
+
+UNDEFINED SYMBOLS
+pfnUartIntHandlerTable
+__aeabi_uidiv
+sysInstallISR
+sysEnableInterrupt

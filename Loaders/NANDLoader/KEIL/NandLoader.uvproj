@@ -151,7 +151,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K5_loader.ini</InitializationFile>
+            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K6_loader.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -647,7 +647,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K5_loader.ini</InitializationFile>
+            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K6_loader.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -1143,7 +1143,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K5_loader.ini</InitializationFile>
+            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K6_loader.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -1639,7 +1639,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K5_loader.ini</InitializationFile>
+            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K6_loader.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -2117,7 +2117,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K5_loader.ini</InitializationFile>
+            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K6_loader.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>

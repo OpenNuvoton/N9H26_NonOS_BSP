@@ -1,0 +1,1019 @@
+   1              		.cpu arm926ej-s
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"wb_power.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.comm	_tmp_buf,8192,32
+  16              		.section	.text.Sample_PowerDown,"ax",%progbits
+  17              		.align	2
+  18              		.syntax unified
+  19              		.arm
+  20              		.fpu softvfp
+  22              	Sample_PowerDown:
+  23              	.LFB9:
+  24              		.file 1 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c"
+   1:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** /***************************************************************************
+   2:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****  *                                                                         *
+   3:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****  * Copyright (c) 2008 Nuvoton Technolog. All rights reserved.              *
+   4:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****  *                                                                         *
+   5:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****  ***************************************************************************/
+   6:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+   7:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** /****************************************************************************
+   8:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** * FILENAME
+   9:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *   wb_power.c
+  10:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *
+  11:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** * VERSION
+  12:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *   1.0
+  13:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *
+  14:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** * DESCRIPTION
+  15:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *   The power managemnet related function of Nuvoton ARM9 MCU
+  16:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *
+  17:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** * DATA STRUCTURES
+  18:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *   None
+  19:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *
+  20:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** * FUNCTIONS
+  21:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *   sysDisableAllPM_IRQ
+  22:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *   sysEnablePM_IRQ
+  23:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *   sysPMStart
+  24:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *
+  25:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** * HISTORY
+  26:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *   2008-07-24  Ver 1.0 Modified by Min-Nan Cheng
+  27:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *
+  28:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** * REMARK
+  29:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *   When enter PD or MIDLE mode, the sysPMStart function will disable cache
+  30:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** *   (in order to access SRAM) and then recovery it after wake up.
+  31:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** ****************************************************************************/
+  32:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #include <stdio.h>
+  33:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #include <string.h>
+  34:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #include "wblib.h"
+  35:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+  36:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #define REG_DLLMODE_R	0xb0003058	/* Not fix in B version. still read in 3058 */
+  37:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #define DBG_PRINTF(...)
+  38:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+  39:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+  40:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** UINT8  _tmp_buf[PD_RAM_SIZE] __attribute__((aligned (32)));
+  41:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else
+  42:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** __align(32) UINT8  _tmp_buf[PD_RAM_SIZE];
+  43:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+  44:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+  45:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__) && !defined (__CC_ARM)
+  46:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #pragma GCC push_options
+  47:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #pragma GCC optimize ("O0")
+  48:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+  49:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** //#define PA0_H  outp32(REG_GPIOC_DOUT, inp32(REG_GPIOC_DOUT) | 0x1);
+  50:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** //#define PA0_L  outp32(REG_GPIOC_DOUT, inp32(REG_GPIOC_DOUT) & ~0x1);
+  51:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+  52:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** static void Sample_PowerDown(void)
+  53:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** {
+  25              		.loc 1 53 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 8
+  28              		@ frame_needed = 1, uses_anonymous_args = 0
+  29              		@ link register save eliminated.
+  30 0000 F0082DE9 		push	{r4, r5, r6, r7, fp}
+  31              		.cfi_def_cfa_offset 20
+  32              		.cfi_offset 4, -20
+  33              		.cfi_offset 5, -16
+  34              		.cfi_offset 6, -12
+  35              		.cfi_offset 7, -8
+  36              		.cfi_offset 11, -4
+  37 0004 10B08DE2 		add	fp, sp, #16
+  38              		.cfi_def_cfa 11, 4
+  39 0008 0CD04DE2 		sub	sp, sp, #12
+  54:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	register int reg3, reg2, reg1, reg0;
+  55:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****     
+  56:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	UINT32 u32RstDebounce = inp32(REG_EXTRST_DEBOUNCE);
+  40              		.loc 1 56 0
+  41 000c 78329FE5 		ldr	r3, .L3
+  42 0010 003093E5 		ldr	r3, [r3]
+  43 0014 18300BE5 		str	r3, [fp, #-24]
+  44              	.LVL0:
+  57:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_EXTRST_DEBOUNCE, 0x0);					/* Disable Reset debounce as power down */
+  45              		.loc 1 57 0
+  46 0018 6C329FE5 		ldr	r3, .L3
+  47              	.LVL1:
+  48 001c 0020A0E3 		mov	r2, #0
+  49 0020 002083E5 		str	r2, [r3]
+  58:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****     reg3 = 0xB0000200;
+  50              		.loc 1 58 0
+  51 0024 64729FE5 		ldr	r7, .L3+4
+  52              	.LVL2:
+  59:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+  60:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+  61:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****     __asm
+  53              		.loc 1 61 0
+  54              		.syntax divided
+  55              	@ 61 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+  56 0028 4B6FA0E3 		  mov 	r6, #300       
+  57 002c 0040A0E3 	  mov  r4, #0         
+  58 0030 0150A0E3 	  mov  r5, #1         
+  59              	 loopz:	           
+  60 0034 054084E0 	  add  r4, r4, r5     
+  61 0038 060054E1 	  cmp 	r4, r6         
+  62 003c FCFFFF1A 	  bne  loopz          
+  63              	
+  64              	@ 0 "" 2
+  62:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+  63:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #300       \n"
+  64:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+  65:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+  66:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loopz:	           \n"
+  67:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+  68:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+  69:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loopz          \n"
+  70:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+  71:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	);
+  72:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else
+  73:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm
+  74:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{/* Dealy */
+  75:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov 	reg2, #100
+  76:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov		reg1, #0
+  77:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov		reg0, #1
+  78:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	loopz:		add reg1, reg1, reg0
+  79:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		cmp 	reg1, reg2
+  80:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		bne		loopz
+  81:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}
+  82:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+  83:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	//outp32(REG_AHBCLK, inp32(REG_AHBCLK)|GVE_CKE);			/* The clock need to be enable if power down. O
+  84:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+  85:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_SDOPM, inp32(REG_SDOPM) & ~AUTOPDN);			             
+  65              		.loc 1 85 0
+  66              		.arm
+  67              		.syntax unified
+  68 0040 4C329FE5 		ldr	r3, .L3+8
+  69 0044 003093E5 		ldr	r3, [r3]
+  70 0048 44229FE5 		ldr	r2, .L3+8
+  71 004c 0138C3E3 		bic	r3, r3, #65536
+  72 0050 003082E5 		str	r3, [r2]
+  86:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_DLLMODE,  (inp32(REG_DLLMODE_R)&~0x8) | 0x10);	// Disable chip's DLL
+  73              		.loc 1 86 0
+  74 0054 3C329FE5 		ldr	r3, .L3+12
+  75 0058 003093E5 		ldr	r3, [r3]
+  76 005c 1830C3E3 		bic	r3, r3, #24
+  77 0060 34229FE5 		ldr	r2, .L3+16
+  78 0064 103083E3 		orr	r3, r3, #16
+  79 0068 003082E5 		str	r3, [r2]
+  87:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+  88:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	/*********** DRAM enter self refresh mode ************/	
+  89:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_SDCMD, (inp32(REG_SDCMD) & ~0x20) | 0x10);
+  80              		.loc 1 89 0
+  81 006c 2C329FE5 		ldr	r3, .L3+20
+  82 0070 003093E5 		ldr	r3, [r3]
+  83 0074 3030C3E3 		bic	r3, r3, #48
+  84 0078 20229FE5 		ldr	r2, .L3+20
+  85 007c 103083E3 		orr	r3, r3, #16
+  86 0080 003082E5 		str	r3, [r2]
+  90:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****     /*********** DRAM enter self refresh mode ************/	
+  91:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+  92:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+  93:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+  87              		.loc 1 93 0
+  88              		.syntax divided
+  89              	@ 93 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+  90 0084 6460A0E3 		  mov 	r6, #100       
+  91 0088 0040A0E3 	  mov  r4, #0         
+  92 008c 0150A0E3 	  mov  r5, #1         
+  93              	 loopa:	           
+  94 0090 054084E0 	  add  r4, r4, r5     
+  95 0094 060054E1 	  cmp 	r4, r6         
+  96 0098 FCFFFF1A 	  bne  loopa          
+  97              	
+  98              	@ 0 "" 2
+  94:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+  95:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #100       \n"
+  96:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+  97:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+  98:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loopa:	           \n"
+  99:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+ 100:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+ 101:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loopa          \n"
+ 102:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+ 103:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	);
+ 104:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else	
+ 105:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm
+ 106:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{/* Dealy */
+ 107:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov 	reg2, #100
+ 108:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov		reg1, #0
+ 109:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov		reg0, #1
+ 110:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	loopa:		add reg1, reg1, reg0
+ 111:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		cmp 	reg1, reg2
+ 112:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		bne		loopa
+ 113:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}	
+ 114:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 115:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** //	outp32(REG_DLLMODE,  (inp32(REG_DLLMODE_R)&~0x8) | 0x10);	// Disable chip's DLL
+ 116:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 117:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	/* Change the system clock souce to 12M crystal*/
+ 118:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_CLKDIV0, (inp32(REG_CLKDIV0) & (~0x18)) );	
+  99              		.loc 1 118 0
+ 100              		.arm
+ 101              		.syntax unified
+ 102 009c 00329FE5 		ldr	r3, .L3+24
+ 103 00a0 003093E5 		ldr	r3, [r3]
+ 104 00a4 F8219FE5 		ldr	r2, .L3+24
+ 105 00a8 1830C3E3 		bic	r3, r3, #24
+ 106 00ac 003082E5 		str	r3, [r2]
+ 119:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 120:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+ 121:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+ 107              		.loc 1 121 0
+ 108              		.syntax divided
+ 109              	@ 121 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+ 110 00b0 6460A0E3 		  mov 	r6, #100       
+ 111 00b4 0040A0E3 	  mov  r4, #0         
+ 112 00b8 0150A0E3 	  mov  r5, #1         
+ 113              	 loop0:	           
+ 114 00bc 054084E0 	  add  r4, r4, r5     
+ 115 00c0 060054E1 	  cmp 	r4, r6         
+ 116 00c4 FCFFFF1A 	  bne  loop0          
+ 117              	
+ 118              	@ 0 "" 2
+ 122:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+ 123:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #100       \n"
+ 124:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+ 125:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+ 126:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loop0:	           \n"
+ 127:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+ 128:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+ 129:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loop0          \n"
+ 130:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+ 131:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	);
+ 132:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else	
+ 133:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm
+ 134:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{/* Delay */
+ 135:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov 	reg2, #100
+ 136:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov		reg1, #0
+ 137:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov		reg0, #1
+ 138:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	loop0:	add 		reg1, reg1, reg0
+ 139:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		cmp 		reg1, reg2
+ 140:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		bne		loop0
+ 141:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}		
+ 142:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 143:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 144:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_UPLLCON, inp32(REG_UPLLCON) | 0x4000);		/* Power down UPLL and APLL */
+ 119              		.loc 1 144 0
+ 120              		.arm
+ 121              		.syntax unified
+ 122 00c8 D8319FE5 		ldr	r3, .L3+28
+ 123 00cc 003093E5 		ldr	r3, [r3]
+ 124 00d0 D0219FE5 		ldr	r2, .L3+28
+ 125 00d4 013983E3 		orr	r3, r3, #16384
+ 126 00d8 003082E5 		str	r3, [r2]
+ 145:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_APLLCON, inp32(REG_APLLCON) | 0x4000);	
+ 127              		.loc 1 145 0
+ 128 00dc C8319FE5 		ldr	r3, .L3+32
+ 129 00e0 003093E5 		ldr	r3, [r3]
+ 130 00e4 C0219FE5 		ldr	r2, .L3+32
+ 131 00e8 013983E3 		orr	r3, r3, #16384
+ 132 00ec 003082E5 		str	r3, [r2]
+ 146:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 147:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+ 148:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+ 133              		.loc 1 148 0
+ 134              		.syntax divided
+ 135              	@ 148 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+ 136 00f0 6460A0E3 		  mov 	r6, #100       
+ 137 00f4 0040A0E3 	  mov  r4, #0         
+ 138 00f8 0150A0E3 	  mov  r5, #1         
+ 139              	 loop1:	           
+ 140 00fc 054084E0 	  add  r4, r4, r5     
+ 141 0100 060054E1 	  cmp 	r4, r6         
+ 142 0104 FCFFFF1A 	  bne  loop1          
+ 143              	
+ 144              	@ 0 "" 2
+ 149:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+ 150:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #100       \n"
+ 151:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+ 152:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+ 153:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loop1:	           \n"
+ 154:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+ 155:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+ 156:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loop1          \n"
+ 157:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+ 158:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	);
+ 159:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else	
+ 160:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm
+ 161:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{
+ 162:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov 	reg2, #100
+ 163:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg1, #0
+ 164:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg0, #1
+ 165:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	loop1:	add 	reg1, reg1, reg0
+ 166:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			cmp 	reg1, reg2
+ 167:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			bne		loop1
+ 168:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}	
+ 169:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif	
+ 170:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	/* Fill and enable the pre-scale for power down wake up */
+ 171:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_PWRCON, (inp32(REG_PWRCON)  & ~0xFFFF00) | 0xFF02);     // 25ms ~ 75ms depends on syste
+ 145              		.loc 1 171 0
+ 146              		.arm
+ 147              		.syntax unified
+ 148 0108 80319FE5 		ldr	r3, .L3+4
+ 149 010c 002093E5 		ldr	r2, [r3]
+ 150 0110 98319FE5 		ldr	r3, .L3+36
+ 151 0114 023003E0 		and	r3, r3, r2
+ 152 0118 70219FE5 		ldr	r2, .L3+4
+ 153 011c FF3C83E3 		orr	r3, r3, #65280
+ 154 0120 023083E3 		orr	r3, r3, #2
+ 155 0124 003082E5 		str	r3, [r2]
+ 172:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 173:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+ 174:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+ 156              		.loc 1 174 0
+ 157              		.syntax divided
+ 158              	@ 174 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+ 159 0128 0A60A0E3 		  mov 	r6, #10        
+ 160 012c 0040A0E3 	  mov  r4, #0         
+ 161 0130 0150A0E3 	  mov  r5, #1         
+ 162              	 loop2:	           
+ 163 0134 054084E0 	  add  r4, r4, r5     
+ 164 0138 060054E1 	  cmp 	r4, r6         
+ 165 013c FCFFFF1A 	  bne  loop2          
+ 166              	
+ 167              	@ 0 "" 2
+ 175:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+ 176:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #10        \n"
+ 177:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+ 178:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+ 179:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loop2:	           \n"
+ 180:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+ 181:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+ 182:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loop2          \n"
+ 183:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+ 184:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	);
+ 185:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else		
+ 186:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm
+ 187:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{
+ 188:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov 	reg2, #10
+ 189:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov		reg1, #0
+ 190:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		mov		reg0, #1
+ 191:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	loop2:	add 	reg1, reg1, reg0
+ 192:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		cmp 		reg1, reg2
+ 193:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		bne		loop2
+ 194:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}	
+ 195:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif	
+ 196:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 197:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	///////////////////////////////////////////////////////////////
+ 198:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	/*  Enter power down. (Stop the external clock */
+ 199:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+ 200:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+ 168              		.loc 1 200 0
+ 169              	@ 200 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+ 170 0140 0B72A0E3 		MOV     r7,#0xb0000000 
+ 171 0144 007297E5 	LDR     r7,[r7,#0x200] 
+ 172 0148 0170C7E3 	BIC     r7,r7,#0x1     
+ 173 014c 0B42A0E3 	MOV     r4,#0xb0000000 
+ 174 0150 007284E5 	STR     r7,[r4,#0x200] 
+ 175              	
+ 176              	@ 0 "" 2
+ 201:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+ 202:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"MOV     %0,#0xb0000000 \n"
+ 203:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****         "LDR     %0,[%0,#0x200] \n"
+ 204:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"BIC     %0,%0,#0x1     \n"
+ 205:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"MOV     %1,#0xb0000000 \n"
+ 206:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"STR     %0,[%1,#0x200] \n"
+ 207:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg3), "r"(reg1), "r"(reg0): "memory"
+ 208:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****     );
+ 209:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else
+ 210:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm 
+ 211:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{/* Power down */
+ 212:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		MOV     reg3,#0xb0000000 
+ 213:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c ****         LDR     reg3,[reg3,#0x200] 
+ 214:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		BIC     reg3,reg3,#0x1     
+ 215:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		MOV     reg2,#0xb0000000 
+ 216:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		STR     reg3,[reg2,#0x200] 
+ 217:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}   
+ 218:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 219:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+ 220:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+ 177              		.loc 1 220 0
+ 178              	@ 220 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+ 179 0154 4B6FA0E3 		  mov 	r6, #300       
+ 180 0158 0040A0E3 	  mov  r4, #0         
+ 181 015c 0150A0E3 	  mov  r5, #1         
+ 182              	 loop3:	           
+ 183 0160 054084E0 	  add  r4, r4, r5     
+ 184 0164 060054E1 	  cmp 	r4, r6         
+ 185 0168 FCFFFF1A 	  bne  loop3          
+ 186              	
+ 187              	@ 0 "" 2
+ 221:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+ 222:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #300       \n"
+ 223:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+ 224:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+ 225:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loop3:	           \n"
+ 226:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+ 227:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+ 228:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loop3          \n"
+ 229:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+ 230:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	);
+ 231:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else
+ 232:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm
+ 233:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{/* Wake up*/ 
+ 234:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov 	reg2, #300
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg1, #0
+ 236:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg0, #1
+ 237:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	loop3:	add 	reg1, reg1, reg0
+ 238:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			cmp 	reg1, reg2
+ 239:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			bne		loop3
+ 240:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}
+ 241:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 242:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 243:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	 /* Force UPLL and APLL in normal mode */ 
+ 244:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_UPLLCON, inp32(REG_UPLLCON) & (~0x4000));		
+ 188              		.loc 1 244 0
+ 189              		.arm
+ 190              		.syntax unified
+ 191 016c 34319FE5 		ldr	r3, .L3+28
+ 192 0170 003093E5 		ldr	r3, [r3]
+ 193 0174 2C219FE5 		ldr	r2, .L3+28
+ 194 0178 0139C3E3 		bic	r3, r3, #16384
+ 195 017c 003082E5 		str	r3, [r2]
+ 245:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_APLLCON, inp32(REG_APLLCON) & (~0x4000));	
+ 196              		.loc 1 245 0
+ 197 0180 24319FE5 		ldr	r3, .L3+32
+ 198 0184 003093E5 		ldr	r3, [r3]
+ 199 0188 1C219FE5 		ldr	r2, .L3+32
+ 200 018c 0139C3E3 		bic	r3, r3, #16384
+ 201 0190 003082E5 		str	r3, [r2]
+ 246:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	while((inp32(REG_POR_LVRD)&APLL_LKDT)==0);				// Wait PLL lock bit.
+ 202              		.loc 1 246 0
+ 203 0194 0000A0E1 		nop
+ 204              	.L2:
+ 205              		.loc 1 246 0 is_stmt 0 discriminator 1
+ 206 0198 14319FE5 		ldr	r3, .L3+40
+ 207 019c 003093E5 		ldr	r3, [r3]
+ 208 01a0 203003E2 		and	r3, r3, #32
+ 209 01a4 000053E3 		cmp	r3, #0
+ 210 01a8 FAFFFF0A 		beq	.L2
+ 247:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{//Waitting for PLL stable if enable PLL again
+ 248:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+ 249:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+ 211              		.loc 1 249 0 is_stmt 1
+ 212              		.syntax divided
+ 213              	@ 249 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+ 214 01ac 7D6FA0E3 		  mov 	r6, #500       
+ 215 01b0 0040A0E3 	  mov  r4, #0         
+ 216 01b4 0150A0E3 	  mov  r5, #1         
+ 217              	 loop4:	           
+ 218 01b8 054084E0 	  add  r4, r4, r5     
+ 219 01bc 060054E1 	  cmp 	r4, r6         
+ 220 01c0 FCFFFF1A 	  bne  loop4          
+ 221              	
+ 222              	@ 0 "" 2
+ 250:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+ 251:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #500       \n"
+ 252:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+ 253:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+ 254:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loop4:	           \n"
+ 255:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+ 256:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+ 257:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loop4          \n"
+ 258:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+ 259:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	 );
+ 260:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else
+ 261:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		__asm
+ 262:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		{/* Delay a moment for PLL stable */
+ 263:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 				mov 	reg2, #500
+ 264:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 				mov		reg1, #0
+ 265:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 				mov		reg0, #1
+ 266:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		loop4:	add 	reg1, reg1, reg0
+ 267:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 				cmp 	reg1, reg2
+ 268:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 				bne		loop4
+ 269:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		}
+ 270:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 271:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}	
+ 272:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	/* Change system clock to PLL and delay a moment.  Let DDR/SDRAM lock the frequency */
+ 273:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_CLKDIV0, inp32(REG_CLKDIV0) | 0x18);	
+ 223              		.loc 1 273 0
+ 224              		.arm
+ 225              		.syntax unified
+ 226 01c4 D8309FE5 		ldr	r3, .L3+24
+ 227 01c8 003093E5 		ldr	r3, [r3]
+ 228 01cc D0209FE5 		ldr	r2, .L3+24
+ 229 01d0 183083E3 		orr	r3, r3, #24
+ 230 01d4 003082E5 		str	r3, [r2]
+ 274:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 275:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+ 276:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+ 231              		.loc 1 276 0
+ 232              		.syntax divided
+ 233              	@ 276 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+ 234 01d8 7D6FA0E3 		  mov 	r6, #500       
+ 235 01dc 0040A0E3 	  mov  r4, #0         
+ 236 01e0 0150A0E3 	  mov  r5, #1         
+ 237              	 loop5:	           
+ 238 01e4 054084E0 	  add  r4, r4, r5     
+ 239 01e8 060054E1 	  cmp 	r4, r6         
+ 240 01ec FCFFFF1A 	  bne  loop5          
+ 241              	
+ 242              	@ 0 "" 2
+ 277:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+ 278:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #500       \n"
+ 279:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+ 280:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+ 281:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loop5:	           \n"
+ 282:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+ 283:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+ 284:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loop5          \n"
+ 285:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+ 286:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	);
+ 287:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else
+ 288:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm
+ 289:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{
+ 290:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov 	reg2, #500
+ 291:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg1, #0
+ 292:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg0, #1
+ 293:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	loop5:	add 	reg1, reg1, reg0
+ 294:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			cmp 	reg1, reg2
+ 295:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			bne		loop5
+ 296:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}
+ 297:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 298:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	/*********** DRAM escape self refresh mode ************/
+ 299:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_SDCMD,  0x20);
+ 243              		.loc 1 299 0
+ 244              		.arm
+ 245              		.syntax unified
+ 246 01f0 A8309FE5 		ldr	r3, .L3+20
+ 247 01f4 2020A0E3 		mov	r2, #32
+ 248 01f8 002083E5 		str	r2, [r3]
+ 300:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	/*********** DRAM escape self refresh mode ************/
+ 301:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 302:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+ 303:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+ 249              		.loc 1 303 0
+ 250              		.syntax divided
+ 251              	@ 303 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+ 252 01fc 6460A0E3 		  mov 	r6, #100       
+ 253 0200 0040A0E3 	  mov  r4, #0         
+ 254 0204 0150A0E3 	  mov  r5, #1         
+ 255              	 loop6:	           
+ 256 0208 054084E0 	  add  r4, r4, r5     
+ 257 020c 060054E1 	  cmp 	r4, r6         
+ 258 0210 FCFFFF1A 	  bne  loop6          
+ 259              	
+ 260              	@ 0 "" 2
+ 304:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+ 305:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #100       \n"
+ 306:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+ 307:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+ 308:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loop6:	           \n"
+ 309:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+ 310:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+ 311:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loop6          \n"
+ 312:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+ 313:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	);
+ 314:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else
+ 315:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm
+ 316:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{/*  Delay a moment until the escape self-refresh command reached to DDR/SDRAM */
+ 317:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov 	reg2, #100
+ 318:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg1, #0
+ 319:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg0, #1
+ 320:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	loop6:	add 	reg1, reg1, reg0
+ 321:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			cmp 	reg1, reg2
+ 322:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			bne		loop6
+ 323:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}			
+ 324:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 325:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 326:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_SDMR,  0x532);   								// RESET DLL(bit[8]) of DDR2 
+ 261              		.loc 1 326 0
+ 262              		.arm
+ 263              		.syntax unified
+ 264 0214 9C309FE5 		ldr	r3, .L3+44
+ 265 0218 9C209FE5 		ldr	r2, .L3+48
+ 266 021c 002083E5 		str	r2, [r3]
+ 327:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 328:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+ 329:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+ 267              		.loc 1 329 0
+ 268              		.syntax divided
+ 269              	@ 329 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+ 270 0220 6460A0E3 		  mov 	r6, #100       
+ 271 0224 0040A0E3 	  mov  r4, #0         
+ 272 0228 0150A0E3 	  mov  r5, #1         
+ 273              	 loop7:	           
+ 274 022c 054084E0 	  add  r4, r4, r5     
+ 275 0230 060054E1 	  cmp 	r4, r6         
+ 276 0234 FCFFFF1A 	  bne  loop7          
+ 277              	
+ 278              	@ 0 "" 2
+ 330:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+ 331:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #100       \n"
+ 332:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+ 333:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+ 334:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loop7:	           \n"
+ 335:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+ 336:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+ 337:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loop7          \n"
+ 338:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+ 339:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	);
+ 340:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else	
+ 341:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm
+ 342:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{/*  Delay a moment until the escape self-refresh command reached to DDR/SDRAM */
+ 343:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov 	reg2, #100
+ 344:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg1, #0
+ 345:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg0, #1
+ 346:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	loop7:	add 	reg1, reg1, reg0
+ 347:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			cmp 	reg1, reg2
+ 348:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			bne		loop7
+ 349:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}	
+ 350:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 351:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 352:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_SDMR,  0x432);  									// RESET DLL(bit[8]) of DDR2 		
+ 279              		.loc 1 352 0
+ 280              		.arm
+ 281              		.syntax unified
+ 282 0238 78309FE5 		ldr	r3, .L3+44
+ 283 023c 7C209FE5 		ldr	r2, .L3+52
+ 284 0240 002083E5 		str	r2, [r3]
+ 353:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 354:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__)
+ 355:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_DLLMODE,   inp32(REG_DLLMODE_R)       | 0x18);	// Enable chip's DLL
+ 285              		.loc 1 355 0
+ 286 0244 4C309FE5 		ldr	r3, .L3+12
+ 287 0248 003093E5 		ldr	r3, [r3]
+ 288 024c 48209FE5 		ldr	r2, .L3+16
+ 289 0250 183083E3 		orr	r3, r3, #24
+ 290 0254 003082E5 		str	r3, [r2]
+ 356:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm volatile
+ 291              		.loc 1 356 0
+ 292              		.syntax divided
+ 293              	@ 356 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_power.c" 1
+ 294 0258 FA6EA0E3 		  mov 	r6, #4000     
+ 295 025c 0040A0E3 	  mov  r4, #0         
+ 296 0260 0150A0E3 	  mov  r5, #1         
+ 297              	 loop8:	           
+ 298 0264 054084E0 	  add  r4, r4, r5     
+ 299 0268 060054E1 	  cmp 	r4, r6         
+ 300 026c FCFFFF1A 	  bne  loop8          
+ 301              	
+ 302              	@ 0 "" 2
+ 357:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	(
+ 358:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov 	%0, #4000     \n"
+ 359:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %1, #0         \n"
+ 360:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  mov  %2, #1         \n"
+ 361:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		" loop8:	           \n"
+ 362:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  add  %1, %1, %2     \n"
+ 363:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  cmp 	%1, %0         \n"
+ 364:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		"  bne  loop8          \n"
+ 365:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		: : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
+ 366:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	);
+ 367:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #else	
+ 368:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_DLLMODE,   inp32(REG_DLLMODE_R)       | 0x18);	// Enable chip's DLL
+ 369:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	__asm														/*  Wait chip's DLL lock time > 100us */
+ 370:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{
+ 371:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov 	reg2, #4000
+ 372:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg1, #0
+ 373:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			mov		reg0, #1
+ 374:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	loop8:	add 	reg1, reg1, reg0
+ 375:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			cmp 	reg1, reg2
+ 376:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			bne		loop8
+ 377:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}	
+ 378:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 379:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 380:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_EXTRST_DEBOUNCE, u32RstDebounce);	
+ 303              		.loc 1 380 0
+ 304              		.arm
+ 305              		.syntax unified
+ 306 0270 14209FE5 		ldr	r2, .L3
+ 307 0274 18301BE5 		ldr	r3, [fp, #-24]
+ 308 0278 003082E5 		str	r3, [r2]
+ 381:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** //	while (!(inpw(0xb8008118) & 0x400000));
+ 382:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** //	outpb(0xb8008100, '6');		
+ 383:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			
+ 384:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** }
+ 309              		.loc 1 384 0
+ 310 027c 0000A0E1 		nop
+ 311 0280 10D04BE2 		sub	sp, fp, #16
+ 312              		.cfi_def_cfa 13, 20
+ 313              		@ sp needed
+ 314 0284 F008BDE8 		pop	{r4, r5, r6, r7, fp}
+ 315              		.cfi_restore 11
+ 316              		.cfi_restore 7
+ 317              		.cfi_restore 6
+ 318              		.cfi_restore 5
+ 319              		.cfi_restore 4
+ 320              		.cfi_def_cfa_offset 0
+ 321              	.LVL3:
+ 322 0288 1EFF2FE1 		bx	lr
+ 323              	.L4:
+ 324              		.align	2
+ 325              	.L3:
+ 326 028c 000100B0 		.word	-1342177024
+ 327 0290 000200B0 		.word	-1342176768
+ 328 0294 003000B0 		.word	-1342164992
+ 329 0298 583000B0 		.word	-1342164904
+ 330 029c 543000B0 		.word	-1342164908
+ 331 02a0 043000B0 		.word	-1342164988
+ 332 02a4 0C0200B0 		.word	-1342176756
+ 333 02a8 240200B0 		.word	-1342176732
+ 334 02ac 200200B0 		.word	-1342176736
+ 335 02b0 FD0000FF 		.word	-16776963
+ 336 02b4 740000B0 		.word	-1342177164
+ 337 02b8 183000B0 		.word	-1342164968
+ 338 02bc 32050000 		.word	1330
+ 339 02c0 32040000 		.word	1074
+ 340              		.cfi_endproc
+ 341              	.LFE9:
+ 343              		.section	.text.sysPowerDown,"ax",%progbits
+ 344              		.align	2
+ 345              		.global	sysPowerDown
+ 346              		.syntax unified
+ 347              		.arm
+ 348              		.fpu softvfp
+ 350              	sysPowerDown:
+ 351              	.LFB11:
+ 385:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if defined (__GNUC__) && !defined (__CC_ARM)
+ 386:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #pragma GCC pop_options
+ 387:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 388:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 389:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 390:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 391:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** static void Entry_PowerDown(UINT32 u32WakeUpSrc)
+ 392:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** {
+ 393:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	UINT32 j;
+ 394:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	UINT32 u32IntEnable, u32IntEnableH, bIsCacheState, u32CacheMode;
+ 395:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	void (*wb_fun)(void);
+ 396:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 397:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	UINT32 u32RamBase = PD_RAM_BASE;
+ 398:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	//UINT32 u32RamSize = PD_RAM_SIZE;
+ 399:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 400:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	//memcpy((char*)((UINT32)_tmp_buf| 0x80000000), (char*)(u32RamBase | 0x80000000), u32RamSize);
+ 401:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	memcpy((VOID *)((UINT32)u32RamBase | 0x80000000),
+ 402:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			(VOID *)( ((UINT32)Sample_PowerDown -(PD_RAM_START-PD_RAM_BASE)) | 0x80000000),
+ 403:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			PD_RAM_SIZE);
+ 404:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #if 0
+ 405:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	if(memcmp((char*)(u32RamBase | 0x80000000), (char*)((UINT32)((UINT32)Sample_PowerDown -(PD_RAM_STA
+ 406:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	{
+ 407:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		sysprintf("Memcpy copy wrong\n");
+ 408:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}
+ 409:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** #endif
+ 410:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 411:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	if(sysGetCacheState()==TRUE){
+ 412:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		DBG_PRINTF("Cache enable\n");
+ 413:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		bIsCacheState = TRUE;
+ 414:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		u32CacheMode = sysGetCacheMode();
+ 415:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		sysDisableCache();
+ 416:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		sysFlushCache(I_D_CACHE);
+ 417:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}else{
+ 418:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		DBG_PRINTF("Cache disable\n");
+ 419:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}
+ 420:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 421:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	wb_fun = (void(*)(void))(PD_RAM_START);
+ 422:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	sysprintf("Jump to SRAM (Suspend)\n");
+ 423:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 424:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 425:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	u32IntEnable = inp32(REG_AIC_IMR);
+ 426:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	u32IntEnableH = inp32(REG_AIC_IMRH);	
+ 427:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 428:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MDCR, 0xFFFFFFFE);
+ 429:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MDCRH, 0xFFFFFFFE);	
+ 430:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MECR, 0x00000000);	
+ 431:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MECRH, 0x00000000);
+ 432:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 433:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	j = 0x800;
+ 434:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	while(j--);
+ 435:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	if(u32WakeUpSrc>WE_UHC20)
+ 436:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		outp32(REG_MISSR, ((u32WakeUpSrc<<16)|(u32WakeUpSrc<<8)));	//Enable and Clear interrupt
+ 437:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	else	
+ 438:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		outp32(REG_MISSR, ((u32WakeUpSrc<<14)|(u32WakeUpSrc<<6)));
+ 439:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	wb_fun();
+ 440:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 441:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 442:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	if(u32WakeUpSrc>WE_EMAC)
+ 443:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		outp32(REG_MISSR, ((u32WakeUpSrc<<16)|(u32WakeUpSrc<<8)));	//Enable and Clear interrupt
+ 444:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	else	
+ 445:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		outp32(REG_MISSR, ((u32WakeUpSrc<<14)|(u32WakeUpSrc<<6)));
+ 446:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 447:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	//memcpy((VOID *)u32RamBase, (VOID *)_tmp_buf, PD_RAM_SIZE);
+ 448:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	DBG_PRINTF("Exit to SRAM (Suspend)\n");
+ 449:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MECR, u32IntEnable);								/*  Restore the interrupt channels */		
+ 450:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MECRH, u32IntEnableH);	
+ 451:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	if(bIsCacheState==TRUE)
+ 452:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		sysEnableCache(u32CacheMode);		
+ 453:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** }
+ 454:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** ERRCODE sysPowerDown(UINT32 u32WakeUpSrc)
+ 455:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** {
+ 352              		.loc 1 455 0
+ 353              		.cfi_startproc
+ 354              		@ args = 0, pretend = 0, frame = 0
+ 355              		@ frame_needed = 0, uses_anonymous_args = 0
+ 356              	.LVL4:
+ 357              	.LBB4:
+ 358              	.LBB5:
+ 401:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			(VOID *)( ((UINT32)Sample_PowerDown -(PD_RAM_START-PD_RAM_BASE)) | 0x80000000),
+ 359              		.loc 1 401 0
+ 360 0000 BC109FE5 		ldr	r1, .L12
+ 361              	.LBE5:
+ 362              	.LBE4:
+ 363              		.loc 1 455 0
+ 364 0004 F0412DE9 		push	{r4, r5, r6, r7, r8, lr}
+ 365              		.cfi_def_cfa_offset 24
+ 366              		.cfi_offset 4, -24
+ 367              		.cfi_offset 5, -20
+ 368              		.cfi_offset 6, -16
+ 369              		.cfi_offset 7, -12
+ 370              		.cfi_offset 8, -8
+ 371              		.cfi_offset 14, -4
+ 372              	.LBB8:
+ 373              	.LBB6:
+ 401:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			(VOID *)( ((UINT32)Sample_PowerDown -(PD_RAM_START-PD_RAM_BASE)) | 0x80000000),
+ 374              		.loc 1 401 0
+ 375 0008 022AA0E3 		mov	r2, #8192
+ 376 000c 021181E3 		orr	r1, r1, #-2147483648
+ 377              	.LBE6:
+ 378              	.LBE8:
+ 379              		.loc 1 455 0
+ 380 0010 0040A0E1 		mov	r4, r0
+ 381              	.LVL5:
+ 382              	.LBB9:
+ 383              	.LBB7:
+ 401:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 			(VOID *)( ((UINT32)Sample_PowerDown -(PD_RAM_START-PD_RAM_BASE)) | 0x80000000),
+ 384              		.loc 1 401 0
+ 385 0014 FF04A0E3 		mov	r0, #-16777216
+ 386              	.LVL6:
+ 387 0018 FEFFFFEB 		bl	memcpy
+ 388              	.LVL7:
+ 411:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		DBG_PRINTF("Cache enable\n");
+ 389              		.loc 1 411 0
+ 390 001c FEFFFFEB 		bl	sysGetCacheState
+ 391              	.LVL8:
+ 392 0020 010050E3 		cmp	r0, #1
+ 393 0024 0400001A 		bne	.L6
+ 394              	.LVL9:
+ 414:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		sysDisableCache();
+ 395              		.loc 1 414 0
+ 396 0028 FEFFFFEB 		bl	sysGetCacheMode
+ 397              	.LVL10:
+ 398 002c 0050A0E1 		mov	r5, r0
+ 399              	.LVL11:
+ 415:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		sysFlushCache(I_D_CACHE);
+ 400              		.loc 1 415 0
+ 401 0030 FEFFFFEB 		bl	sysDisableCache
+ 402              	.LVL12:
+ 416:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	}else{
+ 403              		.loc 1 416 0
+ 404 0034 0800A0E3 		mov	r0, #8
+ 405 0038 FEFFFFEB 		bl	sysFlushCache
+ 406              	.LVL13:
+ 407              	.L6:
+ 422:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 408              		.loc 1 422 0
+ 409 003c 84009FE5 		ldr	r0, .L12+4
+ 410 0040 FEFFFFEB 		bl	sysprintf
+ 411              	.LVL14:
+ 425:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	u32IntEnableH = inp32(REG_AIC_IMRH);	
+ 412              		.loc 1 425 0
+ 413 0044 2E33A0E3 		mov	r3, #-1207959552
+ 428:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MDCRH, 0xFFFFFFFE);	
+ 414              		.loc 1 428 0
+ 415 0048 0120E0E3 		mvn	r2, #1
+ 425:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	u32IntEnableH = inp32(REG_AIC_IMRH);	
+ 416              		.loc 1 425 0
+ 417 004c 287193E5 		ldr	r7, [r3, #296]
+ 418              	.LVL15:
+ 435:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		outp32(REG_MISSR, ((u32WakeUpSrc<<16)|(u32WakeUpSrc<<8)));	//Enable and Clear interrupt
+ 419              		.loc 1 435 0
+ 420 0050 020054E3 		cmp	r4, #2
+ 426:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 421              		.loc 1 426 0
+ 422 0054 2C6193E5 		ldr	r6, [r3, #300]
+ 423              	.LVL16:
+ 428:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MDCRH, 0xFFFFFFFE);	
+ 424              		.loc 1 428 0
+ 425 0058 382183E5 		str	r2, [r3, #312]
+ 429:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MECR, 0x00000000);	
+ 426              		.loc 1 429 0
+ 427 005c 3C2183E5 		str	r2, [r3, #316]
+ 430:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MECRH, 0x00000000);
+ 428              		.loc 1 430 0
+ 429 0060 0020A0E3 		mov	r2, #0
+ 430 0064 302183E5 		str	r2, [r3, #304]
+ 431:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 431              		.loc 1 431 0
+ 432 0068 342183E5 		str	r2, [r3, #308]
+ 433              	.LVL17:
+ 436:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	else	
+ 434              		.loc 1 436 0
+ 435 006c 0434A081 		lslhi	r3, r4, #8
+ 438:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	wb_fun();
+ 436              		.loc 1 438 0
+ 437 0070 0433A091 		lslls	r3, r4, #6
+ 436:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	else	
+ 438              		.loc 1 436 0
+ 439 0074 04388381 		orrhi	r3, r3, r4, lsl #16
+ 438:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	wb_fun();
+ 440              		.loc 1 438 0
+ 441 0078 04378391 		orrls	r3, r3, r4, lsl #14
+ 442 007c 0B22A0E3 		mov	r2, #-1342177280
+ 443 0080 343082E5 		str	r3, [r2, #52]
+ 439:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 
+ 444              		.loc 1 439 0
+ 445 0084 40309FE5 		ldr	r3, .L12+8
+ 446 0088 33FF2FE1 		blx	r3
+ 447              	.LVL18:
+ 442:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 		outp32(REG_MISSR, ((u32WakeUpSrc<<16)|(u32WakeUpSrc<<8)));	//Enable and Clear interrupt
+ 448              		.loc 1 442 0
+ 449 008c 010054E3 		cmp	r4, #1
+ 443:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	else	
+ 450              		.loc 1 443 0
+ 451 0090 0434A081 		lslhi	r3, r4, #8
+ 445:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 452              		.loc 1 445 0
+ 453 0094 0433A091 		lslls	r3, r4, #6
+ 454 0098 0B22A0E3 		mov	r2, #-1342177280
+ 452:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** }
+ 455              		.loc 1 452 0
+ 456 009c 0500A0E1 		mov	r0, r5
+ 443:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	else	
+ 457              		.loc 1 443 0
+ 458 00a0 04488381 		orrhi	r4, r3, r4, lsl #16
+ 459              	.LVL19:
+ 445:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 460              		.loc 1 445 0
+ 461 00a4 04478391 		orrls	r4, r3, r4, lsl #14
+ 449:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MECRH, u32IntEnableH);	
+ 462              		.loc 1 449 0
+ 463 00a8 2E33A0E3 		mov	r3, #-1207959552
+ 445:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	
+ 464              		.loc 1 445 0
+ 465 00ac 344082E5 		str	r4, [r2, #52]
+ 449:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	outp32(REG_AIC_MECRH, u32IntEnableH);	
+ 466              		.loc 1 449 0
+ 467 00b0 307183E5 		str	r7, [r3, #304]
+ 450:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	if(bIsCacheState==TRUE)
+ 468              		.loc 1 450 0
+ 469 00b4 346183E5 		str	r6, [r3, #308]
+ 452:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** }
+ 470              		.loc 1 452 0
+ 471 00b8 FEFFFFEB 		bl	sysEnableCache
+ 472              	.LVL20:
+ 473              	.LBE7:
+ 474              	.LBE9:
+ 456:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	Entry_PowerDown(u32WakeUpSrc);
+ 457:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** 	return Successful;
+ 458:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_power.c **** }
+ 475              		.loc 1 458 0
+ 476 00bc 0000A0E3 		mov	r0, #0
+ 477 00c0 F081BDE8 		pop	{r4, r5, r6, r7, r8, pc}
+ 478              	.L13:
+ 479              		.align	2
+ 480              	.L12:
+ 481 00c4 00F8FFFF 		.word	Sample_PowerDown-2048
+ 482 00c8 00000000 		.word	.LANCHOR0
+ 483 00cc 000800FF 		.word	-16775168
+ 484              		.cfi_endproc
+ 485              	.LFE11:
+ 487              		.section	.rodata
+ 488              		.set	.LANCHOR0,. + 0
+ 489              	.LC0:
+ 490 0000 4A756D70 		.ascii	"Jump to SRAM (Suspend)\012\000"
+ 490      20746F20 
+ 490      5352414D 
+ 490      20285375 
+ 490      7370656E 
+ 491              		.text
+ 492              	.Letext0:
+ 493              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 494              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 495              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\lib\\gcc\\arm-none-eab
+ 496              		.file 5 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 497              		.file 6 "f:\\arm_project\\w55fa92\\n9h20\\bsp\\driver\\include\\wbtypes.h"
+ 498              		.file 7 "f:\\arm_project\\w55fa92\\n9h20\\bsp\\driver\\include\\wblib.h"
+ 499              		.file 8 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:00000000 wb_power.c
+                            *COM*:00002000 _tmp_buf
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:17     .text.Sample_PowerDown:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:22     .text.Sample_PowerDown:00000000 Sample_PowerDown
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:59     .text.Sample_PowerDown:00000034 loopz
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:93     .text.Sample_PowerDown:00000090 loopa
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:113    .text.Sample_PowerDown:000000bc loop0
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:139    .text.Sample_PowerDown:000000fc loop1
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:162    .text.Sample_PowerDown:00000134 loop2
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:182    .text.Sample_PowerDown:00000160 loop3
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:217    .text.Sample_PowerDown:000001b8 loop4
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:237    .text.Sample_PowerDown:000001e4 loop5
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:255    .text.Sample_PowerDown:00000208 loop6
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:273    .text.Sample_PowerDown:0000022c loop7
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:297    .text.Sample_PowerDown:00000264 loop8
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:326    .text.Sample_PowerDown:0000028c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:344    .text.sysPowerDown:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:350    .text.sysPowerDown:00000000 sysPowerDown
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cclwAGuw.s:481    .text.sysPowerDown:000000c4 $d
+
+UNDEFINED SYMBOLS
+memcpy
+sysGetCacheState
+sysGetCacheMode
+sysDisableCache
+sysFlushCache
+sysprintf
+sysEnableCache

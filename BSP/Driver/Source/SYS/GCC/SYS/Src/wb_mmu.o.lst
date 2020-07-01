@@ -1,0 +1,674 @@
+   1              		.cpu arm926ej-s
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"wb_mmu.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sysSetupCP15,"ax",%progbits
+  16              		.align	2
+  17              		.global	sysSetupCP15
+  18              		.syntax unified
+  19              		.arm
+  20              		.fpu softvfp
+  22              	sysSetupCP15:
+  23              	.LFB6:
+  24              		.file 1 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_mmu.c"
+   1:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** /***************************************************************************
+   2:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *                                                                         *
+   3:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  * Copyright (c) 2008 Nuvoton Technolog. All rights reserved.              *
+   4:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *                                                                         *
+   5:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  ***************************************************************************/ 
+   6:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** /****************************************************************************
+   7:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  * 
+   8:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  * FILENAME
+   9:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *     wb_mmu.c
+  10:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *
+  11:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  * VERSION
+  12:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *     1.0
+  13:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *
+  14:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  * DESCRIPTION
+  15:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *     This file implement mmu functions.
+  16:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *
+  17:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****   * HISTORY
+  18:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *     2008-06-25  Ver 1.0 draft by Min-Nan Cheng
+  19:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *
+  20:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  * REMARK
+  21:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  *     None
+  22:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  **************************************************************************/
+  23:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #include "wblib.h"
+  24:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  25:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #if defined ( __CC_ARM )
+  26:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #pragma push
+  27:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #pragma O2
+  28:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #endif
+  29:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  30:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #define USING_SECTION_TABLE
+  31:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  32:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #define  _CoarsePageSize 	64  //MB
+  33:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  34:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** typedef struct _coarse_table
+  35:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** {
+  36:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	unsigned int page[256];
+  37:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** } _CTable;
+  38:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  39:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #ifdef USING_SECTION_TABLE
+  40:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #if defined (__GNUC__)
+  41:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     unsigned int _mmuSectionTable[4096] __attribute__((aligned (0x4000)));
+  42:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #else
+  43:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     __align(0x4000) unsigned int _mmuSectionTable[4096];
+  44:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #endif
+  45:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #else
+  46:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** __align(0x4000) unsigned int _mmuSectionTable[4096];
+  47:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** __align(1024) static _CTable _mmuCoarsePageTable[_CoarsePageSize];          // maximum 64MB for coa
+  48:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** __align(1024) static _CTable _mmuCoarsePageTable_NonCache[_CoarsePageSize]; // Shadow SDRAM area fo
+  49:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #endif
+  50:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  51:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  52:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** static BOOL _IsInitMMUTable = FALSE;
+  53:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  54:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** //extern INT32 sysGetSdramSizebyMB(void);
+  55:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** extern void sysSetupCP15(unsigned int);
+  56:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  57:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #if defined (__GNUC__) && !(__CC_ARM)
+  58:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** void sysSetupCP15(unsigned int addr)
+  59:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** {
+  25              		.loc 1 59 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 0
+  28              		@ frame_needed = 0, uses_anonymous_args = 0
+  29              		@ link register save eliminated.
+  30              	.LVL0:
+  60:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	register int reg1, reg0;
+  61:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	reg0 = addr;
+  62:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     __asm volatile(
+  31              		.loc 1 62 0
+  32 0000 0030A0E3 		mov	r3, #0
+  33              		.syntax divided
+  34              	@ 62 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_mmu.c" 1
+  35 0004 0030A0E1 		MOV     r3, r0                
+  36 0008 103F02EE 	MCR     p15, #0, r3, c2, c0, #0  
+  37 000c 0131A0E3 	MOV     r3, #0x40000000   
+  38 0010 103F03EE 	MCR     p15, #0, r3, c3, c0, #0  
+  39 0014 103F11EE 	MRC     p15, #0, r3, c1, c0, #0 
+  40 0018 013A83E3 	ORR     r3, r3, #0x1000 
+  41 001c 053083E3 	ORR     r3, r3, #0x5     
+  42 0020 103F01EE 	MCR     p15, #0, r3, c1, c0, #0  
+  43              	
+  44              	@ 0 "" 2
+  63:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     "MOV     %0, %1                \n" // _mmuSectionTable
+  64:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     "MCR     p15, #0, %0, c2, c0, #0  \n" // write translation table base register c2
+  65:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  66:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     "MOV     %0, #0x40000000   \n"
+  67:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     "MCR     p15, #0, %0, c3, c0, #0  \n"  // domain access control register c3
+  68:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  69:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     "MRC     p15, #0, %0, c1, c0, #0 \n" // read control register c1
+  70:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     "ORR     %0, %0, #0x1000 \n"       // enable I cache bit
+  71:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     "ORR     %0, %0, #0x5     \n"      // enable D cache and MMU bits
+  72:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     "MCR     p15, #0, %0, c1, c0, #0  \n" // write control register c1
+  73:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     : : "r"(reg1), "r"(reg0) :"memory"
+  74:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     );
+  75:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** }
+  45              		.loc 1 75 0
+  46              		.arm
+  47              		.syntax unified
+  48 0024 1EFF2FE1 		bx	lr
+  49              		.cfi_endproc
+  50              	.LFE6:
+  52              		.section	.text.sysSetMMUMappingMethod,"ax",%progbits
+  53              		.align	2
+  54              		.global	sysSetMMUMappingMethod
+  55              		.syntax unified
+  56              		.arm
+  57              		.fpu softvfp
+  59              	sysSetMMUMappingMethod:
+  60              	.LFB7:
+  76:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #else
+  77:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** __asm void sysSetupCP15(unsigned int addr)
+  78:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** {
+  79:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     MOV     r1, r0                 // _mmuSectionTable
+  80:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     MCR     p15, 0, r1, c2, c0, 0  // write translation table base register c2
+  81:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  82:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     MOV     r1, #0x40000000
+  83:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     MCR     p15, 0, r1, c3, c0, 0  // domain access control register c3
+  84:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  85:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     MRC     p15, 0, r1, c1, c0, 0  // read control register c1
+  86:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     ORR     r1, r1, #0x1000        // enable I cache bit
+  87:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     ORR     r1, r1, #0x5           // enable D cache and MMU bits
+  88:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     MCR     p15, 0, r1, c1, c0, 0  // write control register c1
+  89:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     BX      lr
+  90:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** }
+  91:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #endif
+  92:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+  93:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #ifndef USING_SECTION_TABLE
+  94:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** static int _MMUMappingMode = MMU_DIRECT_MAPPING;
+  95:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** unsigned int sysGetPhyPageAddr(unsigned int vaddr)
+  96:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** {
+  97:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	int table_num, page_num;
+  98:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	unsigned int base_addr, page_base, page_offset, phy_addr;
+  99:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	volatile _CTable *PageTabPtr;
+ 100:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 101:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (vaddr & 0x80000000)
+ 102:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		PageTabPtr = (_CTable *) _mmuCoarsePageTable_NonCache; //non-cacheable virtual address
+ 103:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	else
+ 104:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		PageTabPtr = (_CTable *) _mmuCoarsePageTable;	//cache-able virtual address
+ 105:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 106:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (sysGetCacheState() == TRUE)
+ 107:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		PageTabPtr = (_CTable *) ((unsigned int)PageTabPtr | 0x80000000); //If cache is enable, must writ
+ 108:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 109:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	base_addr = vaddr & 0x7FFFF000;
+ 110:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	table_num = base_addr / 0x100000;
+ 111:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	page_num = (base_addr & 0xFF000) >> 12;
+ 112:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 113:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	page_base = (*(PageTabPtr+table_num)).page[page_num] & 0xFFFFF000;
+ 114:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	page_offset = vaddr & 0xFFF;
+ 115:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	phy_addr = page_base + page_offset;
+ 116:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 117:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	return phy_addr;
+ 118:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 119:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** } /* end sysGetPHYAddr */
+ 120:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 121:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** int sysSetCachePages(unsigned int vaddr, int size, int cache_flag)
+ 122:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** {
+ 123:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	int i, cnt, table_num, page_num, cache_mode;
+ 124:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	unsigned volatile int baseaddr, temp;
+ 125:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	volatile _CTable *PageTabPtr;
+ 126:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 127:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (vaddr & 0x80000000)
+ 128:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		PageTabPtr = (_CTable *) _mmuCoarsePageTable_NonCache; //non-cacheable virtual address
+ 129:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	else
+ 130:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		PageTabPtr = (_CTable *) _mmuCoarsePageTable;	//cache-able virtual address
+ 131:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 132:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (sysGetCacheState() == TRUE)
+ 133:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		PageTabPtr = (_CTable *) ((unsigned int)PageTabPtr | 0x80000000); //If cache is enable, must writ
+ 134:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 135:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	vaddr &= 0x7FFFFFFF;	//ignore the non-cacheable bit 31	
+ 136:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	//if ( _IsInitMMUTable == FALSE ) return -1;	
+ 137:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if ((vaddr + size) > (_CoarsePageSize << 20)) return -1;
+ 138:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 139:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (vaddr & 0xFFF) 	return -1;  /* MUST 4K Boundary */
+ 140:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (size % 4096)	return -1;  /* MUST 4K multiple size */		
+ 141:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 142:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	/* for flat mapping address */
+ 143:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	cnt = size / 4096;	
+ 144:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 145:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (cache_flag == CACHE_WRITE_BACK) /* write back mode */
+ 146:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		cache_mode = 0x0C; 
+ 147:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	else if (cache_flag == CACHE_WRITE_THROUGH) /* write through mode */
+ 148:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		cache_mode = 0x08; 
+ 149:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	else
+ 150:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		cache_mode = 0; /* Non-cacheable, non-buffered */
+ 151:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 152:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	for (i=0; i<cnt; i++)
+ 153:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	{
+ 154:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		baseaddr = vaddr + i * 4096;
+ 155:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		table_num = baseaddr / 0x100000;
+ 156:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		page_num =  (baseaddr & 0xFF000) >> 12; /* bits [19:12] for level two table index */
+ 157:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 158:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp = (*(PageTabPtr+table_num)).page[page_num] & 0xFFFFFFF3;			
+ 159:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= cache_mode; /* cache mode */			
+ 160:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		(*(PageTabPtr+table_num)).page[page_num] = temp;
+ 161:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	} 
+ 162:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 163:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	//sysFlushCache(D_CACHE);
+ 164:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 165:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	return 0;
+ 166:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 167:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** } /* end sysSetCachePages */
+ 168:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 169:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 170:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 171:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** int sysInitPageTable(unsigned int vaddr, unsigned int phy_addr, int size, int cache_flag, int rev_f
+ 172:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** {
+ 173:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	int i, cnt, table_num, page_num, cache_mode, addr_offset;
+ 174:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	unsigned volatile int phy_base_addr, vbase_addr, temp;
+ 175:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	volatile _CTable *PageTabPtr;
+ 176:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 177:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (vaddr & 0x80000000)
+ 178:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		PageTabPtr = (_CTable *) _mmuCoarsePageTable_NonCache; //non-cacheable virtual address
+ 179:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	else
+ 180:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		PageTabPtr = (_CTable *) _mmuCoarsePageTable;	//cache-able virtual address
+ 181:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 182:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (sysGetCacheState() == TRUE)
+ 183:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		PageTabPtr = (_CTable *) ((unsigned int)PageTabPtr | 0x80000000); //If cache is enable, must writ
+ 184:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 185:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	//if ( _IsInitMMUTable == FALSE ) return -1;	
+ 186:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	vaddr &= 0x7FFFFFFF;	//ignore the non-cacheable bit 31
+ 187:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if ((vaddr + size) > (_CoarsePageSize << 20)) return -1;	
+ 188:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (vaddr & 0xFFFFF) 	return -1;  /* MUST 1M Boundary */
+ 189:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (size % 4096)	    return -1;  /* MUST 4K multiple size */		
+ 190:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 						
+ 191:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	/* Pages count */
+ 192:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	cnt = size / 4096;	
+ 193:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 194:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (cache_flag == CACHE_WRITE_BACK) /* write back mode */
+ 195:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		cache_mode = 0x0C; 
+ 196:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	else if (cache_flag == CACHE_WRITE_THROUGH) /* write through mode */
+ 197:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		cache_mode = 0x08; 
+ 198:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	else
+ 199:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		cache_mode = 0; /* Non-cacheable, non-buffered */
+ 200:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 201:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 202:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	if (rev_flag == MMU_DIRECT_MAPPING)
+ 203:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		phy_base_addr = phy_addr;
+ 204:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	else
+ 205:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		phy_base_addr = phy_addr + size - 4096;		
+ 206:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 207:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	addr_offset = 4096;
+ 208:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	for (i=0; i<cnt; i++)
+ 209:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	{				
+ 210:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		vbase_addr = vaddr + i * 4096;
+ 211:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		table_num = vbase_addr / 0x100000;
+ 212:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		page_num =  (vbase_addr & 0xFF000) >> 12; /* bits [19:12] for level two table index */
+ 213:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 214:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp = phy_base_addr & 0xFFFFF000;
+ 215:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0xFF0; /* access permission, 11 for read/write */
+ 216:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= cache_mode; /* cache mode */
+ 217:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x02;  /* small page */
+ 218:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 219:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		(*(PageTabPtr+table_num)).page[page_num] = temp;
+ 220:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 221:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		if (rev_flag == MMU_DIRECT_MAPPING)
+ 222:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			phy_base_addr += addr_offset;
+ 223:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		else
+ 224:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			phy_base_addr -= addr_offset;
+ 225:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	} 
+ 226:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 227:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	return 0;
+ 228:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 229:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** } /* end sysInitPageTable */
+ 230:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #endif
+ 231:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 232:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** int sysSetMMUMappingMethod(int mode)
+ 233:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** {
+  61              		.loc 1 233 0
+  62              		.cfi_startproc
+  63              		@ args = 0, pretend = 0, frame = 0
+  64              		@ frame_needed = 0, uses_anonymous_args = 0
+  65              		@ link register save eliminated.
+  66              	.LVL1:
+ 234:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #ifndef USING_SECTION_TABLE
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	_MMUMappingMode = mode;
+ 236:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #endif	
+ 237:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	return 0;
+ 238:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 239:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** } /* end sysSetMMUMappingMethod */
+  67              		.loc 1 239 0
+  68 0000 0000A0E3 		mov	r0, #0
+  69              	.LVL2:
+  70 0004 1EFF2FE1 		bx	lr
+  71              		.cfi_endproc
+  72              	.LFE7:
+  74              		.section	.text.sysInitMMUTable,"ax",%progbits
+  75              		.align	2
+  76              		.global	sysInitMMUTable
+  77              		.syntax unified
+  78              		.arm
+  79              		.fpu softvfp
+  81              	sysInitMMUTable:
+  82              	.LFB8:
+ 240:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 241:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 242:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** int sysInitMMUTable(int cache_mode)
+ 243:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** {
+  83              		.loc 1 243 0
+  84              		.cfi_startproc
+  85              		@ args = 0, pretend = 0, frame = 0
+  86              		@ frame_needed = 0, uses_anonymous_args = 0
+  87              	.LVL3:
+ 244:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	int i;
+ 245:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #ifndef USING_SECTION_TABLE	
+ 246:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     unsigned volatile int temp;
+ 247:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     int size, ramsize;
+ 248:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #endif
+ 249:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****     if (_IsInitMMUTable == FALSE) {
+  88              		.loc 1 249 0
+  89 0000 A0209FE5 		ldr	r2, .L14
+ 243:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	int i;
+  90              		.loc 1 243 0
+  91 0004 10402DE9 		push	{r4, lr}
+  92              		.cfi_def_cfa_offset 8
+  93              		.cfi_offset 4, -8
+  94              		.cfi_offset 14, -4
+  95              		.loc 1 249 0
+  96 0008 D030D2E1 		ldrsb	r3, [r2]
+  97 000c 000053E3 		cmp	r3, #0
+  98 0010 2000001A 		bne	.L4
+  99 0014 0200A0E1 		mov	r0, r2
+ 100              	.LVL4:
+ 250:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #ifndef USING_SECTION_TABLE
+ 251:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		ramsize = sysGetSdramSizebyMB();
+ 252:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 253:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		//flat mapping for 4GB, 4096 section table, each size is 1MB
+ 254:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp = 0xC00;   /* (11:10) access permission, R/W */
+ 255:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x1E0;  /* (8:5) domain 15 */
+ 256:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x10;   /* bit 4 must be 1 */
+ 257:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x00;   /* bit 3:2 for cache control bits, cache disabled */
+ 258:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x02;   /* set as 1Mb section */
+ 259:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****   
+ 260:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		for (i=0; i<4096; i++)
+ 261:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 262:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			_mmuSectionTable[i] = (unsigned int)(temp | (i << 20));    
+ 263:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		}
+ 264:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****   
+ 265:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****         //Inside SDRAM, divide each section into 256 small pages, each page size is 4KB
+ 266:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****         if (ramsize > _CoarsePageSize) 
+ 267:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****             size = _CoarsePageSize;	//maximum 64MB
+ 268:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****         else						   
+ 269:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****             size = ramsize;
+ 270:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 271:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		/* first 1M always direct mapping */
+ 272:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		sysInitPageTable(0, 0, 0x100000, cache_mode, MMU_DIRECT_MAPPING);
+ 273:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp = ((unsigned int)_mmuCoarsePageTable  & 0xFFFFFC00); /*  coarse table base address */		
+ 274:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x1E0;  /* (8:5) domain 15 */
+ 275:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x10;   /* bit 4 must be 1 */
+ 276:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x01;   /* Coarse page table */
+ 277:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		_mmuSectionTable[0] = temp;
+ 278:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 279:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		/* Create a shadow area at 0x80000000 for non-cacheable region */
+ 280:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		sysInitPageTable(0x80000000, 0x0, 0x100000, CACHE_DISABLE, MMU_DIRECT_MAPPING);
+ 281:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp = ((unsigned int)_mmuCoarsePageTable_NonCache  & 0xFFFFFC00); /*  coarse table base address 
+ 282:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x1E0;  /* (8:5) domain 15 */
+ 283:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x10;   /* bit 4 must be 1 */
+ 284:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		temp |= 0x01;   /* Coarse page table */
+ 285:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		_mmuSectionTable[0x800] = temp;
+ 286:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		
+ 287:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		/* Mapping the other memory */
+ 288:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		for (i=1; i< size; i++)
+ 289:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 290:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			temp = (((unsigned int)_mmuCoarsePageTable + (unsigned int)i*1024) & 0xFFFFFC00); /*  coarse tab
+ 291:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			//temp = ((unsigned int)(0x604000 + i*1024) & 0xFFFFFC00); /* coarse table base address */
+ 292:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			temp |= 0x1E0;  /* (8:5) domain 15 */
+ 293:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			temp |= 0x10;   /* bit 4 must be 1 */
+ 294:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			temp |= 0x01;   /* Coarse page table */
+ 295:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 296:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			if (_MMUMappingMode == MMU_DIRECT_MAPPING)		
+ 297:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 				sysInitPageTable((i << 20), (i << 20), 0x100000, cache_mode, MMU_DIRECT_MAPPING); /* direct map
+ 298:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			else
+ 299:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 				sysInitPageTable((i << 20), (i << 20), 0x100000, cache_mode, MMU_INVERSE_MAPPING); /* inverse m
+ 300:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 				
+ 301:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			_mmuSectionTable[i] = temp;			
+ 302:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		}
+ 303:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 				
+ 304:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		//Create shadow non-cacheabel region
+ 305:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		for (i=1; i< size; i++)
+ 306:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 307:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			temp = (((unsigned int)_mmuCoarsePageTable_NonCache + (unsigned int)i*1024) & 0xFFFFFC00); /*  c
+ 308:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			//temp = ((unsigned int)(0x604000 + i*1024) & 0xFFFFFC00); /* coarse table base address */
+ 309:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			temp |= 0x1E0;  /* (8:5) domain 15 */
+ 310:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			temp |= 0x10;   /* bit 4 must be 1 */
+ 311:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			temp |= 0x01;   /* Coarse page table */
+ 312:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 313:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			if (_MMUMappingMode == MMU_DIRECT_MAPPING)		
+ 314:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 				sysInitPageTable(((i << 20) | 0x80000000), (i << 20), 0x100000, CACHE_DISABLE, MMU_DIRECT_MAPPI
+ 315:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			else
+ 316:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 				sysInitPageTable(((i << 20) | 0x80000000), (i << 20), 0x100000, CACHE_DISABLE, MMU_INVERSE_MAPP
+ 317:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 				
+ 318:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 			_mmuSectionTable[0x800+i] = temp;			
+ 319:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		}
+ 320:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #else
+ 321:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		for (i=0; i< 64; i++)
+ 322:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 323:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****             _mmuSectionTable[i] = (i<<20) | 0xDFE;            /* Cacheable, Bufferable */
+ 101              		.loc 1 323 0
+ 102 0018 8C209FE5 		ldr	r2, .L14+4
+ 103 001c 8CE09FE5 		ldr	lr, .L14+8
+ 104 0020 0210A0E1 		mov	r1, r2
+ 105              	.L5:
+ 106              	.LVL5:
+ 107              		.loc 1 323 0 is_stmt 0 discriminator 3
+ 108 0024 03CA8EE1 		orr	ip, lr, r3, lsl #20
+ 109 0028 03C182E7 		str	ip, [r2, r3, lsl #2]
+ 321:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 110              		.loc 1 321 0 is_stmt 1 discriminator 3
+ 111 002c 013083E2 		add	r3, r3, #1
+ 112              	.LVL6:
+ 113 0030 400053E3 		cmp	r3, #64
+ 114 0034 FAFFFF1A 		bne	.L5
+ 324:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		}
+ 325:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		for (i=64; i< 2048; i++)
+ 326:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 327:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****             _mmuSectionTable[i] = (i<<20) | 0xDF2;            /* Non-acheable, Non-Bufferable */
+ 115              		.loc 1 327 0
+ 116 0038 74C09FE5 		ldr	ip, .L14+12
+ 117              	.L6:
+ 118              		.loc 1 327 0 is_stmt 0 discriminator 3
+ 119 003c 032A8CE1 		orr	r2, ip, r3, lsl #20
+ 120 0040 032181E7 		str	r2, [r1, r3, lsl #2]
+ 325:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 121              		.loc 1 325 0 is_stmt 1 discriminator 3
+ 122 0044 013083E2 		add	r3, r3, #1
+ 123              	.LVL7:
+ 124 0048 020B53E3 		cmp	r3, #2048
+ 125 004c FAFFFF1A 		bne	.L6
+ 328:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		}
+ 329:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		for (i=2048; i< 2112; i++)
+ 330:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 331:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****             _mmuSectionTable[i] = ((i-2048)<<20) | 0xDF2;     /* Non-acheable, Non-Bufferable */
+ 126              		.loc 1 331 0
+ 127 0050 5CE09FE5 		ldr	lr, .L14+12
+ 128 0054 0030A0E3 		mov	r3, #0
+ 129              	.LVL8:
+ 130              	.L7:
+ 131              		.loc 1 331 0 is_stmt 0 discriminator 3
+ 132 0058 0321A0E1 		lsl	r2, r3, #2
+ 133 005c 03CA8EE1 		orr	ip, lr, r3, lsl #20
+ 134 0060 013083E2 		add	r3, r3, #1
+ 135              	.LVL9:
+ 136 0064 022A82E2 		add	r2, r2, #8192
+ 329:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 137              		.loc 1 329 0 is_stmt 1 discriminator 3
+ 138 0068 400053E3 		cmp	r3, #64
+ 139              		.loc 1 331 0 discriminator 3
+ 140 006c 02C081E7 		str	ip, [r1, r2]
+ 141              	.LVL10:
+ 329:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 142              		.loc 1 329 0 discriminator 3
+ 143 0070 F8FFFF1A 		bne	.L7
+ 144 0074 3C209FE5 		ldr	r2, .L14+16
+ 332:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		}
+ 333:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		for (i=2112; i< 4096; i++)
+ 334:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 335:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****             _mmuSectionTable[i] = (i<<20) | 0xDF2;            /* Non-acheable, Non-Bufferable */
+ 145              		.loc 1 335 0
+ 146 0078 34C09FE5 		ldr	ip, .L14+12
+ 329:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 147              		.loc 1 329 0
+ 148 007c 2133A0E3 		mov	r3, #-2080374784
+ 149              	.L8:
+ 150              		.loc 1 335 0 discriminator 3
+ 151 0080 0C1083E1 		orr	r1, r3, ip
+ 333:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 152              		.loc 1 333 0 discriminator 3
+ 153 0084 013693E2 		adds	r3, r3, #1048576
+ 154              		.loc 1 335 0 discriminator 3
+ 155 0088 0410A2E5 		str	r1, [r2, #4]!
+ 333:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		{
+ 156              		.loc 1 333 0 discriminator 3
+ 157 008c FBFFFF1A 		bne	.L8
+ 336:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		}
+ 337:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #endif										
+ 338:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 		_IsInitMMUTable = TRUE;
+ 158              		.loc 1 338 0
+ 159 0090 0130A0E3 		mov	r3, #1
+ 160 0094 0030C0E5 		strb	r3, [r0]
+ 161              	.L4:
+ 339:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  	}
+ 340:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  	
+ 341:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  	//moved here by cmn [2007/01/27]
+ 342:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  	//set CP15 registers
+ 343:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	sysSetupCP15((unsigned int)_mmuSectionTable);
+ 162              		.loc 1 343 0
+ 163 0098 0C009FE5 		ldr	r0, .L14+4
+ 164 009c FEFFFFEB 		bl	sysSetupCP15
+ 165              	.LVL11:
+ 344:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  	
+ 345:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c ****  	return 0;
+ 346:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	
+ 347:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** } /* end sysInitMMUTable */
+ 166              		.loc 1 347 0
+ 167 00a0 0000A0E3 		mov	r0, #0
+ 168 00a4 1080BDE8 		pop	{r4, pc}
+ 169              	.L15:
+ 170              		.align	2
+ 171              	.L14:
+ 172 00a8 00000000 		.word	.LANCHOR0
+ 173 00ac 00000000 		.word	_mmuSectionTable
+ 174 00b0 FE0D0000 		.word	3582
+ 175 00b4 F20D0000 		.word	3570
+ 176 00b8 FC200000 		.word	_mmuSectionTable+8444
+ 177              		.cfi_endproc
+ 178              	.LFE8:
+ 180              		.section	.text._sbrk,"ax",%progbits
+ 181              		.align	2
+ 182              		.global	_sbrk
+ 183              		.syntax unified
+ 184              		.arm
+ 185              		.fpu softvfp
+ 187              	_sbrk:
+ 188              	.LFB9:
+ 348:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 349:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #if defined (__GNUC__)
+ 350:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** #if 1
+ 351:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** extern char __heap_start__;
+ 352:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** extern char __heap_end__;
+ 353:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** unsigned char * HeapSize=0;
+ 354:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** unsigned char * _sbrk ( int incr )
+ 355:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** {
+ 189              		.loc 1 355 0
+ 190              		.cfi_startproc
+ 191              		@ args = 0, pretend = 0, frame = 0
+ 192              		@ frame_needed = 0, uses_anonymous_args = 0
+ 193              		@ link register save eliminated.
+ 194              	.LVL12:
+ 356:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  //extern char _Heap_Begin; // Defined by the linker.
+ 357:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  //extern char _Heap_Limit; // Defined by the linker.
+ 358:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 359:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  static char* current_heap_end = 0;
+ 360:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  char* current_block_address;
+ 361:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 362:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  if (current_heap_end == 0)
+ 195              		.loc 1 362 0
+ 196 0000 34209FE5 		ldr	r2, .L20
+ 355:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  //extern char _Heap_Begin; // Defined by the linker.
+ 197              		.loc 1 355 0
+ 198 0004 0030A0E1 		mov	r3, r0
+ 199              		.loc 1 362 0
+ 200 0008 001092E5 		ldr	r1, [r2]
+ 363:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  {
+ 364:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	      current_heap_end = &__heap_start__;
+ 365:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  }
+ 366:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 367:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  current_block_address = current_heap_end;
+ 368:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 369:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  // Need to align heap to word boundary, else will get
+ 370:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  // hard faults on Cortex-M0. So we assume that heap starts on
+ 371:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  // word boundary, hence make sure we always add a multiple of
+ 372:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  // 4 to it.
+ 373:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  incr = (incr + 3) & (~3); // align value to 4
+ 201              		.loc 1 373 0
+ 202 000c 033083E2 		add	r3, r3, #3
+ 362:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  {
+ 203              		.loc 1 362 0
+ 204 0010 000051E3 		cmp	r1, #0
+ 364:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  }
+ 205              		.loc 1 364 0
+ 206 0014 24109F05 		ldreq	r1, .L20+4
+ 207              		.loc 1 373 0
+ 208 0018 0330C3E3 		bic	r3, r3, #3
+ 364:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  }
+ 209              		.loc 1 364 0
+ 210 001c 00108205 		streq	r1, [r2]
+ 367:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 211              		.loc 1 367 0
+ 212 0020 000092E5 		ldr	r0, [r2]
+ 213              	.LVL13:
+ 374:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  if (current_heap_end + incr > &__heap_end__)
+ 214              		.loc 1 374 0
+ 215 0024 18109FE5 		ldr	r1, .L20+8
+ 216 0028 033080E0 		add	r3, r0, r3
+ 217 002c 010053E1 		cmp	r3, r1
+ 375:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  {
+ 376:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	      // Some of the libstdc++-v3 tests rely upon detecting
+ 377:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	      // out of memory errors, so do not abort here.
+ 378:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	#if 0
+ 379:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	      extern void abort (void);
+ 380:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 381:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	      _write (1, "_sbrk: Heap and stack collision\n", 32);
+ 382:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 383:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	      abort ();
+ 384:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	#else
+ 385:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	      // Heap has overflowed
+ 386:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	      // errno = ENOMEM;
+ 387:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	      return (unsigned char*) - 1;
+ 388:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	#endif
+ 389:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  }
+ 390:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 391:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  current_heap_end += incr;
+ 218              		.loc 1 391 0
+ 219 0030 00308295 		strls	r3, [r2]
+ 387:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	#endif
+ 220              		.loc 1 387 0
+ 221 0034 0000E083 		mvnhi	r0, #0
+ 222              	.LVL14:
+ 392:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 
+ 393:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** 	  return (unsigned char*) current_block_address;
+ 394:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_mmu.c **** }
+ 223              		.loc 1 394 0
+ 224 0038 1EFF2FE1 		bx	lr
+ 225              	.L21:
+ 226              		.align	2
+ 227              	.L20:
+ 228 003c 00000000 		.word	.LANCHOR1
+ 229 0040 00000000 		.word	__heap_start__
+ 230 0044 00000000 		.word	__heap_end__
+ 231              		.cfi_endproc
+ 232              	.LFE9:
+ 234              		.global	HeapSize
+ 235              		.comm	_mmuSectionTable,16384,16384
+ 236              		.section	.bss.HeapSize,"aw",%nobits
+ 237              		.align	2
+ 240              	HeapSize:
+ 241 0000 00000000 		.space	4
+ 242              		.section	.bss._IsInitMMUTable,"aw",%nobits
+ 243              		.set	.LANCHOR0,. + 0
+ 246              	_IsInitMMUTable:
+ 247 0000 00       		.space	1
+ 248              		.section	.bss.current_heap_end.4312,"aw",%nobits
+ 249              		.align	2
+ 250              		.set	.LANCHOR1,. + 0
+ 253              	current_heap_end.4312:
+ 254 0000 00000000 		.space	4
+ 255              		.text
+ 256              	.Letext0:
+ 257              		.file 2 "f:\\arm_project\\w55fa92\\n9h20\\bsp\\driver\\include\\wbtypes.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 wb_mmu.c
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:16     .text.sysSetupCP15:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:22     .text.sysSetupCP15:00000000 sysSetupCP15
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:53     .text.sysSetMMUMappingMethod:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:59     .text.sysSetMMUMappingMethod:00000000 sysSetMMUMappingMethod
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:75     .text.sysInitMMUTable:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:81     .text.sysInitMMUTable:00000000 sysInitMMUTable
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:172    .text.sysInitMMUTable:000000a8 $d
+                            *COM*:00004000 _mmuSectionTable
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:181    .text._sbrk:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:187    .text._sbrk:00000000 _sbrk
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:228    .text._sbrk:0000003c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:240    .bss.HeapSize:00000000 HeapSize
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:237    .bss.HeapSize:00000000 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:246    .bss._IsInitMMUTable:00000000 _IsInitMMUTable
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:247    .bss._IsInitMMUTable:00000000 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:249    .bss.current_heap_end.4312:00000000 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccZg3dVd.s:253    .bss.current_heap_end.4312:00000000 current_heap_end.4312
+
+UNDEFINED SYMBOLS
+__heap_start__
+__heap_end__

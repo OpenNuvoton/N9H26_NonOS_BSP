@@ -1,0 +1,1062 @@
+   1              		.cpu arm926ej-s
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"wb_cache.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.global	_sys_IsCacheOn
+  16              		.comm	_sys_CacheMode,4,4
+  17              		.section	.text.sysGetSdramSizebyMB,"ax",%progbits
+  18              		.align	2
+  19              		.global	sysGetSdramSizebyMB
+  20              		.syntax unified
+  21              		.arm
+  22              		.fpu softvfp
+  24              	sysGetSdramSizebyMB:
+  25              	.LFB6:
+  26              		.file 1 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c"
+   1:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** /***************************************************************************
+   2:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****  *                                                                         *
+   3:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****  * Copyright (c) 2008 Nuvoton Technolog. All rights reserved.              *
+   4:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****  *                                                                         *
+   5:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****  ***************************************************************************/
+   6:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****  
+   7:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** /****************************************************************************
+   8:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** * FILENAME
+   9:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** *   wb_cache.c
+  10:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** *
+  11:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** * VERSION
+  12:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** *   1.0
+  13:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** *
+  14:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** * DESCRIPTION
+  15:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** *   The cache related functions of Nuvoton ARM9 MCU
+  16:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** *
+  17:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** * HISTORY
+  18:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** *   2008-06-25  Ver 1.0 draft by Min-Nan Cheng
+  19:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** * Modification
+  20:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** *   2011-06-01  Ver 1.1 draft by Shih-Wen Chou
+  21:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** *   	
+  22:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** * REMARK
+  23:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** *   None
+  24:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****  **************************************************************************/
+  25:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #include "wblib.h"
+  26:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  27:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** BOOL volatile _sys_IsCacheOn = FALSE;
+  28:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** INT32 volatile _sys_CacheMode;
+  29:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** extern void sys_flush_and_clean_dcache(void);
+  30:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** extern void sysDisableDCache(void);
+  31:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** extern void sysDisableICache(void);
+  32:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** extern int sysInitMMUTable(int);
+  33:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  34:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  35:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** INT32 sysGetSdramSizebyMB()
+  36:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+  27              		.loc 1 36 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 08D04DE2 		sub	sp, sp, #8
+  33              		.cfi_def_cfa_offset 8
+  37:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	unsigned int volatile reg, totalsize=0;
+  34              		.loc 1 37 0
+  35 0004 0030A0E3 		mov	r3, #0
+  36 0008 04308DE5 		str	r3, [sp, #4]
+  38:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  39:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	reg = inpw(REG_SDSIZE0) & 0x07;
+  37              		.loc 1 39 0
+  38 000c 3C319FE5 		ldr	r3, .L21
+  39 0010 102093E5 		ldr	r2, [r3, #16]
+  40 0014 072002E2 		and	r2, r2, #7
+  41 0018 00208DE5 		str	r2, [sp]
+  40:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	switch(reg)
+  42              		.loc 1 40 0
+  43 001c 00209DE5 		ldr	r2, [sp]
+  44 0020 012042E2 		sub	r2, r2, #1
+  45 0024 050052E3 		cmp	r2, #5
+  46 0028 02F19F97 		ldrls	pc, [pc, r2, asl #2]
+  47 002c 080000EA 		b	.L2
+  48              	.L4:
+  49 0030 48000000 		.word	.L3
+  50 0034 8C000000 		.word	.L5
+  51 0038 9C000000 		.word	.L6
+  52 003c AC000000 		.word	.L7
+  53 0040 BC000000 		.word	.L8
+  54 0044 CC000000 		.word	.L9
+  55              	.L3:
+  41:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	{
+  42:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 1:
+  43:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 2;
+  56              		.loc 1 43 0
+  57 0048 04209DE5 		ldr	r2, [sp, #4]
+  58 004c 022082E2 		add	r2, r2, #2
+  59 0050 04208DE5 		str	r2, [sp, #4]
+  60              	.L2:
+  44:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  45:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  46:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 2:
+  47:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 4;
+  48:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  49:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  50:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 3:
+  51:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 8;
+  52:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  53:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  54:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 4:
+  55:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 16;
+  56:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  57:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  58:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 5:
+  59:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 32;
+  60:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  61:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  62:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 6:
+  63:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 64;
+  64:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  65:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+  66:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  67:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	reg = inpw(REG_SDSIZE1) & 0x07;
+  61              		.loc 1 67 0
+  62 0054 143093E5 		ldr	r3, [r3, #20]
+  63 0058 073003E2 		and	r3, r3, #7
+  64 005c 00308DE5 		str	r3, [sp]
+  68:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	switch(reg)
+  65              		.loc 1 68 0
+  66 0060 00309DE5 		ldr	r3, [sp]
+  67 0064 013043E2 		sub	r3, r3, #1
+  68 0068 050053E3 		cmp	r3, #5
+  69 006c 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+  70 0070 1C0000EA 		b	.L10
+  71              	.L12:
+  72 0074 DC000000 		.word	.L11
+  73 0078 00010000 		.word	.L13
+  74 007c 10010000 		.word	.L14
+  75 0080 20010000 		.word	.L15
+  76 0084 30010000 		.word	.L16
+  77 0088 40010000 		.word	.L17
+  78              	.L5:
+  47:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  79              		.loc 1 47 0
+  80 008c 04209DE5 		ldr	r2, [sp, #4]
+  81 0090 042082E2 		add	r2, r2, #4
+  82 0094 04208DE5 		str	r2, [sp, #4]
+  48:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  83              		.loc 1 48 0
+  84 0098 EDFFFFEA 		b	.L2
+  85              	.L6:
+  51:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  86              		.loc 1 51 0
+  87 009c 04209DE5 		ldr	r2, [sp, #4]
+  88 00a0 082082E2 		add	r2, r2, #8
+  89 00a4 04208DE5 		str	r2, [sp, #4]
+  52:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  90              		.loc 1 52 0
+  91 00a8 E9FFFFEA 		b	.L2
+  92              	.L7:
+  55:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  93              		.loc 1 55 0
+  94 00ac 04209DE5 		ldr	r2, [sp, #4]
+  95 00b0 102082E2 		add	r2, r2, #16
+  96 00b4 04208DE5 		str	r2, [sp, #4]
+  56:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  97              		.loc 1 56 0
+  98 00b8 E5FFFFEA 		b	.L2
+  99              	.L8:
+  59:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+ 100              		.loc 1 59 0
+ 101 00bc 04209DE5 		ldr	r2, [sp, #4]
+ 102 00c0 202082E2 		add	r2, r2, #32
+ 103 00c4 04208DE5 		str	r2, [sp, #4]
+  60:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 104              		.loc 1 60 0
+ 105 00c8 E1FFFFEA 		b	.L2
+ 106              	.L9:
+  63:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+ 107              		.loc 1 63 0
+ 108 00cc 04209DE5 		ldr	r2, [sp, #4]
+ 109 00d0 402082E2 		add	r2, r2, #64
+ 110 00d4 04208DE5 		str	r2, [sp, #4]
+  64:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+ 111              		.loc 1 64 0
+ 112 00d8 DDFFFFEA 		b	.L2
+ 113              	.L11:
+  69:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	{
+  70:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 1:
+  71:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 2;
+ 114              		.loc 1 71 0
+ 115 00dc 04309DE5 		ldr	r3, [sp, #4]
+ 116 00e0 023083E2 		add	r3, r3, #2
+ 117 00e4 04308DE5 		str	r3, [sp, #4]
+ 118              	.L10:
+  72:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  73:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  74:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 2:
+  75:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 4;
+  76:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  77:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  78:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 3:
+  79:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 8;
+  80:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  81:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  82:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 4:
+  83:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 16;
+  84:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  85:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  86:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 5:
+  87:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 32;
+  88:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  89:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  90:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case 6:
+  91:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			totalsize += 64;
+  92:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+  93:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+  94:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+  95:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	if (totalsize != 0)
+ 119              		.loc 1 95 0
+ 120 00e8 04309DE5 		ldr	r3, [sp, #4]
+ 121 00ec 000053E3 		cmp	r3, #0
+  96:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		return totalsize;
+ 122              		.loc 1 96 0
+ 123 00f0 04009D15 		ldrne	r0, [sp, #4]
+  97:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	else
+  98:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		return (INT32)WB_MEM_INVALID_MEM_SIZE;	
+ 124              		.loc 1 98 0
+ 125 00f4 58009F05 		ldreq	r0, .L21+4
+  99:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }
+ 126              		.loc 1 99 0
+ 127 00f8 08D08DE2 		add	sp, sp, #8
+ 128              		.cfi_remember_state
+ 129              		.cfi_def_cfa_offset 0
+ 130              		@ sp needed
+ 131 00fc 1EFF2FE1 		bx	lr
+ 132              	.L13:
+ 133              		.cfi_restore_state
+  75:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+ 134              		.loc 1 75 0
+ 135 0100 04309DE5 		ldr	r3, [sp, #4]
+ 136 0104 043083E2 		add	r3, r3, #4
+ 137 0108 04308DE5 		str	r3, [sp, #4]
+  76:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 138              		.loc 1 76 0
+ 139 010c F5FFFFEA 		b	.L10
+ 140              	.L14:
+  79:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+ 141              		.loc 1 79 0
+ 142 0110 04309DE5 		ldr	r3, [sp, #4]
+ 143 0114 083083E2 		add	r3, r3, #8
+ 144 0118 04308DE5 		str	r3, [sp, #4]
+  80:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 145              		.loc 1 80 0
+ 146 011c F1FFFFEA 		b	.L10
+ 147              	.L15:
+  83:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+ 148              		.loc 1 83 0
+ 149 0120 04309DE5 		ldr	r3, [sp, #4]
+ 150 0124 103083E2 		add	r3, r3, #16
+ 151 0128 04308DE5 		str	r3, [sp, #4]
+  84:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 152              		.loc 1 84 0
+ 153 012c EDFFFFEA 		b	.L10
+ 154              	.L16:
+  87:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+ 155              		.loc 1 87 0
+ 156 0130 04309DE5 		ldr	r3, [sp, #4]
+ 157 0134 203083E2 		add	r3, r3, #32
+ 158 0138 04308DE5 		str	r3, [sp, #4]
+  88:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 159              		.loc 1 88 0
+ 160 013c E9FFFFEA 		b	.L10
+ 161              	.L17:
+  91:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+ 162              		.loc 1 91 0
+ 163 0140 04309DE5 		ldr	r3, [sp, #4]
+ 164 0144 403083E2 		add	r3, r3, #64
+ 165 0148 04308DE5 		str	r3, [sp, #4]
+  92:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+ 166              		.loc 1 92 0
+ 167 014c E5FFFFEA 		b	.L10
+ 168              	.L22:
+ 169              		.align	2
+ 170              	.L21:
+ 171 0150 003000B0 		.word	-1342164992
+ 172 0154 080AFFFF 		.word	-62968
+ 173              		.cfi_endproc
+ 174              	.LFE6:
+ 176              		.section	.text.sysEnableCache,"ax",%progbits
+ 177              		.align	2
+ 178              		.global	sysEnableCache
+ 179              		.syntax unified
+ 180              		.arm
+ 181              		.fpu softvfp
+ 183              	sysEnableCache:
+ 184              	.LFB7:
+ 100:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 101:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 102:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** INT32 sysEnableCache(UINT32 uCacheOpMode)
+ 103:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+ 185              		.loc 1 103 0
+ 186              		.cfi_startproc
+ 187              		@ args = 0, pretend = 0, frame = 0
+ 188              		@ frame_needed = 0, uses_anonymous_args = 0
+ 189              	.LVL0:
+ 190 0000 10402DE9 		push	{r4, lr}
+ 191              		.cfi_def_cfa_offset 8
+ 192              		.cfi_offset 4, -8
+ 193              		.cfi_offset 14, -4
+ 194              		.loc 1 103 0
+ 195 0004 0040A0E1 		mov	r4, r0
+ 104:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	sysInitMMUTable(uCacheOpMode);
+ 196              		.loc 1 104 0
+ 197 0008 FEFFFFEB 		bl	sysInitMMUTable
+ 198              	.LVL1:
+ 105:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	_sys_IsCacheOn = TRUE;
+ 199              		.loc 1 105 0
+ 200 000c 14309FE5 		ldr	r3, .L25
+ 201 0010 0120A0E3 		mov	r2, #1
+ 202 0014 0020C3E5 		strb	r2, [r3]
+ 106:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	_sys_CacheMode = uCacheOpMode;
+ 203              		.loc 1 106 0
+ 204 0018 0C309FE5 		ldr	r3, .L25+4
+ 107:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	
+ 108:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	return Successful;
+ 109:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }
+ 205              		.loc 1 109 0
+ 206 001c 0000A0E3 		mov	r0, #0
+ 106:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	_sys_CacheMode = uCacheOpMode;
+ 207              		.loc 1 106 0
+ 208 0020 004083E5 		str	r4, [r3]
+ 209              		.loc 1 109 0
+ 210 0024 1080BDE8 		pop	{r4, pc}
+ 211              	.L26:
+ 212              		.align	2
+ 213              	.L25:
+ 214 0028 00000000 		.word	.LANCHOR0
+ 215 002c 00000000 		.word	_sys_CacheMode
+ 216              		.cfi_endproc
+ 217              	.LFE7:
+ 219              		.section	.text.sys_flush_and_clean_dcache,"ax",%progbits
+ 220              		.align	2
+ 221              		.global	sys_flush_and_clean_dcache
+ 222              		.syntax unified
+ 223              		.arm
+ 224              		.fpu softvfp
+ 226              	sys_flush_and_clean_dcache:
+ 227              	.LFB8:
+ 110:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 111:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #pragma GCC push_options
+ 112:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #pragma GCC optimize ("O0")
+ 113:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** void sys_flush_and_clean_dcache(void)
+ 114:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+ 228              		.loc 1 114 0
+ 229              		.cfi_startproc
+ 230              		@ args = 0, pretend = 0, frame = 8
+ 231              		@ frame_needed = 1, uses_anonymous_args = 0
+ 232              		@ link register save eliminated.
+ 233 0000 04B02DE5 		str	fp, [sp, #-4]!
+ 234              		.cfi_def_cfa_offset 4
+ 235              		.cfi_offset 11, -4
+ 236 0004 00B08DE2 		add	fp, sp, #0
+ 237              		.cfi_def_cfa_register 11
+ 238 0008 0CD04DE2 		sub	sp, sp, #12
+ 115:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	volatile register int reg2;
+ 116:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	__asm volatile(
+ 239              		.loc 1 116 0
+ 240              		.syntax divided
+ 241              	@ 116 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c" 1
+ 242              		 tci_loop100:                              
+ 243 000c 7EFF17EE 	     MRC p15, #0, r15, c7, c14, #3         
+ 244 0010 FDFFFF1A 	     BNE tci_loop100                       
+ 245              	
+ 246              	@ 0 "" 2
+ 117:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     " tci_loop100:                              \n"
+ 118:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     "     MRC p15, #0, r15, c7, c14, #3         \n"     /* test clean and invalidate */
+ 119:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     "     BNE tci_loop100                       \n"
+ 120:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     : : : "memory");
+ 121:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }  
+ 247              		.loc 1 121 0
+ 248              		.arm
+ 249              		.syntax unified
+ 250 0014 0000A0E1 		nop
+ 251 0018 00D08BE2 		add	sp, fp, #0
+ 252              		.cfi_def_cfa_register 13
+ 253              		@ sp needed
+ 254 001c 04B09DE4 		ldr	fp, [sp], #4
+ 255              		.cfi_restore 11
+ 256              		.cfi_def_cfa_offset 0
+ 257 0020 1EFF2FE1 		bx	lr
+ 258              		.cfi_endproc
+ 259              	.LFE8:
+ 261              		.section	.text.sysDisableCache,"ax",%progbits
+ 262              		.align	2
+ 263              		.global	sysDisableCache
+ 264              		.syntax unified
+ 265              		.arm
+ 266              		.fpu softvfp
+ 268              	sysDisableCache:
+ 269              	.LFB9:
+ 122:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #pragma GCC pop_options
+ 123:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #else
+ 124:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** __asm void sys_flush_and_clean_dcache(void)
+ 125:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+ 126:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** tci_loop
+ 127:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     MRC p15, 0, r15, c7, c14, 3 // test clean and invalidate
+ 128:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     BNE tci_loop
+ 129:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     BX  lr
+ 130:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }
+ 131:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #endif
+ 132:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 133:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** VOID sysDisableCache()
+ 134:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+ 270              		.loc 1 134 0
+ 271              		.cfi_startproc
+ 272              		@ args = 0, pretend = 0, frame = 8
+ 273              		@ frame_needed = 0, uses_anonymous_args = 0
+ 274 0000 07402DE9 		push	{r0, r1, r2, lr}
+ 275              		.cfi_def_cfa_offset 16
+ 276              		.cfi_offset 14, -4
+ 135:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	volatile int temp;
+ 136:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 137:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	sys_flush_and_clean_dcache();
+ 277              		.loc 1 137 0
+ 278 0004 FEFFFFEB 		bl	sys_flush_and_clean_dcache
+ 279              	.LVL2:
+ 138:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 139:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	__asm volatile
+ 280              		.loc 1 139 0
+ 281 0008 04309DE5 		ldr	r3, [sp, #4]
+ 282              		.syntax divided
+ 283              	@ 139 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c" 1
+ 284 000c 0030A0E3 		MOV r3, #0x0				
+ 285 0010 153F07EE 		MCR p15, 0, r3, c7, c5, #0 	
+ 286 0014 163F07EE 		MCR p15, 0, r3, c7, c6, #0  
+ 287 0018 9A3F07EE 		MCR p15, 0, r3, c7, c10,#4  
+ 288 001c 103F11EE 		MRC p15, 0, r3, c1, c0, #0   
+ 289 0020 0130C3E3 		BIC r3, r3, #0x01            
+ 290 0024 103F01EE 		MCR p15, 0, r3, c1, c0, #0   
+ 291              		
+ 292              	@ 0 "" 2
+ 140:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     (
+ 141:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         /*----- flush I, D cache & write buffer -----*/
+ 142:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MOV %0, #0x0				\n\t"
+ 143:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MCR p15, 0, %0, c7, c5, #0 	\n\t" /* flush I cache */
+ 144:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MCR p15, 0, %0, c7, c6, #0  \n\t" /* flush D cache */
+ 145:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MCR p15, 0, %0, c7, c10,#4  \n\t" /* drain write buffer */
+ 146:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 147:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         /*----- disable Protection Unit -----*/
+ 148:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MRC p15, 0, %0, c1, c0, #0   \n\t" /* read Control register */
+ 149:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "BIC %0, %0, #0x01            \n\t"
+ 150:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MCR p15, 0, %0, c1, c0, #0   \n\t" /* write Control register */
+ 151:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		: :"r"(temp) : "memory"
+ 152:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     );
+ 153:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #else
+ 154:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	__asm
+ 155:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	{
+ 156:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		/*----- flush I, D cache & write buffer -----*/
+ 157:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MOV temp, 0x0
+ 158:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MCR p15, 0, temp, c7, c5, 0 /* flush I cache */
+ 159:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MCR p15, 0, temp, c7, c6, 0 /* flush D cache */
+ 160:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MCR p15, 0, temp, c7, c10,4 /* drain write buffer */		
+ 161:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 162:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		/*----- disable Protection Unit -----*/
+ 163:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MRC p15, 0, temp, c1, c0, 0 	/* read Control register */
+ 164:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		BIC	temp, temp, 0x01
+ 165:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MCR p15, 0, temp, c1, c0, 0 	/* write Control register */
+ 166:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		
+ 167:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		/*----- disable I Cache -----*/
+ 168:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MRC p15, 0, temp, c1, c0, 0
+ 169:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		bic temp, temp, #0x1000
+ 170:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MCR p15, 0, temp, c1, c0, 0
+ 171:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			
+ 172:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		/*----- disable D Cache -----*/		
+ 173:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MRC p15, 0, temp, c1, c0, 0
+ 174:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		bic temp, temp, #0x04
+ 175:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MCR p15, 0, temp, c1, c0, 0
+ 176:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+ 177:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #endif
+ 178:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	
+ 179:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	_sys_IsCacheOn = FALSE;
+ 293              		.loc 1 179 0
+ 294              		.arm
+ 295              		.syntax unified
+ 296 0028 18309FE5 		ldr	r3, .L30
+ 297 002c 0020A0E3 		mov	r2, #0
+ 298 0030 0020C3E5 		strb	r2, [r3]
+ 180:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	_sys_CacheMode = CACHE_DISABLE;
+ 299              		.loc 1 180 0
+ 300 0034 10309FE5 		ldr	r3, .L30+4
+ 301 0038 0020E0E3 		mvn	r2, #0
+ 302 003c 002083E5 		str	r2, [r3]
+ 181:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }
+ 303              		.loc 1 181 0
+ 304 0040 0CD08DE2 		add	sp, sp, #12
+ 305              		.cfi_def_cfa_offset 4
+ 306              		@ sp needed
+ 307 0044 04F09DE4 		ldr	pc, [sp], #4
+ 308              	.L31:
+ 309              		.align	2
+ 310              	.L30:
+ 311 0048 00000000 		.word	.LANCHOR0
+ 312 004c 00000000 		.word	_sys_CacheMode
+ 313              		.cfi_endproc
+ 314              	.LFE9:
+ 316              		.section	.text.sysFlushCache,"ax",%progbits
+ 317              		.align	2
+ 318              		.global	sysFlushCache
+ 319              		.syntax unified
+ 320              		.arm
+ 321              		.fpu softvfp
+ 323              	sysFlushCache:
+ 324              	.LFB10:
+ 182:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 183:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** VOID sysFlushCache(INT32 nCacheType)
+ 184:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+ 325              		.loc 1 184 0
+ 326              		.cfi_startproc
+ 327              		@ args = 0, pretend = 0, frame = 8
+ 328              		@ frame_needed = 0, uses_anonymous_args = 0
+ 329              	.LVL3:
+ 185:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	volatile int temp;
+ 186:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 187:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	switch (nCacheType)
+ 330              		.loc 1 187 0
+ 331 0000 070050E3 		cmp	r0, #7
+ 184:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	volatile int temp;
+ 332              		.loc 1 184 0
+ 333 0004 07402DE9 		push	{r0, r1, r2, lr}
+ 334              		.cfi_def_cfa_offset 16
+ 335              		.cfi_offset 14, -4
+ 336              		.loc 1 187 0
+ 337 0008 0900000A 		beq	.L34
+ 338 000c 080050E3 		cmp	r0, #8
+ 339 0010 0D00000A 		beq	.L35
+ 340 0014 060050E3 		cmp	r0, #6
+ 341 0018 0300001A 		bne	.L32
+ 188:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	{
+ 189:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case I_CACHE:
+ 190:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#if defined (__GNUC__) && !(__CC_ARM)
+ 191:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        __asm volatile
+ 342              		.loc 1 191 0
+ 343 001c 04309DE5 		ldr	r3, [sp, #4]
+ 344              		.syntax divided
+ 345              	@ 191 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c" 1
+ 346 0020 0030A0E3 		MOV r3, #0x0  
+ 347 0024 153F07EE 		MCR p15, #0, r3, c7, c5, 0  
+ 348              		
+ 349              	@ 0 "" 2
+ 350              		.arm
+ 351              		.syntax unified
+ 352 0028 04308DE5 		str	r3, [sp, #4]
+ 353              	.LVL4:
+ 354              	.L32:
+ 192:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        (
+ 193:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            /*----- flush I-cache -----*/
+ 194:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            "MOV %0, #0x0  \n\t"
+ 195:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            "MCR p15, #0, %0, c7, c5, 0  \n\t" /* invalidate I cache */
+ 196:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            : "=r"(temp)
+ 197:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            : "0" (temp)
+ 198:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            : "memory"
+ 199:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        );
+ 200:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#else
+ 201:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			__asm
+ 202:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			{
+ 203:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 				/*----- flush I-cache -----*/
+ 204:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 				MOV temp, 0x0
+ 205:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 				MCR p15, 0, temp, c7, c5, 0 /* invalidate I cache */
+ 206:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			}
+ 207:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#endif
+ 208:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+ 209:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 210:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case D_CACHE:
+ 211:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			sys_flush_and_clean_dcache();
+ 212:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#if defined (__GNUC__) && !(__CC_ARM)
+ 213:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        __asm volatile
+ 214:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        (
+ 215:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            /*----- flush D-cache & write buffer -----*/
+ 216:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            "MOV %0, #0x0 \n\t"
+ 217:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            "MCR p15, #0, %0, c7, c10, #4 \n\t" /* drain write buffer */
+ 218:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            :"=r" (temp)
+ 219:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            :"0"  (temp)
+ 220:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            :"memory"
+ 221:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        );
+ 222:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#else
+ 223:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			__asm
+ 224:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			{
+ 225:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 				/*----- flush D-cache & write buffer -----*/
+ 226:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 				MOV temp, 0x0			
+ 227:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 				MCR p15, 0, temp, c7, c10, 4 /* drain write buffer */
+ 228:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			}
+ 229:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#endif
+ 230:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+ 231:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 232:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		case I_D_CACHE:
+ 233:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			sys_flush_and_clean_dcache();
+ 234:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#if defined (__GNUC__) && !(__CC_ARM)
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        __asm volatile
+ 236:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        (
+ 237:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            /*----- flush I, D cache & write buffer -----*/
+ 238:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            "MOV %0, #0x0  \n\t"
+ 239:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            "MCR p15, #0, %0, c7, c5, #0  \n\t" /* invalidate I cache */
+ 240:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            "MCR p15, #0, %0, c7, c10, #4 \n\t" /* drain write buffer */
+ 241:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            :"=r" (temp)
+ 242:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            :"0"  (temp)
+ 243:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	            :"memory"
+ 244:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        );
+ 245:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#else
+ 246:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			__asm
+ 247:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			{
+ 248:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 				/*----- flush I, D cache & write buffer -----*/
+ 249:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 				MOV temp, 0x0
+ 250:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 				MCR p15, 0, temp, c7, c5, 0 /* invalidate I cache */
+ 251:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 				MCR p15, 0, temp, c7, c10, 4 /* drain write buffer */		
+ 252:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			}
+ 253:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#endif
+ 254:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			break;
+ 255:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 256:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		default:
+ 257:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			;
+ 258:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+ 259:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }
+ 355              		.loc 1 259 0
+ 356 002c 0CD08DE2 		add	sp, sp, #12
+ 357              		.cfi_remember_state
+ 358              		.cfi_def_cfa_offset 4
+ 359              		@ sp needed
+ 360 0030 04F09DE4 		ldr	pc, [sp], #4
+ 361              	.LVL5:
+ 362              	.L34:
+ 363              		.cfi_restore_state
+ 211:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#if defined (__GNUC__) && !(__CC_ARM)
+ 364              		.loc 1 211 0
+ 365 0034 FEFFFFEB 		bl	sys_flush_and_clean_dcache
+ 366              	.LVL6:
+ 213:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        (
+ 367              		.loc 1 213 0
+ 368 0038 04309DE5 		ldr	r3, [sp, #4]
+ 369              		.syntax divided
+ 370              	@ 213 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c" 1
+ 371 003c 0030A0E3 		MOV r3, #0x0 
+ 372 0040 9A3F07EE 		MCR p15, #0, r3, c7, c10, #4 
+ 373              		
+ 374              	@ 0 "" 2
+ 375              		.arm
+ 376              		.syntax unified
+ 377 0044 04308DE5 		str	r3, [sp, #4]
+ 230:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 378              		.loc 1 230 0
+ 379 0048 F7FFFFEA 		b	.L32
+ 380              	.LVL7:
+ 381              	.L35:
+ 233:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	#if defined (__GNUC__) && !(__CC_ARM)
+ 382              		.loc 1 233 0
+ 383 004c FEFFFFEB 		bl	sys_flush_and_clean_dcache
+ 384              	.LVL8:
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	        (
+ 385              		.loc 1 235 0
+ 386 0050 04309DE5 		ldr	r3, [sp, #4]
+ 387              		.syntax divided
+ 388              	@ 235 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c" 1
+ 389 0054 0030A0E3 		MOV r3, #0x0  
+ 390 0058 153F07EE 		MCR p15, #0, r3, c7, c5, #0  
+ 391 005c 9A3F07EE 		MCR p15, #0, r3, c7, c10, #4 
+ 392              		
+ 393              	@ 0 "" 2
+ 394              		.arm
+ 395              		.syntax unified
+ 396 0060 04308DE5 		str	r3, [sp, #4]
+ 397              		.loc 1 259 0
+ 398 0064 F0FFFFEA 		b	.L32
+ 399              		.cfi_endproc
+ 400              	.LFE10:
+ 402              		.section	.text.sysInvalidCache,"ax",%progbits
+ 403              		.align	2
+ 404              		.global	sysInvalidCache
+ 405              		.syntax unified
+ 406              		.arm
+ 407              		.fpu softvfp
+ 409              	sysInvalidCache:
+ 410              	.LFB11:
+ 260:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 261:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** VOID sysInvalidCache()
+ 262:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+ 411              		.loc 1 262 0
+ 412              		.cfi_startproc
+ 413              		@ args = 0, pretend = 0, frame = 0
+ 414              		@ frame_needed = 0, uses_anonymous_args = 0
+ 415              		@ link register save eliminated.
+ 263:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	int temp;
+ 264:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 265:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 266:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     __asm volatile
+ 416              		.loc 1 266 0
+ 417 0000 0030A0E3 		mov	r3, #0
+ 418              		.syntax divided
+ 419              	@ 266 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c" 1
+ 420 0004 0030A0E3 		MOV r3, #0x0 
+ 421 0008 173F07EE 		MCR p15, #0, r3, c7, c7, #0 
+ 422              		
+ 423              	@ 0 "" 2
+ 424              	.LVL9:
+ 267:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     (
+ 268:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MOV %0, #0x0 \n\t"
+ 269:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MCR p15, #0, %0, c7, c7, #0 \n\t" /* invalidate I and D cache */
+ 270:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"=r" (temp)
+ 271:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"0" (temp)
+ 272:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"memory"
+ 273:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     );
+ 274:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #else
+ 275:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	__asm
+ 276:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     {
+ 277:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MOV temp, 0x0
+ 278:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MCR p15, 0, temp, c7, c7, 0 /* invalidate I and D cache */
+ 279:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+ 280:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #endif
+ 281:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }
+ 425              		.loc 1 281 0
+ 426              		.arm
+ 427              		.syntax unified
+ 428 000c 1EFF2FE1 		bx	lr
+ 429              		.cfi_endproc
+ 430              	.LFE11:
+ 432              		.section	.text.sysGetCacheState,"ax",%progbits
+ 433              		.align	2
+ 434              		.global	sysGetCacheState
+ 435              		.syntax unified
+ 436              		.arm
+ 437              		.fpu softvfp
+ 439              	sysGetCacheState:
+ 440              	.LFB12:
+ 282:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 283:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** BOOL sysGetCacheState()
+ 284:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+ 441              		.loc 1 284 0
+ 442              		.cfi_startproc
+ 443              		@ args = 0, pretend = 0, frame = 0
+ 444              		@ frame_needed = 0, uses_anonymous_args = 0
+ 445              		@ link register save eliminated.
+ 285:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	return _sys_IsCacheOn;
+ 446              		.loc 1 285 0
+ 447 0000 0C309FE5 		ldr	r3, .L40
+ 448 0004 0000D3E5 		ldrb	r0, [r3]	@ zero_extendqisi2
+ 286:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }
+ 449              		.loc 1 286 0
+ 450 0008 000CA0E1 		lsl	r0, r0, #24
+ 451 000c 400CA0E1 		asr	r0, r0, #24
+ 452 0010 1EFF2FE1 		bx	lr
+ 453              	.L41:
+ 454              		.align	2
+ 455              	.L40:
+ 456 0014 00000000 		.word	.LANCHOR0
+ 457              		.cfi_endproc
+ 458              	.LFE12:
+ 460              		.section	.text.sysGetCacheMode,"ax",%progbits
+ 461              		.align	2
+ 462              		.global	sysGetCacheMode
+ 463              		.syntax unified
+ 464              		.arm
+ 465              		.fpu softvfp
+ 467              	sysGetCacheMode:
+ 468              	.LFB13:
+ 287:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 288:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 289:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** INT32 sysGetCacheMode()
+ 290:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+ 469              		.loc 1 290 0
+ 470              		.cfi_startproc
+ 471              		@ args = 0, pretend = 0, frame = 0
+ 472              		@ frame_needed = 0, uses_anonymous_args = 0
+ 473              		@ link register save eliminated.
+ 291:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	return _sys_CacheMode;
+ 474              		.loc 1 291 0
+ 475 0000 04309FE5 		ldr	r3, .L43
+ 476 0004 000093E5 		ldr	r0, [r3]
+ 292:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }
+ 477              		.loc 1 292 0
+ 478 0008 1EFF2FE1 		bx	lr
+ 479              	.L44:
+ 480              		.align	2
+ 481              	.L43:
+ 482 000c 00000000 		.word	_sys_CacheMode
+ 483              		.cfi_endproc
+ 484              	.LFE13:
+ 486              		.section	.text._sysLockCode,"ax",%progbits
+ 487              		.align	2
+ 488              		.global	_sysLockCode
+ 489              		.syntax unified
+ 490              		.arm
+ 491              		.fpu softvfp
+ 493              	_sysLockCode:
+ 494              	.LFB14:
+ 293:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 294:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 295:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** INT32 _sysLockCode(UINT32 addr, INT32 size)
+ 296:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+ 495              		.loc 1 296 0
+ 496              		.cfi_startproc
+ 497              		@ args = 0, pretend = 0, frame = 16
+ 498              		@ frame_needed = 0, uses_anonymous_args = 0
+ 499              		@ link register save eliminated.
+ 500              	.LVL10:
+ 501 0000 10D04DE2 		sub	sp, sp, #16
+ 502              		.cfi_def_cfa_offset 16
+ 297:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     volatile int i, cnt, temp;
+ 298:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 299:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 300:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     __asm volatile
+ 503              		.loc 1 300 0
+ 504 0004 0C309DE5 		ldr	r3, [sp, #12]
+ 505              		.syntax divided
+ 506              	@ 300 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c" 1
+ 507 0008 303F19EE 		MRC p15, #0, r3, c9, c0, #1 
+ 508 000c 073083E3 		ORR r3, r3, #0x07 
+ 509 0010 303F09EE 		MCR p15, #0, r3, c9, c0, #1 
+ 510              		
+ 511              	@ 0 "" 2
+ 512              		.arm
+ 513              		.syntax unified
+ 514 0014 000051E3 		cmp	r1, #0
+ 515 0018 0C308DE5 		str	r3, [sp, #12]
+ 516 001c 0F3081E2 		add	r3, r1, #15
+ 517 0020 0130A0A1 		movge	r3, r1
+ 518 0024 4332A0E1 		asr	r3, r3, #4
+ 301:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     (
+ 302:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         /* use way3 to lock instructions */
+ 303:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MRC p15, #0, %0, c9, c0, #1 \n\t"
+ 304:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "ORR %0, %0, #0x07 \n\t"
+ 305:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MCR p15, #0, %0, c9, c0, #1 \n\t"
+ 306:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"=r" (temp)
+ 307:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"0" (temp)
+ 308:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"memory"
+ 309:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     );
+ 310:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #else
+ 311:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	__asm
+ 312:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	{
+ 313:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	    /* use way3 to lock instructions */
+ 314:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MRC p15, 0, temp, c9, c0, 1 ;
+ 315:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		ORR temp, temp, 0x07 ;
+ 316:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MCR p15, 0, temp, c9, c0, 1 ;
+ 317:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+ 318:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #endif
+ 319:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	
+ 320:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	if (size % 16)  cnt = (size/16) + 1;
+ 519              		.loc 1 320 0
+ 520 0028 0F0011E3 		tst	r1, #15
+ 521 002c 01308312 		addne	r3, r3, #1
+ 321:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	else            cnt = size / 16;
+ 522              		.loc 1 321 0
+ 523 0030 08308DE5 		str	r3, [sp, #8]
+ 322:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	
+ 323:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	for (i=0; i<cnt; i++)
+ 524              		.loc 1 323 0
+ 525 0034 0030A0E3 		mov	r3, #0
+ 526 0038 04308DE5 		str	r3, [sp, #4]
+ 527              	.LVL11:
+ 528              	.L48:
+ 529              		.loc 1 323 0 is_stmt 0 discriminator 1
+ 530 003c 04209DE5 		ldr	r2, [sp, #4]
+ 531 0040 08309DE5 		ldr	r3, [sp, #8]
+ 532 0044 030052E1 		cmp	r2, r3
+ 533 0048 080000BA 		blt	.L49
+ 324:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	{
+ 325:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 326:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         __asm volatile
+ 327:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         (
+ 328:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****             "MCR p15, #0, r0, c7, c13, #1 \n\t"
+ 329:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         );
+ 330:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #else
+ 331:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		__asm
+ 332:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		{
+ 333:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 			MCR p15, 0, addr, c7, c13, 1;
+ 334:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		}
+ 335:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #endif
+ 336:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	
+ 337:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		addr += 16;
+ 338:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+ 339:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	
+ 340:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 341:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     __asm volatile
+ 534              		.loc 1 341 0 is_stmt 1
+ 535 004c 0C309DE5 		ldr	r3, [sp, #12]
+ 536              		.syntax divided
+ 537              	@ 341 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c" 1
+ 538 0050 303F19EE 		MRC p15, #0, r3, c9, c0, #1 
+ 539 0054 0730C3E3 		BIC r3, r3, #0x07  
+ 540 0058 083083E3 		ORR r3, r3, #0x08 
+ 541 005c 303F09EE 		MCR p15, #0, r3, c9, c0, #1 
+ 542              		
+ 543              	@ 0 "" 2
+ 342:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     (
+ 343:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         /* use way3 to lock instructions */
+ 344:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MRC p15, #0, %0, c9, c0, #1 \n\t"
+ 345:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "BIC %0, %0, #0x07  \n\t"
+ 346:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "ORR %0, %0, #0x08 \n\t"
+ 347:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MCR p15, #0, %0, c9, c0, #1 \n\t"
+ 348:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"=r" (temp)
+ 349:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"0"  (temp)
+ 350:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"memory"
+ 351:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     );
+ 352:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #else
+ 353:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	__asm
+ 354:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	{
+ 355:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	    /* use way3 to lock instructions */
+ 356:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MRC p15, 0, temp, c9, c0, 1 ;
+ 357:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		BIC temp, temp, 0x07 ;
+ 358:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		ORR temp, temp, 0x08 ;
+ 359:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MCR p15, 0, temp, c9, c0, 1 ;
+ 360:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+ 361:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #endif
+ 362:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	
+ 363:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	return Successful;
+ 364:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 365:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }
+ 544              		.loc 1 365 0
+ 545              		.arm
+ 546              		.syntax unified
+ 547 0060 0000A0E3 		mov	r0, #0
+ 341:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     (
+ 548              		.loc 1 341 0
+ 549 0064 0C308DE5 		str	r3, [sp, #12]
+ 550              		.loc 1 365 0
+ 551 0068 10D08DE2 		add	sp, sp, #16
+ 552              		.cfi_remember_state
+ 553              		.cfi_def_cfa_offset 0
+ 554              		@ sp needed
+ 555 006c 1EFF2FE1 		bx	lr
+ 556              	.L49:
+ 557              		.cfi_restore_state
+ 326:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         (
+ 558              		.loc 1 326 0 discriminator 3
+ 559              		.syntax divided
+ 560              	@ 326 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c" 1
+ 561 0070 3D0F07EE 		MCR p15, #0, r0, c7, c13, #1 
+ 562              		
+ 563              	@ 0 "" 2
+ 323:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	{
+ 564              		.loc 1 323 0 discriminator 3
+ 565              		.arm
+ 566              		.syntax unified
+ 567 0074 04309DE5 		ldr	r3, [sp, #4]
+ 568 0078 013083E2 		add	r3, r3, #1
+ 569 007c 04308DE5 		str	r3, [sp, #4]
+ 570 0080 EDFFFFEA 		b	.L48
+ 571              		.cfi_endproc
+ 572              	.LFE14:
+ 574              		.section	.text._sysUnLockCode,"ax",%progbits
+ 575              		.align	2
+ 576              		.global	_sysUnLockCode
+ 577              		.syntax unified
+ 578              		.arm
+ 579              		.fpu softvfp
+ 581              	_sysUnLockCode:
+ 582              	.LFB15:
+ 366:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 367:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 
+ 368:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** INT32 _sysUnLockCode()
+ 369:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** {
+ 583              		.loc 1 369 0
+ 584              		.cfi_startproc
+ 585              		@ args = 0, pretend = 0, frame = 8
+ 586              		@ frame_needed = 0, uses_anonymous_args = 0
+ 587              		@ link register save eliminated.
+ 588 0000 08D04DE2 		sub	sp, sp, #8
+ 589              		.cfi_def_cfa_offset 8
+ 370:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     volatile int temp;
+ 371:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	
+ 372:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	/* unlock I-cache way 3 */
+ 373:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 374:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     __asm volatile
+ 590              		.loc 1 374 0
+ 591 0004 04309DE5 		ldr	r3, [sp, #4]
+ 592              		.syntax divided
+ 593              	@ 374 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_cache.c" 1
+ 594 0008 303F19EE 		MRC p15, #0, r3, c9, c0, #1  
+ 595 000c 0830C3E3 	BIC r3, r3, #0x08 
+ 596 0010 303F09EE 	MCR p15, #0, r3, c9, c0, #1  
+ 597              	
+ 598              	@ 0 "" 2
+ 375:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     (
+ 376:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MRC p15, #0, %0, c9, c0, #1  \n"
+ 377:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "BIC %0, %0, #0x08 \n"
+ 378:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         "MCR p15, #0, %0, c9, c0, #1  \n"
+ 379:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"=r" (temp)
+ 380:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"0"  (temp)
+ 381:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****         :"memory"
+ 382:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     );
+ 383:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #else
+ 384:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	__asm
+ 385:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	{
+ 386:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MRC p15, 0, temp, c9, c0, 1;
+ 387:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		BIC temp, temp, 0x08 ;
+ 388:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 		MCR p15, 0, temp, c9, c0, 1;
+ 389:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	
+ 390:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	}
+ 391:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** #endif
+ 392:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****  
+ 393:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** 	return Successful;
+ 394:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c **** }
+ 599              		.loc 1 394 0
+ 600              		.arm
+ 601              		.syntax unified
+ 602 0014 0000A0E3 		mov	r0, #0
+ 374:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_cache.c ****     (
+ 603              		.loc 1 374 0
+ 604 0018 04308DE5 		str	r3, [sp, #4]
+ 605              		.loc 1 394 0
+ 606 001c 08D08DE2 		add	sp, sp, #8
+ 607              		.cfi_def_cfa_offset 0
+ 608              		@ sp needed
+ 609 0020 1EFF2FE1 		bx	lr
+ 610              		.cfi_endproc
+ 611              	.LFE15:
+ 613              		.section	.bss._sys_IsCacheOn,"aw",%nobits
+ 614              		.set	.LANCHOR0,. + 0
+ 617              	_sys_IsCacheOn:
+ 618 0000 00       		.space	1
+ 619              		.text
+ 620              	.Letext0:
+ 621              		.file 2 "f:\\arm_project\\w55fa92\\n9h20\\bsp\\driver\\include\\wbtypes.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 wb_cache.c
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:617    .bss._sys_IsCacheOn:00000000 _sys_IsCacheOn
+                            *COM*:00000004 _sys_CacheMode
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:18     .text.sysGetSdramSizebyMB:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:24     .text.sysGetSdramSizebyMB:00000000 sysGetSdramSizebyMB
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:49     .text.sysGetSdramSizebyMB:00000030 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:57     .text.sysGetSdramSizebyMB:00000048 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:72     .text.sysGetSdramSizebyMB:00000074 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:80     .text.sysGetSdramSizebyMB:0000008c $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:171    .text.sysGetSdramSizebyMB:00000150 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:177    .text.sysEnableCache:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:183    .text.sysEnableCache:00000000 sysEnableCache
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:214    .text.sysEnableCache:00000028 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:220    .text.sys_flush_and_clean_dcache:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:226    .text.sys_flush_and_clean_dcache:00000000 sys_flush_and_clean_dcache
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:242    .text.sys_flush_and_clean_dcache:0000000c tci_loop100
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:262    .text.sysDisableCache:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:268    .text.sysDisableCache:00000000 sysDisableCache
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:311    .text.sysDisableCache:00000048 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:317    .text.sysFlushCache:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:323    .text.sysFlushCache:00000000 sysFlushCache
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:403    .text.sysInvalidCache:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:409    .text.sysInvalidCache:00000000 sysInvalidCache
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:433    .text.sysGetCacheState:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:439    .text.sysGetCacheState:00000000 sysGetCacheState
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:456    .text.sysGetCacheState:00000014 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:461    .text.sysGetCacheMode:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:467    .text.sysGetCacheMode:00000000 sysGetCacheMode
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:482    .text.sysGetCacheMode:0000000c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:487    .text._sysLockCode:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:493    .text._sysLockCode:00000000 _sysLockCode
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:575    .text._sysUnLockCode:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:581    .text._sysUnLockCode:00000000 _sysUnLockCode
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\cc5omPV7.s:618    .bss._sys_IsCacheOn:00000000 $d
+
+UNDEFINED SYMBOLS
+sysInitMMUTable

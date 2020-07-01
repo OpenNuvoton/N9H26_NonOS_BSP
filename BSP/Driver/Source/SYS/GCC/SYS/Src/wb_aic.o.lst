@@ -1,0 +1,1833 @@
+   1              		.cpu arm926ej-s
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"wb_aic.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sysIrqHandler,"ax",%progbits
+  16              		.align	2
+  17              		.syntax unified
+  18              		.arm
+  19              		.fpu softvfp
+  21              	sysIrqHandler:
+  22              	.LFB9:
+  23              		.file 1 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_aic.c"
+   1:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** /***************************************************************************
+   2:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****  *                                                                         									     *
+   3:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****  * Copyright (c) 2008 Nuvoton Technolog. All rights reserved.              					     *
+   4:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****  *                                                                         									     *
+   5:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****  ***************************************************************************/
+   6:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****  
+   7:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** /****************************************************************************
+   8:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** * FILENAME
+   9:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** *   wb_aic.c
+  10:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** *
+  11:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** * VERSION
+  12:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** *   1.0
+  13:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** *
+  14:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** * DESCRIPTION
+  15:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** *   The AIC related functions of Nuvoton ARM9 MCU
+  16:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** *
+  17:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** * HISTORY
+  18:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** *   2008-06-25  Ver 1.0 draft by Min-Nan Cheng
+  19:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** * Modification
+  20:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** *   2011-06-01  Ver 1.1 draft by Shih-Wen Chou
+  21:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** *
+  22:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** * REMARK
+  23:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** *   None
+  24:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****  **************************************************************************/
+  25:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #include <stdio.h>
+  26:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #include "wblib.h"
+  27:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #define WB_MIN_INT_SOURCE  1
+  28:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** //#define WB_MAX_INT_SOURCE 31
+  29:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #define WB_MAX_INT_SOURCE  47
+  30:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** //#define WB_NUM_OF_AICREG   32
+  31:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #define WB_NUM_OF_AICREG   48
+  32:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+  33:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** /* Global variables */
+  34:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** BOOL volatile _sys_bIsAICInitial = FALSE;
+  35:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** BOOL volatile _sys_bIsHWMode = TRUE;
+  36:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+  37:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** /* declaration the function prototype */
+  38:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** extern VOID WB_Interrupt_Shell(void);
+  39:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+  40:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** /* SCR and SVR register access function */
+  41:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #define AIC_REG_OFFSET    						0x4
+  42:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #define AICRegRead(RegBase, RegNum)				inpw(RegBase+RegNum*AIC_REG_OFFSET)
+  43:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #define AICRegWrite(RegBase, RegNum, Value)			outpw(RegBase+RegNum*AIC_REG_OFFSET, Value)
+  44:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+  45:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** /* Interrupt Handler Table */
+  46:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** typedef void (*sys_pvFunPtr)();   /* function pointer */
+  47:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** sys_pvFunPtr sysIrqHandlerTable[] = { 0,                /* 0 */
+  48:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 1 */
+  49:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 2 */
+  50:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 3 */
+  51:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 4 */
+  52:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 5 */
+  53:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 6 */
+  54:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 7 */
+  55:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 8 */
+  56:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 9 */
+  57:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 10 */
+  58:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 11 */
+  59:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 12 */
+  60:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 13 */
+  61:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 14 */
+  62:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 15 */
+  63:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 16 */
+  64:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 17 */
+  65:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 18 */
+  66:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 19 */
+  67:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 20 */
+  68:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 21 */
+  69:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 22 */
+  70:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 23 */
+  71:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 24 */
+  72:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 25 */
+  73:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 26 */
+  74:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 27 */
+  75:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 28 */
+  76:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 29 */
+  77:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 30 */
+  78:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 31 */
+  79:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 32 */
+  80:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 33 */
+  81:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 34 */
+  82:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 35 */
+  83:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 36 */
+  84:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 37 */  
+  85:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 38 */
+  86:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 39 */
+  87:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 40 */
+  88:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 41 */
+  89:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 42 */
+  90:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 43 */
+  91:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 44 */
+  92:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 45 */
+  93:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 46 */
+  94:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell	/* 47 */
+  95:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                 };
+  96:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+  97:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** sys_pvFunPtr sysFiqHandlerTable[] = { 0,
+  98:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 1 */
+  99:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 2 */
+ 100:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 3 */
+ 101:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 4 */
+ 102:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 5 */
+ 103:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 6 */
+ 104:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 7 */
+ 105:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 8 */
+ 106:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 9 */
+ 107:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 10 */
+ 108:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 11 */
+ 109:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 12 */
+ 110:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 13 */
+ 111:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 14 */
+ 112:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 15 */
+ 113:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 16 */
+ 114:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 17 */
+ 115:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 18 */
+ 116:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 19 */
+ 117:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 20 */
+ 118:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 21 */
+ 119:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 22 */
+ 120:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 23 */
+ 121:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 24 */
+ 122:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 25 */
+ 123:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 26 */
+ 124:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 27 */
+ 125:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 28 */
+ 126:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 29 */
+ 127:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 30 */
+ 128:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 31 */
+ 129:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 32 */
+ 130:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 33 */
+ 131:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 34 */
+ 132:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 35 */
+ 133:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 36 */
+ 134:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 37 */  
+ 135:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 38 */
+ 136:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 39 */
+ 137:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 40 */
+ 138:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 41 */
+ 139:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 42 */
+ 140:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 43 */
+ 141:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 44 */
+ 142:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 45 */
+ 143:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell,	/* 46 */
+ 144:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                   WB_Interrupt_Shell	/* 47 */
+ 145:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                                 };
+ 146:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 147:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** /* Interrupt Handler */
+ 148:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #ifdef __FreeRTOS__
+ 149:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** VOID sysIrqHandler(UINT32 _mIPER, UINT32 _mISNR)
+ 150:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 151:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mIPER = _mIPER >> 2;
+ 152:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (_mISNR != 0)
+ 153:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		if (_mIPER == _mISNR)
+ 154:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			(*sysIrqHandlerTable[_mIPER])();
+ 155:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	outpw(REG_AIC_EOSCR, 1);
+ 156:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 157:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #else
+ 158:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 159:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** static void __attribute__ ((interrupt("IRQ"))) sysIrqHandler(void)
+ 160:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #else
+ 161:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** __irq VOID sysIrqHandler()
+ 162:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #endif
+ 163:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+  24              		.loc 1 163 0
+  25              		.cfi_startproc
+  26              		@ Interrupt Service Routine.
+  27              		@ args = 0, pretend = 0, frame = 16
+  28              		@ frame_needed = 0, uses_anonymous_args = 0
+  29 0000 04E04EE2 		sub	lr, lr, #4
+  30 0004 3F502DE9 		push	{r0, r1, r2, r3, r4, r5, ip, lr}
+  31              		.cfi_def_cfa_offset 32
+  32              		.cfi_offset 0, -32
+  33              		.cfi_offset 1, -28
+  34              		.cfi_offset 2, -24
+  35              		.cfi_offset 3, -20
+  36              		.cfi_offset 4, -16
+  37              		.cfi_offset 5, -12
+  38              		.cfi_offset 12, -8
+  39              		.cfi_offset 14, -4
+ 164:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (_sys_bIsHWMode)
+  40              		.loc 1 164 0
+  41 0008 0C319FE5 		ldr	r3, .L21
+ 163:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (_sys_bIsHWMode)
+  42              		.loc 1 163 0
+  43 000c 10D04DE2 		sub	sp, sp, #16
+  44              		.cfi_def_cfa_offset 48
+  45              		.loc 1 164 0
+  46 0010 0030D3E5 		ldrb	r3, [r3]	@ zero_extendqisi2
+  47 0014 000053E3 		cmp	r3, #0
+  48 0018 2E33A0E3 		mov	r3, #-1207959552
+  49 001c 1400000A 		beq	.L2
+  50              	.LBB2:
+ 165:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 166:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		UINT32 volatile _mIPER, _mISNR;
+ 167:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 168:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		_mIPER = inpw(REG_AIC_IPER) >> 2;
+  51              		.loc 1 168 0
+  52 0020 182193E5 		ldr	r2, [r3, #280]
+  53 0024 2221A0E1 		lsr	r2, r2, #2
+  54 0028 00208DE5 		str	r2, [sp]
+ 169:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		//outpw(REG_AIC_IPER,0); //For test mode
+ 170:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		
+ 171:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		_mISNR = inpw(REG_AIC_ISNR);
+  55              		.loc 1 171 0
+  56 002c 203193E5 		ldr	r3, [r3, #288]
+  57 0030 04308DE5 		str	r3, [sp, #4]
+ 172:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		if (_mISNR != 0)
+  58              		.loc 1 172 0
+  59 0034 04309DE5 		ldr	r3, [sp, #4]
+  60 0038 000053E3 		cmp	r3, #0
+  61 003c 0700000A 		beq	.L3
+ 173:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mIPER == _mISNR)
+  62              		.loc 1 173 0
+  63 0040 00209DE5 		ldr	r2, [sp]
+  64 0044 04309DE5 		ldr	r3, [sp, #4]
+  65 0048 030052E1 		cmp	r2, r3
+  66 004c 0300001A 		bne	.L3
+ 174:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysIrqHandlerTable[_mIPER])();
+  67              		.loc 1 174 0
+  68 0050 00209DE5 		ldr	r2, [sp]
+  69 0054 C4309FE5 		ldr	r3, .L21+4
+  70 0058 023193E7 		ldr	r3, [r3, r2, lsl #2]
+  71 005c 33FF2FE1 		blx	r3
+  72              	.LVL0:
+  73              	.L3:
+ 175:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		outpw(REG_AIC_EOSCR, 1);					
+  74              		.loc 1 175 0
+  75 0060 2E33A0E3 		mov	r3, #-1207959552
+  76 0064 0120A0E3 		mov	r2, #1
+  77 0068 502183E5 		str	r2, [r3, #336]
+  78              	.L1:
+  79              	.LBE2:
+ 176:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 177:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	else
+ 178:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 179:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		UINT32 volatile _mISR, i;
+ 180:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 181:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		_mISR = inpw(REG_AIC_ISR);
+ 182:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=1; i<32; i++)
+ 183:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << i))
+ 184:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysIrqHandlerTable[i])();
+ 185:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				
+ 186:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		_mISR = inpw(REG_AIC_ISRH);				
+ 187:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=32; i<WB_NUM_OF_AICREG; i++)
+ 188:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << (i-32)))
+ 189:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysIrqHandlerTable[i])();				
+ 190:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		
+ 191:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 192:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+  80              		.loc 1 192 0
+  81 006c 10D08DE2 		add	sp, sp, #16
+  82              		.cfi_remember_state
+  83              		.cfi_def_cfa_offset 32
+  84              		@ sp needed
+  85 0070 3F90FDE8 		ldmfd	sp!, {r0, r1, r2, r3, r4, r5, ip, pc}^
+  86              	.L2:
+  87              		.cfi_restore_state
+  88              	.LBB3:
+ 181:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=1; i<32; i++)
+  89              		.loc 1 181 0
+  90 0074 103193E5 		ldr	r3, [r3, #272]
+ 184:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				
+  91              		.loc 1 184 0
+  92 0078 A0509FE5 		ldr	r5, .L21+4
+ 181:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=1; i<32; i++)
+  93              		.loc 1 181 0
+  94 007c 08308DE5 		str	r3, [sp, #8]
+ 182:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << i))
+  95              		.loc 1 182 0
+  96 0080 0130A0E3 		mov	r3, #1
+ 183:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysIrqHandlerTable[i])();
+  97              		.loc 1 183 0
+  98 0084 0340A0E1 		mov	r4, r3
+ 182:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << i))
+  99              		.loc 1 182 0
+ 100 0088 0C308DE5 		str	r3, [sp, #12]
+ 101              	.L5:
+ 182:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << i))
+ 102              		.loc 1 182 0 is_stmt 0 discriminator 1
+ 103 008c 0C309DE5 		ldr	r3, [sp, #12]
+ 104 0090 1F0053E3 		cmp	r3, #31
+ 105 0094 1500009A 		bls	.L7
+ 186:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=32; i<WB_NUM_OF_AICREG; i++)
+ 106              		.loc 1 186 0 is_stmt 1
+ 107 0098 2E33A0E3 		mov	r3, #-1207959552
+ 108 009c 143193E5 		ldr	r3, [r3, #276]
+ 189:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		
+ 109              		.loc 1 189 0
+ 110 00a0 78509FE5 		ldr	r5, .L21+4
+ 186:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=32; i<WB_NUM_OF_AICREG; i++)
+ 111              		.loc 1 186 0
+ 112 00a4 08308DE5 		str	r3, [sp, #8]
+ 188:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysIrqHandlerTable[i])();				
+ 113              		.loc 1 188 0
+ 114 00a8 0140A0E3 		mov	r4, #1
+ 187:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << (i-32)))
+ 115              		.loc 1 187 0
+ 116 00ac 2030A0E3 		mov	r3, #32
+ 117 00b0 0C308DE5 		str	r3, [sp, #12]
+ 118              	.L8:
+ 187:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << (i-32)))
+ 119              		.loc 1 187 0 is_stmt 0 discriminator 1
+ 120 00b4 0C309DE5 		ldr	r3, [sp, #12]
+ 121 00b8 2F0053E3 		cmp	r3, #47
+ 122 00bc EAFFFF8A 		bhi	.L1
+ 188:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysIrqHandlerTable[i])();				
+ 123              		.loc 1 188 0 is_stmt 1
+ 124 00c0 0C309DE5 		ldr	r3, [sp, #12]
+ 125 00c4 08209DE5 		ldr	r2, [sp, #8]
+ 126 00c8 203043E2 		sub	r3, r3, #32
+ 127 00cc 143312E0 		ands	r3, r2, r4, lsl r3
+ 128 00d0 0200000A 		beq	.L9
+ 189:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		
+ 129              		.loc 1 189 0
+ 130 00d4 0C309DE5 		ldr	r3, [sp, #12]
+ 131 00d8 033195E7 		ldr	r3, [r5, r3, lsl #2]
+ 132 00dc 33FF2FE1 		blx	r3
+ 133              	.LVL1:
+ 134              	.L9:
+ 187:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << (i-32)))
+ 135              		.loc 1 187 0 discriminator 2
+ 136 00e0 0C309DE5 		ldr	r3, [sp, #12]
+ 137 00e4 013083E2 		add	r3, r3, #1
+ 138 00e8 0C308DE5 		str	r3, [sp, #12]
+ 139 00ec F0FFFFEA 		b	.L8
+ 140              	.L7:
+ 183:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysIrqHandlerTable[i])();
+ 141              		.loc 1 183 0
+ 142 00f0 0C209DE5 		ldr	r2, [sp, #12]
+ 143 00f4 08309DE5 		ldr	r3, [sp, #8]
+ 144 00f8 143213E0 		ands	r3, r3, r4, lsl r2
+ 145 00fc 0200000A 		beq	.L6
+ 184:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				
+ 146              		.loc 1 184 0
+ 147 0100 0C309DE5 		ldr	r3, [sp, #12]
+ 148 0104 033195E7 		ldr	r3, [r5, r3, lsl #2]
+ 149 0108 33FF2FE1 		blx	r3
+ 150              	.LVL2:
+ 151              	.L6:
+ 182:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << i))
+ 152              		.loc 1 182 0 discriminator 2
+ 153 010c 0C309DE5 		ldr	r3, [sp, #12]
+ 154 0110 013083E2 		add	r3, r3, #1
+ 155 0114 0C308DE5 		str	r3, [sp, #12]
+ 156 0118 DBFFFFEA 		b	.L5
+ 157              	.L22:
+ 158              		.align	2
+ 159              	.L21:
+ 160 011c 00000000 		.word	.LANCHOR0
+ 161 0120 00000000 		.word	.LANCHOR1
+ 162              	.LBE3:
+ 163              		.cfi_endproc
+ 164              	.LFE9:
+ 166              		.section	.text.sysFiqHandler,"ax",%progbits
+ 167              		.align	2
+ 168              		.syntax unified
+ 169              		.arm
+ 170              		.fpu softvfp
+ 172              	sysFiqHandler:
+ 173              	.LFB10:
+ 193:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #endif
+ 194:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 195:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** static void __attribute__ ((interrupt("FIQ"))) sysFiqHandler(void)
+ 196:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #else
+ 197:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** __irq VOID sysFiqHandler()
+ 198:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #endif
+ 199:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 174              		.loc 1 199 0
+ 175              		.cfi_startproc
+ 176              		@ Fast Interrupt Service Routine.
+ 177              		@ args = 0, pretend = 0, frame = 16
+ 178              		@ frame_needed = 0, uses_anonymous_args = 0
+ 179 0000 04E04EE2 		sub	lr, lr, #4
+ 180 0004 3F402DE9 		push	{r0, r1, r2, r3, r4, r5, lr}
+ 181              		.cfi_def_cfa_offset 28
+ 182              		.cfi_offset 0, -28
+ 183              		.cfi_offset 1, -24
+ 184              		.cfi_offset 2, -20
+ 185              		.cfi_offset 3, -16
+ 186              		.cfi_offset 4, -12
+ 187              		.cfi_offset 5, -8
+ 188              		.cfi_offset 14, -4
+ 200:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (_sys_bIsHWMode)
+ 189              		.loc 1 200 0
+ 190 0008 0C319FE5 		ldr	r3, .L43
+ 199:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (_sys_bIsHWMode)
+ 191              		.loc 1 199 0
+ 192 000c 14D04DE2 		sub	sp, sp, #20
+ 193              		.cfi_def_cfa_offset 48
+ 194              		.loc 1 200 0
+ 195 0010 0030D3E5 		ldrb	r3, [r3]	@ zero_extendqisi2
+ 196 0014 000053E3 		cmp	r3, #0
+ 197 0018 2E33A0E3 		mov	r3, #-1207959552
+ 198 001c 1400000A 		beq	.L24
+ 199              	.LBB4:
+ 201:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 202:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		UINT32 volatile _mIPER, _mISNR;
+ 203:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 204:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		_mIPER = inpw(REG_AIC_IPER) >> 2;
+ 200              		.loc 1 204 0
+ 201 0020 182193E5 		ldr	r2, [r3, #280]
+ 202 0024 2221A0E1 		lsr	r2, r2, #2
+ 203 0028 00208DE5 		str	r2, [sp]
+ 205:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		//outpw(REG_AIC_IPER,0); //For test mode
+ 206:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		_mISNR = inpw(REG_AIC_ISNR);
+ 204              		.loc 1 206 0
+ 205 002c 203193E5 		ldr	r3, [r3, #288]
+ 206 0030 04308DE5 		str	r3, [sp, #4]
+ 207:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		if (_mISNR != 0)
+ 207              		.loc 1 207 0
+ 208 0034 04309DE5 		ldr	r3, [sp, #4]
+ 209 0038 000053E3 		cmp	r3, #0
+ 210 003c 0700000A 		beq	.L25
+ 208:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mIPER == _mISNR)
+ 211              		.loc 1 208 0
+ 212 0040 00209DE5 		ldr	r2, [sp]
+ 213 0044 04309DE5 		ldr	r3, [sp, #4]
+ 214 0048 030052E1 		cmp	r2, r3
+ 215 004c 0300001A 		bne	.L25
+ 209:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysFiqHandlerTable[_mIPER])();
+ 216              		.loc 1 209 0
+ 217 0050 00209DE5 		ldr	r2, [sp]
+ 218 0054 C4309FE5 		ldr	r3, .L43+4
+ 219 0058 023193E7 		ldr	r3, [r3, r2, lsl #2]
+ 220 005c 33FF2FE1 		blx	r3
+ 221              	.LVL3:
+ 222              	.L25:
+ 210:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		outpw(REG_AIC_EOSCR, 1);	
+ 223              		.loc 1 210 0
+ 224 0060 2E33A0E3 		mov	r3, #-1207959552
+ 225 0064 0120A0E3 		mov	r2, #1
+ 226 0068 502183E5 		str	r2, [r3, #336]
+ 227              	.L23:
+ 228              	.LBE4:
+ 211:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 212:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 213:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	else
+ 214:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 215:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		UINT32 volatile _mISR, i;
+ 216:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 217:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		_mISR = inpw(REG_AIC_ISR);
+ 218:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=1; i<32; i++)
+ 219:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << i))
+ 220:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysFiqHandlerTable[i])();
+ 221:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				
+ 222:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		_mISR = inpw(REG_AIC_ISRH);				
+ 223:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=32; i<WB_NUM_OF_AICREG; i++)
+ 224:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << (i-32)))
+ 225:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysFiqHandlerTable[i])();					
+ 226:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 227:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 229              		.loc 1 227 0
+ 230 006c 14D08DE2 		add	sp, sp, #20
+ 231              		.cfi_remember_state
+ 232              		.cfi_def_cfa_offset 28
+ 233              		@ sp needed
+ 234 0070 3F80FDE8 		ldmfd	sp!, {r0, r1, r2, r3, r4, r5, pc}^
+ 235              	.L24:
+ 236              		.cfi_restore_state
+ 237              	.LBB5:
+ 217:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=1; i<32; i++)
+ 238              		.loc 1 217 0
+ 239 0074 103193E5 		ldr	r3, [r3, #272]
+ 220:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				
+ 240              		.loc 1 220 0
+ 241 0078 A0509FE5 		ldr	r5, .L43+4
+ 217:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=1; i<32; i++)
+ 242              		.loc 1 217 0
+ 243 007c 08308DE5 		str	r3, [sp, #8]
+ 218:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << i))
+ 244              		.loc 1 218 0
+ 245 0080 0130A0E3 		mov	r3, #1
+ 219:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysFiqHandlerTable[i])();
+ 246              		.loc 1 219 0
+ 247 0084 0340A0E1 		mov	r4, r3
+ 218:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << i))
+ 248              		.loc 1 218 0
+ 249 0088 0C308DE5 		str	r3, [sp, #12]
+ 250              	.L27:
+ 218:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << i))
+ 251              		.loc 1 218 0 is_stmt 0 discriminator 1
+ 252 008c 0C309DE5 		ldr	r3, [sp, #12]
+ 253 0090 1F0053E3 		cmp	r3, #31
+ 254 0094 1500009A 		bls	.L29
+ 222:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=32; i<WB_NUM_OF_AICREG; i++)
+ 255              		.loc 1 222 0 is_stmt 1
+ 256 0098 2E33A0E3 		mov	r3, #-1207959552
+ 257 009c 143193E5 		ldr	r3, [r3, #276]
+ 225:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 258              		.loc 1 225 0
+ 259 00a0 78509FE5 		ldr	r5, .L43+4
+ 222:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		for (i=32; i<WB_NUM_OF_AICREG; i++)
+ 260              		.loc 1 222 0
+ 261 00a4 08308DE5 		str	r3, [sp, #8]
+ 224:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysFiqHandlerTable[i])();					
+ 262              		.loc 1 224 0
+ 263 00a8 0140A0E3 		mov	r4, #1
+ 223:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << (i-32)))
+ 264              		.loc 1 223 0
+ 265 00ac 2030A0E3 		mov	r3, #32
+ 266 00b0 0C308DE5 		str	r3, [sp, #12]
+ 267              	.L30:
+ 223:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << (i-32)))
+ 268              		.loc 1 223 0 is_stmt 0 discriminator 1
+ 269 00b4 0C309DE5 		ldr	r3, [sp, #12]
+ 270 00b8 2F0053E3 		cmp	r3, #47
+ 271 00bc EAFFFF8A 		bhi	.L23
+ 224:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysFiqHandlerTable[i])();					
+ 272              		.loc 1 224 0 is_stmt 1
+ 273 00c0 0C309DE5 		ldr	r3, [sp, #12]
+ 274 00c4 08209DE5 		ldr	r2, [sp, #8]
+ 275 00c8 203043E2 		sub	r3, r3, #32
+ 276 00cc 143312E0 		ands	r3, r2, r4, lsl r3
+ 277 00d0 0200000A 		beq	.L31
+ 225:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 278              		.loc 1 225 0
+ 279 00d4 0C309DE5 		ldr	r3, [sp, #12]
+ 280 00d8 033195E7 		ldr	r3, [r5, r3, lsl #2]
+ 281 00dc 33FF2FE1 		blx	r3
+ 282              	.LVL4:
+ 283              	.L31:
+ 223:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << (i-32)))
+ 284              		.loc 1 223 0 discriminator 2
+ 285 00e0 0C309DE5 		ldr	r3, [sp, #12]
+ 286 00e4 013083E2 		add	r3, r3, #1
+ 287 00e8 0C308DE5 		str	r3, [sp, #12]
+ 288 00ec F0FFFFEA 		b	.L30
+ 289              	.L29:
+ 219:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				(*sysFiqHandlerTable[i])();
+ 290              		.loc 1 219 0
+ 291 00f0 0C209DE5 		ldr	r2, [sp, #12]
+ 292 00f4 08309DE5 		ldr	r3, [sp, #8]
+ 293 00f8 143213E0 		ands	r3, r3, r4, lsl r2
+ 294 00fc 0200000A 		beq	.L28
+ 220:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 				
+ 295              		.loc 1 220 0
+ 296 0100 0C309DE5 		ldr	r3, [sp, #12]
+ 297 0104 033195E7 		ldr	r3, [r5, r3, lsl #2]
+ 298 0108 33FF2FE1 		blx	r3
+ 299              	.LVL5:
+ 300              	.L28:
+ 218:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			if (_mISR & (1 << i))
+ 301              		.loc 1 218 0 discriminator 2
+ 302 010c 0C309DE5 		ldr	r3, [sp, #12]
+ 303 0110 013083E2 		add	r3, r3, #1
+ 304 0114 0C308DE5 		str	r3, [sp, #12]
+ 305 0118 DBFFFFEA 		b	.L27
+ 306              	.L44:
+ 307              		.align	2
+ 308              	.L43:
+ 309 011c 00000000 		.word	.LANCHOR0
+ 310 0120 00000000 		.word	.LANCHOR2
+ 311              	.LBE5:
+ 312              		.cfi_endproc
+ 313              	.LFE10:
+ 315              		.section	.text.WB_Interrupt_Shell,"ax",%progbits
+ 316              		.align	2
+ 317              		.global	WB_Interrupt_Shell
+ 318              		.syntax unified
+ 319              		.arm
+ 320              		.fpu softvfp
+ 322              	WB_Interrupt_Shell:
+ 323              	.LFB11:
+ 228:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 229:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** VOID WB_Interrupt_Shell()
+ 230:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 324              		.loc 1 230 0
+ 325              		.cfi_startproc
+ 326              		@ args = 0, pretend = 0, frame = 0
+ 327              		@ frame_needed = 0, uses_anonymous_args = 0
+ 328              		@ link register save eliminated.
+ 231:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 232:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 329              		.loc 1 232 0
+ 330 0000 1EFF2FE1 		bx	lr
+ 331              		.cfi_endproc
+ 332              	.LFE11:
+ 334              		.section	.text.sysInitializeAIC,"ax",%progbits
+ 335              		.align	2
+ 336              		.global	sysInitializeAIC
+ 337              		.syntax unified
+ 338              		.arm
+ 339              		.fpu softvfp
+ 341              	sysInitializeAIC:
+ 342              	.LFB12:
+ 233:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #pragma diag_suppress 191
+ 234:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** VOID sysInitializeAIC()
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 343              		.loc 1 235 0
+ 344              		.cfi_startproc
+ 345              		@ args = 0, pretend = 0, frame = 0
+ 346              		@ frame_needed = 0, uses_anonymous_args = 0
+ 236:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	//PVOID _mOldIrqVect, _mOldFiqVect;
+ 237:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 238:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	*((unsigned volatile *)0x18) = 0xe59ff018;
+ 347              		.loc 1 238 0
+ 348 0000 34209FE5 		ldr	r2, .L49
+ 349 0004 0030A0E3 		mov	r3, #0
+ 235:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	//PVOID _mOldIrqVect, _mOldFiqVect;
+ 350              		.loc 1 235 0
+ 351 0008 10402DE9 		push	{r4, lr}
+ 352              		.cfi_def_cfa_offset 8
+ 353              		.cfi_offset 4, -8
+ 354              		.cfi_offset 14, -4
+ 355              		.loc 1 238 0
+ 356 000c 182083E5 		str	r2, [r3, #24]
+ 239:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	*((unsigned volatile *)0x1C) = 0xe59ff018;   
+ 357              		.loc 1 239 0
+ 358 0010 1C2083E5 		str	r2, [r3, #28]
+ 240:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 241:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #ifndef __FreeRTOS__
+ 242:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	//_mOldIrqVect = *(PVOID volatile *)0x38;
+ 243:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	*(PVOID volatile *)0x38 = (PVOID volatile)sysIrqHandler;
+ 359              		.loc 1 243 0
+ 360 0014 24209FE5 		ldr	r2, .L49+4
+ 361 0018 382083E5 		str	r2, [r3, #56]
+ 244:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #endif
+ 245:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 246:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	//_mOldFiqVect = *(PVOID volatile *)0x3C;
+ 247:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	*(PVOID volatile *)0x3C = (PVOID volatile)sysFiqHandler;
+ 362              		.loc 1 247 0
+ 363 001c 20209FE5 		ldr	r2, .L49+8
+ 364 0020 3C2083E5 		str	r2, [r3, #60]
+ 248:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 249:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (sysGetCacheState() == TRUE)
+ 365              		.loc 1 249 0
+ 366 0024 FEFFFFEB 		bl	sysGetCacheState
+ 367              	.LVL6:
+ 368 0028 010050E3 		cmp	r0, #1
+ 369 002c 1080BD18 		popne	{r4, pc}
+ 250:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		sysFlushCache(I_CACHE);
+ 370              		.loc 1 250 0
+ 371 0030 0600A0E3 		mov	r0, #6
+ 251:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 372              		.loc 1 251 0
+ 373 0034 1040BDE8 		pop	{r4, lr}
+ 374              		.cfi_restore 14
+ 375              		.cfi_restore 4
+ 376              		.cfi_def_cfa_offset 0
+ 250:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		sysFlushCache(I_CACHE);
+ 377              		.loc 1 250 0
+ 378 0038 FEFFFFEA 		b	sysFlushCache
+ 379              	.LVL7:
+ 380              	.L50:
+ 381              		.align	2
+ 382              	.L49:
+ 383 003c 18F09FE5 		.word	-442503144
+ 384 0040 00000000 		.word	sysIrqHandler
+ 385 0044 00000000 		.word	sysFiqHandler
+ 386              		.cfi_endproc
+ 387              	.LFE12:
+ 389              		.section	.text.sysDisableInterrupt,"ax",%progbits
+ 390              		.align	2
+ 391              		.global	sysDisableInterrupt
+ 392              		.syntax unified
+ 393              		.arm
+ 394              		.fpu softvfp
+ 396              	sysDisableInterrupt:
+ 397              	.LFB13:
+ 252:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 253:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 254:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** /* Interrupt library functions */
+ 255:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** ERRCODE sysDisableInterrupt(INT_SOURCE_E eIntNo)
+ 256:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 398              		.loc 1 256 0
+ 399              		.cfi_startproc
+ 400              		@ args = 0, pretend = 0, frame = 0
+ 401              		@ frame_needed = 0, uses_anonymous_args = 0
+ 402              		@ link register save eliminated.
+ 403              	.LVL8:
+ 257:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if ((eIntNo > WB_MAX_INT_SOURCE) || (eIntNo < WB_MIN_INT_SOURCE))
+ 404              		.loc 1 257 0
+ 405 0000 013040E2 		sub	r3, r0, #1
+ 406 0004 2E0053E3 		cmp	r3, #46
+ 407 0008 0900008A 		bhi	.L54
+ 258:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	  	return (ERRCODE)WB_PM_INVALID_IRQ_NUM;
+ 259:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (eIntNo > 31)
+ 408              		.loc 1 259 0
+ 409 000c 1F0050E3 		cmp	r0, #31
+ 410 0010 0130A0E3 		mov	r3, #1
+ 260:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		outpw(REG_AIC_MDCRH, (1 << (eIntNo-32)));
+ 411              		.loc 1 260 0
+ 412 0014 20004082 		subhi	r0, r0, #32
+ 413              	.LVL9:
+ 414 0018 1330A081 		lslhi	r3, r3, r0
+ 261:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	else
+ 262:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		outpw(REG_AIC_MDCR, (1 << eIntNo));
+ 415              		.loc 1 262 0
+ 416 001c 1330A091 		lslls	r3, r3, r0
+ 417 0020 2E23A0E3 		mov	r2, #-1207959552
+ 260:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		outpw(REG_AIC_MDCRH, (1 << (eIntNo-32)));
+ 418              		.loc 1 260 0
+ 419 0024 3C318285 		strhi	r3, [r2, #316]
+ 420              		.loc 1 262 0
+ 421 0028 38318295 		strls	r3, [r2, #312]
+ 263:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return Successful;
+ 422              		.loc 1 263 0
+ 423 002c 0000A0E3 		mov	r0, #0
+ 424 0030 1EFF2FE1 		bx	lr
+ 425              	.LVL10:
+ 426              	.L54:
+ 258:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (eIntNo > 31)
+ 427              		.loc 1 258 0
+ 428 0034 00009FE5 		ldr	r0, .L56
+ 429              	.LVL11:
+ 264:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 430              		.loc 1 264 0
+ 431 0038 1EFF2FE1 		bx	lr
+ 432              	.L57:
+ 433              		.align	2
+ 434              	.L56:
+ 435 003c 070AFFFF 		.word	-62969
+ 436              		.cfi_endproc
+ 437              	.LFE13:
+ 439              		.section	.text.sysEnableInterrupt,"ax",%progbits
+ 440              		.align	2
+ 441              		.global	sysEnableInterrupt
+ 442              		.syntax unified
+ 443              		.arm
+ 444              		.fpu softvfp
+ 446              	sysEnableInterrupt:
+ 447              	.LFB14:
+ 265:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 266:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #if 0
+ 267:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** INT32 sysDisableGroupInterrupt(INT_SOURCE_GROUP_E eIntNo)
+ 268:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 269:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	outpw(REG_AIC_GEN, inpw(REG_AIC_GEN) & ~eIntNo);
+ 270:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return Successful;
+ 271:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 272:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #endif
+ 273:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 274:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** ERRCODE sysEnableInterrupt(INT_SOURCE_E eIntNo)
+ 275:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 448              		.loc 1 275 0
+ 449              		.cfi_startproc
+ 450              		@ args = 0, pretend = 0, frame = 0
+ 451              		@ frame_needed = 0, uses_anonymous_args = 0
+ 452              		@ link register save eliminated.
+ 453              	.LVL12:
+ 276:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if ((eIntNo > WB_MAX_INT_SOURCE) || (eIntNo < WB_MIN_INT_SOURCE))
+ 454              		.loc 1 276 0
+ 455 0000 013040E2 		sub	r3, r0, #1
+ 456 0004 2E0053E3 		cmp	r3, #46
+ 457 0008 0900008A 		bhi	.L61
+ 277:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	  	return (ERRCODE)WB_PM_INVALID_IRQ_NUM;
+ 278:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 279:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (eIntNo > 31)
+ 458              		.loc 1 279 0
+ 459 000c 1F0050E3 		cmp	r0, #31
+ 460 0010 0130A0E3 		mov	r3, #1
+ 280:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		outpw(REG_AIC_MECRH, (1 << (eIntNo-32)));	
+ 461              		.loc 1 280 0
+ 462 0014 20004082 		subhi	r0, r0, #32
+ 463              	.LVL13:
+ 464 0018 1330A081 		lslhi	r3, r3, r0
+ 281:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	else
+ 282:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		outpw(REG_AIC_MECR, (1 << eIntNo));
+ 465              		.loc 1 282 0
+ 466 001c 1330A091 		lslls	r3, r3, r0
+ 467 0020 2E23A0E3 		mov	r2, #-1207959552
+ 280:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		outpw(REG_AIC_MECRH, (1 << (eIntNo-32)));	
+ 468              		.loc 1 280 0
+ 469 0024 34318285 		strhi	r3, [r2, #308]
+ 470              		.loc 1 282 0
+ 471 0028 30318295 		strls	r3, [r2, #304]
+ 283:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return Successful;
+ 472              		.loc 1 283 0
+ 473 002c 0000A0E3 		mov	r0, #0
+ 474 0030 1EFF2FE1 		bx	lr
+ 475              	.LVL14:
+ 476              	.L61:
+ 277:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 477              		.loc 1 277 0
+ 478 0034 00009FE5 		ldr	r0, .L63
+ 479              	.LVL15:
+ 284:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 480              		.loc 1 284 0
+ 481 0038 1EFF2FE1 		bx	lr
+ 482              	.L64:
+ 483              		.align	2
+ 484              	.L63:
+ 485 003c 070AFFFF 		.word	-62969
+ 486              		.cfi_endproc
+ 487              	.LFE14:
+ 489              		.section	.text.sysInstallExceptionHandler,"ax",%progbits
+ 490              		.align	2
+ 491              		.global	sysInstallExceptionHandler
+ 492              		.syntax unified
+ 493              		.arm
+ 494              		.fpu softvfp
+ 496              	sysInstallExceptionHandler:
+ 497              	.LFB15:
+ 285:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 286:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 287:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** PVOID sysInstallExceptionHandler(INT32 nExceptType, PVOID pvNewHandler)
+ 288:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 498              		.loc 1 288 0
+ 499              		.cfi_startproc
+ 500              		@ args = 0, pretend = 0, frame = 0
+ 501              		@ frame_needed = 0, uses_anonymous_args = 0
+ 502              		@ link register save eliminated.
+ 503              	.LVL16:
+ 289:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	PVOID _mOldVect;
+ 290:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 291:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	switch (nExceptType)
+ 504              		.loc 1 291 0
+ 505 0000 030050E3 		cmp	r0, #3
+ 506 0004 00F19F97 		ldrls	pc, [pc, r0, asl #2]
+ 507 0008 060000EA 		b	.L66
+ 508              	.L68:
+ 509 000c 1C000000 		.word	.L67
+ 510 0010 30000000 		.word	.L69
+ 511 0014 40000000 		.word	.L70
+ 512 0018 50000000 		.word	.L71
+ 513              	.L67:
+ 292:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 293:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case WB_SWI:
+ 294:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			_mOldVect = *(PVOID volatile *)0x28;
+ 514              		.loc 1 294 0
+ 515 001c 0020A0E3 		mov	r2, #0
+ 516 0020 283092E5 		ldr	r3, [r2, #40]
+ 517              	.LVL17:
+ 295:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			*(PVOID volatile *)0x28 = pvNewHandler;
+ 518              		.loc 1 295 0
+ 519 0024 281082E5 		str	r1, [r2, #40]
+ 520              	.LVL18:
+ 521              	.L66:
+ 296:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 297:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 298:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case WB_D_ABORT:
+ 299:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			_mOldVect = *(PVOID volatile *)0x30;
+ 300:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			*(PVOID volatile *)0x30 = pvNewHandler;
+ 301:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 302:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 303:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case WB_I_ABORT:
+ 304:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			_mOldVect = *(PVOID volatile *)0x2C;
+ 305:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			*(PVOID volatile *)0x2C = pvNewHandler;
+ 306:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 307:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 308:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case WB_UNDEFINE:
+ 309:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			_mOldVect = *(PVOID volatile *)0x24;
+ 310:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			*(PVOID volatile *)0x24 = pvNewHandler;
+ 311:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 312:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 313:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		default:
+ 314:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   ;
+ 315:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 316:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return _mOldVect;
+ 317:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 522              		.loc 1 317 0
+ 523 0028 0300A0E1 		mov	r0, r3
+ 524              	.LVL19:
+ 525 002c 1EFF2FE1 		bx	lr
+ 526              	.LVL20:
+ 527              	.L69:
+ 299:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			*(PVOID volatile *)0x30 = pvNewHandler;
+ 528              		.loc 1 299 0
+ 529 0030 0020A0E3 		mov	r2, #0
+ 530 0034 303092E5 		ldr	r3, [r2, #48]
+ 531              	.LVL21:
+ 300:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 532              		.loc 1 300 0
+ 533 0038 301082E5 		str	r1, [r2, #48]
+ 301:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 534              		.loc 1 301 0
+ 535 003c F9FFFFEA 		b	.L66
+ 536              	.LVL22:
+ 537              	.L70:
+ 304:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			*(PVOID volatile *)0x2C = pvNewHandler;
+ 538              		.loc 1 304 0
+ 539 0040 0020A0E3 		mov	r2, #0
+ 540 0044 2C3092E5 		ldr	r3, [r2, #44]
+ 541              	.LVL23:
+ 305:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 542              		.loc 1 305 0
+ 543 0048 2C1082E5 		str	r1, [r2, #44]
+ 306:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 544              		.loc 1 306 0
+ 545 004c F5FFFFEA 		b	.L66
+ 546              	.LVL24:
+ 547              	.L71:
+ 309:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			*(PVOID volatile *)0x24 = pvNewHandler;
+ 548              		.loc 1 309 0
+ 549 0050 0020A0E3 		mov	r2, #0
+ 550 0054 243092E5 		ldr	r3, [r2, #36]
+ 551              	.LVL25:
+ 310:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 552              		.loc 1 310 0
+ 553 0058 241082E5 		str	r1, [r2, #36]
+ 311:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 554              		.loc 1 311 0
+ 555 005c F1FFFFEA 		b	.L66
+ 556              		.cfi_endproc
+ 557              	.LFE15:
+ 559              		.section	.text.sysInstallFiqHandler,"ax",%progbits
+ 560              		.align	2
+ 561              		.global	sysInstallFiqHandler
+ 562              		.syntax unified
+ 563              		.arm
+ 564              		.fpu softvfp
+ 566              	sysInstallFiqHandler:
+ 567              	.LFB16:
+ 318:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 319:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** PVOID sysInstallFiqHandler(PVOID pvNewISR)
+ 320:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 568              		.loc 1 320 0
+ 569              		.cfi_startproc
+ 570              		@ args = 0, pretend = 0, frame = 0
+ 571              		@ frame_needed = 0, uses_anonymous_args = 0
+ 572              		@ link register save eliminated.
+ 573              	.LVL26:
+ 321:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	PVOID _mOldVect;
+ 322:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 323:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mOldVect = *(PVOID volatile *)0x3C;
+ 574              		.loc 1 323 0
+ 575 0000 0030A0E3 		mov	r3, #0
+ 576 0004 3C2093E5 		ldr	r2, [r3, #60]
+ 577              	.LVL27:
+ 324:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	*(PVOID volatile *)0x3C = pvNewISR;
+ 578              		.loc 1 324 0
+ 579 0008 3C0083E5 		str	r0, [r3, #60]
+ 325:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return _mOldVect;
+ 326:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 580              		.loc 1 326 0
+ 581 000c 0200A0E1 		mov	r0, r2
+ 582              	.LVL28:
+ 583 0010 1EFF2FE1 		bx	lr
+ 584              		.cfi_endproc
+ 585              	.LFE16:
+ 587              		.section	.text.sysInstallIrqHandler,"ax",%progbits
+ 588              		.align	2
+ 589              		.global	sysInstallIrqHandler
+ 590              		.syntax unified
+ 591              		.arm
+ 592              		.fpu softvfp
+ 594              	sysInstallIrqHandler:
+ 595              	.LFB17:
+ 327:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 328:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** PVOID sysInstallIrqHandler(PVOID pvNewISR)
+ 329:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 596              		.loc 1 329 0
+ 597              		.cfi_startproc
+ 598              		@ args = 0, pretend = 0, frame = 0
+ 599              		@ frame_needed = 0, uses_anonymous_args = 0
+ 600              		@ link register save eliminated.
+ 601              	.LVL29:
+ 330:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	PVOID _mOldVect;
+ 331:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 332:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mOldVect = *(PVOID volatile *)0x38;
+ 602              		.loc 1 332 0
+ 603 0000 0030A0E3 		mov	r3, #0
+ 604 0004 382093E5 		ldr	r2, [r3, #56]
+ 605              	.LVL30:
+ 333:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	*(PVOID volatile *)0x38 = pvNewISR;
+ 606              		.loc 1 333 0
+ 607 0008 380083E5 		str	r0, [r3, #56]
+ 334:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return _mOldVect;
+ 335:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 608              		.loc 1 335 0
+ 609 000c 0200A0E1 		mov	r0, r2
+ 610              	.LVL31:
+ 611 0010 1EFF2FE1 		bx	lr
+ 612              		.cfi_endproc
+ 613              	.LFE17:
+ 615              		.section	.text.sysInstallISR,"ax",%progbits
+ 616              		.align	2
+ 617              		.global	sysInstallISR
+ 618              		.syntax unified
+ 619              		.arm
+ 620              		.fpu softvfp
+ 622              	sysInstallISR:
+ 623              	.LFB18:
+ 336:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 337:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** //OK
+ 338:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** PVOID sysInstallISR(INT32 nIntTypeLevel, INT_SOURCE_E eIntNo, PVOID pvNewISR)
+ 339:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 624              		.loc 1 339 0
+ 625              		.cfi_startproc
+ 626              		@ args = 0, pretend = 0, frame = 0
+ 627              		@ frame_needed = 0, uses_anonymous_args = 0
+ 628              	.LVL32:
+ 629 0000 F0412DE9 		push	{r4, r5, r6, r7, r8, lr}
+ 630              		.cfi_def_cfa_offset 24
+ 631              		.cfi_offset 4, -24
+ 632              		.cfi_offset 5, -20
+ 633              		.cfi_offset 6, -16
+ 634              		.cfi_offset 7, -12
+ 635              		.cfi_offset 8, -8
+ 636              		.cfi_offset 14, -4
+ 340:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	PVOID  _mOldVect;
+ 341:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	UINT32 _mRegValue;
+ 342:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 343:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (!_sys_bIsAICInitial)
+ 637              		.loc 1 343 0
+ 638 0004 80809FE5 		ldr	r8, .L82
+ 339:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	PVOID  _mOldVect;
+ 639              		.loc 1 339 0
+ 640 0008 0060A0E1 		mov	r6, r0
+ 641              		.loc 1 343 0
+ 642 000c 0030D8E5 		ldrb	r3, [r8]	@ zero_extendqisi2
+ 339:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	PVOID  _mOldVect;
+ 643              		.loc 1 339 0
+ 644 0010 0140A0E1 		mov	r4, r1
+ 645              		.loc 1 343 0
+ 646 0014 000053E3 		cmp	r3, #0
+ 339:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	PVOID  _mOldVect;
+ 647              		.loc 1 339 0
+ 648 0018 0270A0E1 		mov	r7, r2
+ 649              		.loc 1 343 0
+ 650 001c 0200001A 		bne	.L75
+ 344:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 345:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		sysInitializeAIC();
+ 651              		.loc 1 345 0
+ 652 0020 FEFFFFEB 		bl	sysInitializeAIC
+ 653              	.LVL33:
+ 346:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		_sys_bIsAICInitial = TRUE;
+ 654              		.loc 1 346 0
+ 655 0024 0130A0E3 		mov	r3, #1
+ 656 0028 0030C8E5 		strb	r3, [r8]
+ 657              	.L75:
+ 347:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 348:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 349:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = AICRegRead(REG_AIC_SCR1, (eIntNo/4));
+ 350:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue & ( 0xFFFFFFF8<<((eIntNo%4)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
+ 658              		.loc 1 350 0
+ 659 002c 031004E2 		and	r1, r4, #3
+ 660 0030 8111A0E1 		lsl	r1, r1, #3
+ 349:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue & ( 0xFFFFFFF8<<((eIntNo%4)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
+ 661              		.loc 1 349 0
+ 662 0034 FC0004E2 		and	r0, r4, #252
+ 663              		.loc 1 350 0
+ 664 0038 0030E0E3 		mvn	r3, #0
+ 349:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue & ( 0xFFFFFFF8<<((eIntNo%4)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
+ 665              		.loc 1 349 0
+ 666 003c 2E0380E2 		add	r0, r0, #-1207959552
+ 667              		.loc 1 350 0
+ 668 0040 1331E0E1 		mvn	r3, r3, lsl r1
+ 349:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue & ( 0xFFFFFFF8<<((eIntNo%4)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
+ 669              		.loc 1 349 0
+ 670 0044 002090E5 		ldr	r2, [r0]
+ 671              	.LVL34:
+ 672              		.loc 1 350 0
+ 673 0048 07C0E0E3 		mvn	ip, #7
+ 674 004c 1C3183E1 		orr	r3, r3, ip, lsl r1
+ 675 0050 023003E0 		and	r3, r3, r2
+ 676              	.LVL35:
+ 351:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue | nIntTypeLevel<<((eIntNo%4)*8);
+ 677              		.loc 1 351 0
+ 678 0054 163183E1 		orr	r3, r3, r6, lsl r1
+ 679              	.LVL36:
+ 352:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	AICRegWrite(REG_AIC_SCR1, (eIntNo/4), _mRegValue );
+ 353:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 354:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	switch (nIntTypeLevel)
+ 680              		.loc 1 354 0
+ 681 0058 000056E3 		cmp	r6, #0
+ 352:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	AICRegWrite(REG_AIC_SCR1, (eIntNo/4), _mRegValue );
+ 682              		.loc 1 352 0
+ 683 005c 003080E5 		str	r3, [r0]
+ 684              		.loc 1 354 0
+ 685 0060 0500000A 		beq	.L77
+ 686 0064 020000BA 		blt	.L74
+ 687 0068 070056E3 		cmp	r6, #7
+ 355:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 356:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case FIQ_LEVEL_0:
+ 357:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			_mOldVect = (PVOID) sysFiqHandlerTable[eIntNo];
+ 358:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			sysFiqHandlerTable[eIntNo] = (sys_pvFunPtr)pvNewISR;
+ 359:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 360:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 361:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case IRQ_LEVEL_1:
+ 362:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case IRQ_LEVEL_2:
+ 363:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case IRQ_LEVEL_3:
+ 364:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case IRQ_LEVEL_4:
+ 365:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case IRQ_LEVEL_5:
+ 366:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case IRQ_LEVEL_6:
+ 367:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case IRQ_LEVEL_7:
+ 368:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		  	 _mOldVect = (PVOID) sysIrqHandlerTable[eIntNo];
+ 688              		.loc 1 368 0
+ 689 006c 1C309FD5 		ldrle	r3, .L82+4
+ 690              	.LVL37:
+ 354:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 691              		.loc 1 354 0
+ 692 0070 020000DA 		ble	.L81
+ 693              	.L74:
+ 369:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	sysIrqHandlerTable[eIntNo] = (sys_pvFunPtr)pvNewISR;
+ 370:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 371:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 372:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		default:
+ 373:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   ;
+ 374:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 375:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return _mOldVect;	
+ 376:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 694              		.loc 1 376 0
+ 695 0074 0500A0E1 		mov	r0, r5
+ 696              	.LVL38:
+ 697 0078 F081BDE8 		pop	{r4, r5, r6, r7, r8, pc}
+ 698              	.LVL39:
+ 699              	.L77:
+ 357:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			sysFiqHandlerTable[eIntNo] = (sys_pvFunPtr)pvNewISR;
+ 700              		.loc 1 357 0
+ 701 007c 10309FE5 		ldr	r3, .L82+8
+ 702              	.LVL40:
+ 703              	.L81:
+ 368:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	sysIrqHandlerTable[eIntNo] = (sys_pvFunPtr)pvNewISR;
+ 704              		.loc 1 368 0
+ 705 0080 045193E7 		ldr	r5, [r3, r4, lsl #2]
+ 706              	.LVL41:
+ 369:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	sysIrqHandlerTable[eIntNo] = (sys_pvFunPtr)pvNewISR;
+ 707              		.loc 1 369 0
+ 708 0084 047183E7 		str	r7, [r3, r4, lsl #2]
+ 375:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 709              		.loc 1 375 0
+ 710 0088 F9FFFFEA 		b	.L74
+ 711              	.L83:
+ 712              		.align	2
+ 713              	.L82:
+ 714 008c 00000000 		.word	.LANCHOR3
+ 715 0090 00000000 		.word	.LANCHOR1
+ 716 0094 00000000 		.word	.LANCHOR2
+ 717              		.cfi_endproc
+ 718              	.LFE18:
+ 720              		.section	.text.sysSetGlobalInterrupt,"ax",%progbits
+ 721              		.align	2
+ 722              		.global	sysSetGlobalInterrupt
+ 723              		.syntax unified
+ 724              		.arm
+ 725              		.fpu softvfp
+ 727              	sysSetGlobalInterrupt:
+ 728              	.LFB19:
+ 377:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** //OK
+ 378:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** ERRCODE sysSetGlobalInterrupt(INT32 nIntState)
+ 379:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 729              		.loc 1 379 0
+ 730              		.cfi_startproc
+ 731              		@ args = 0, pretend = 0, frame = 0
+ 732              		@ frame_needed = 0, uses_anonymous_args = 0
+ 733              		@ link register save eliminated.
+ 734              	.LVL42:
+ 380:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	switch (nIntState)
+ 735              		.loc 1 380 0
+ 736 0000 000050E3 		cmp	r0, #0
+ 737 0004 0300000A 		beq	.L86
+ 738 0008 010050E3 		cmp	r0, #1
+ 739 000c 0700000A 		beq	.L87
+ 740              	.L85:
+ 381:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 382:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case ENABLE_ALL_INTERRUPTS:
+ 383:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	outpw(REG_AIC_MECR, 0xFFFFFFFF);
+ 384:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	outpw(REG_AIC_MECRH, 0xFFFF);
+ 385:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 386:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 387:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case DISABLE_ALL_INTERRUPTS:
+ 388:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	outpw(REG_AIC_MDCR, 0xFFFFFFFF);
+ 389:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	outpw(REG_AIC_MDCRH, 0xFFFF);	
+ 390:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 391:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 392:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		default:
+ 393:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	;
+ 394:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****    	}
+ 395:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****   	return Successful;
+ 396:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 741              		.loc 1 396 0
+ 742 0010 0000A0E3 		mov	r0, #0
+ 743              	.LVL43:
+ 744 0014 1EFF2FE1 		bx	lr
+ 745              	.LVL44:
+ 746              	.L86:
+ 383:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	outpw(REG_AIC_MECRH, 0xFFFF);
+ 747              		.loc 1 383 0
+ 748 0018 2E33A0E3 		mov	r3, #-1207959552
+ 749 001c 0020E0E3 		mvn	r2, #0
+ 750 0020 302183E5 		str	r2, [r3, #304]
+ 384:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 751              		.loc 1 384 0
+ 752 0024 012882E2 		add	r2, r2, #65536
+ 753 0028 342183E5 		str	r2, [r3, #308]
+ 385:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 754              		.loc 1 385 0
+ 755 002c F7FFFFEA 		b	.L85
+ 756              	.L87:
+ 388:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	outpw(REG_AIC_MDCRH, 0xFFFF);	
+ 757              		.loc 1 388 0
+ 758 0030 2E33A0E3 		mov	r3, #-1207959552
+ 759 0034 0020E0E3 		mvn	r2, #0
+ 760 0038 382183E5 		str	r2, [r3, #312]
+ 389:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 761              		.loc 1 389 0
+ 762 003c 012882E2 		add	r2, r2, #65536
+ 763 0040 3C2183E5 		str	r2, [r3, #316]
+ 390:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 764              		.loc 1 390 0
+ 765 0044 F1FFFFEA 		b	.L85
+ 766              		.cfi_endproc
+ 767              	.LFE19:
+ 769              		.section	.text.sysSetInterruptPriorityLevel,"ax",%progbits
+ 770              		.align	2
+ 771              		.global	sysSetInterruptPriorityLevel
+ 772              		.syntax unified
+ 773              		.arm
+ 774              		.fpu softvfp
+ 776              	sysSetInterruptPriorityLevel:
+ 777              	.LFB20:
+ 397:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** //OK
+ 398:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** ERRCODE sysSetInterruptPriorityLevel(INT_SOURCE_E eIntNo, UINT32 uIntLevel)
+ 399:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 778              		.loc 1 399 0
+ 779              		.cfi_startproc
+ 780              		@ args = 0, pretend = 0, frame = 0
+ 781              		@ frame_needed = 0, uses_anonymous_args = 0
+ 782              	.LVL45:
+ 400:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	UINT32 _mRegValue;
+ 401:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 402:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if ((eIntNo > WB_MAX_INT_SOURCE) || (eIntNo < WB_MIN_INT_SOURCE))
+ 783              		.loc 1 402 0
+ 784 0000 013040E2 		sub	r3, r0, #1
+ 785 0004 2E0053E3 		cmp	r3, #46
+ 786 0008 0E00008A 		bhi	.L90
+ 403:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	  	return (ERRCODE)WB_PM_INVALID_IRQ_NUM;
+ 404:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	
+ 405:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = AICRegRead(REG_AIC_SCR1, (eIntNo/4));
+ 787              		.loc 1 405 0
+ 788 000c FC2000E2 		and	r2, r0, #252
+ 406:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue & ( 0xFFFFFFF8<<((eIntNo%4)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
+ 789              		.loc 1 406 0
+ 790 0010 030000E2 		and	r0, r0, #3
+ 791              	.LVL46:
+ 792 0014 8001A0E1 		lsl	r0, r0, #3
+ 793 0018 0030E0E3 		mvn	r3, #0
+ 405:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue & ( 0xFFFFFFF8<<((eIntNo%4)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
+ 794              		.loc 1 405 0
+ 795 001c 2E2382E2 		add	r2, r2, #-1207959552
+ 796              		.loc 1 406 0
+ 797 0020 1330E0E1 		mvn	r3, r3, lsl r0
+ 399:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	UINT32 _mRegValue;
+ 798              		.loc 1 399 0
+ 799 0024 04E02DE5 		str	lr, [sp, #-4]!
+ 800              		.cfi_def_cfa_offset 4
+ 801              		.cfi_offset 14, -4
+ 405:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue & ( 0xFFFFFFF8<<((eIntNo%4)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
+ 802              		.loc 1 405 0
+ 803 0028 00C092E5 		ldr	ip, [r2]
+ 804              	.LVL47:
+ 805              		.loc 1 406 0
+ 806 002c 07E0E0E3 		mvn	lr, #7
+ 807 0030 1E3083E1 		orr	r3, r3, lr, lsl r0
+ 808 0034 0C3003E0 		and	r3, r3, ip
+ 809              	.LVL48:
+ 407:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue | uIntLevel<<((eIntNo%4)*8);
+ 810              		.loc 1 407 0
+ 811 0038 111083E1 		orr	r1, r3, r1, lsl r0
+ 812              	.LVL49:
+ 408:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	AICRegWrite(REG_AIC_SCR1, (eIntNo/4), _mRegValue);
+ 409:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 410:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return Successful;		
+ 813              		.loc 1 410 0
+ 814 003c 0000A0E3 		mov	r0, #0
+ 408:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	AICRegWrite(REG_AIC_SCR1, (eIntNo/4), _mRegValue);
+ 815              		.loc 1 408 0
+ 816 0040 001082E5 		str	r1, [r2]
+ 411:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 817              		.loc 1 411 0
+ 818 0044 04F09DE4 		ldr	pc, [sp], #4
+ 819              	.LVL50:
+ 820              	.L90:
+ 821              		.cfi_def_cfa_offset 0
+ 822              		.cfi_restore 14
+ 403:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	
+ 823              		.loc 1 403 0
+ 824 0048 00009FE5 		ldr	r0, .L95
+ 825              	.LVL51:
+ 826              		.loc 1 411 0
+ 827 004c 1EFF2FE1 		bx	lr
+ 828              	.L96:
+ 829              		.align	2
+ 830              	.L95:
+ 831 0050 070AFFFF 		.word	-62969
+ 832              		.cfi_endproc
+ 833              	.LFE20:
+ 835              		.section	.text.sysSetInterruptType,"ax",%progbits
+ 836              		.align	2
+ 837              		.global	sysSetInterruptType
+ 838              		.syntax unified
+ 839              		.arm
+ 840              		.fpu softvfp
+ 842              	sysSetInterruptType:
+ 843              	.LFB21:
+ 412:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** //OK
+ 413:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** /*
+ 414:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** typedef enum 
+ 415:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 416:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	eDRVAIC_LOW_LEVEL, 
+ 417:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	eDRVAIC_HIGH_LEVEL, 
+ 418:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	eDRVAIC_FALLING, 
+ 419:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	eDRVAIC_RISING
+ 420:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }E_DRVAIC_INT_TYPE;
+ 421:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** */
+ 422:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** ERRCODE sysSetInterruptType(INT_SOURCE_E eIntNo, UINT32 uIntSourceType)
+ 423:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 844              		.loc 1 423 0
+ 845              		.cfi_startproc
+ 846              		@ args = 0, pretend = 0, frame = 0
+ 847              		@ frame_needed = 0, uses_anonymous_args = 0
+ 848              	.LVL52:
+ 424:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	UINT32 _mRegValue;
+ 425:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 426:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if ((eIntNo > WB_MAX_INT_SOURCE) || (eIntNo < WB_MIN_INT_SOURCE))
+ 849              		.loc 1 426 0
+ 850 0000 013040E2 		sub	r3, r0, #1
+ 851 0004 2E0053E3 		cmp	r3, #46
+ 852 0008 0F00008A 		bhi	.L99
+ 427:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	  	return (ERRCODE)WB_PM_INVALID_IRQ_NUM;
+ 428:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 429:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = AICRegRead(REG_AIC_SCR1, (eIntNo/4));
+ 853              		.loc 1 429 0
+ 854 000c FC2000E2 		and	r2, r0, #252
+ 430:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue & ( 0xFFFFFF3F<<((eIntNo & 0x3)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
+ 855              		.loc 1 430 0
+ 856 0010 030000E2 		and	r0, r0, #3
+ 857              	.LVL53:
+ 858 0014 8001A0E1 		lsl	r0, r0, #3
+ 859 0018 0030E0E3 		mvn	r3, #0
+ 429:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue & ( 0xFFFFFF3F<<((eIntNo & 0x3)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
+ 860              		.loc 1 429 0
+ 861 001c 2E2382E2 		add	r2, r2, #-1207959552
+ 862              		.loc 1 430 0
+ 863 0020 1330E0E1 		mvn	r3, r3, lsl r0
+ 423:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	UINT32 _mRegValue;
+ 864              		.loc 1 423 0
+ 865 0024 04E02DE5 		str	lr, [sp, #-4]!
+ 866              		.cfi_def_cfa_offset 4
+ 867              		.cfi_offset 14, -4
+ 429:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue & ( 0xFFFFFF3F<<((eIntNo & 0x3)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
+ 868              		.loc 1 429 0
+ 869 0028 00C092E5 		ldr	ip, [r2]
+ 870              	.LVL54:
+ 871              		.loc 1 430 0
+ 872 002c C0E0E0E3 		mvn	lr, #192
+ 873 0030 1E3083E1 		orr	r3, r3, lr, lsl r0
+ 431:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue | ( uIntSourceType<<((eIntNo & 0x3)*8 + 6) );
+ 874              		.loc 1 431 0
+ 875 0034 060080E2 		add	r0, r0, #6
+ 430:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_mRegValue = _mRegValue | ( uIntSourceType<<((eIntNo & 0x3)*8 + 6) );
+ 876              		.loc 1 430 0
+ 877 0038 0C3003E0 		and	r3, r3, ip
+ 878              	.LVL55:
+ 879              		.loc 1 431 0
+ 880 003c 110083E1 		orr	r0, r3, r1, lsl r0
+ 881              	.LVL56:
+ 432:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	AICRegWrite(REG_AIC_SCR1, (eIntNo >> 2), _mRegValue );
+ 882              		.loc 1 432 0
+ 883 0040 000082E5 		str	r0, [r2]
+ 433:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****    
+ 434:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return Successful;
+ 884              		.loc 1 434 0
+ 885 0044 0000A0E3 		mov	r0, #0
+ 886              	.LVL57:
+ 435:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 887              		.loc 1 435 0
+ 888 0048 04F09DE4 		ldr	pc, [sp], #4
+ 889              	.LVL58:
+ 890              	.L99:
+ 891              		.cfi_def_cfa_offset 0
+ 892              		.cfi_restore 14
+ 427:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 893              		.loc 1 427 0
+ 894 004c 00009FE5 		ldr	r0, .L104
+ 895              	.LVL59:
+ 896              		.loc 1 435 0
+ 897 0050 1EFF2FE1 		bx	lr
+ 898              	.L105:
+ 899              		.align	2
+ 900              	.L104:
+ 901 0054 070AFFFF 		.word	-62969
+ 902              		.cfi_endproc
+ 903              	.LFE21:
+ 905              		.section	.text.sysSetLocalInterrupt,"ax",%progbits
+ 906              		.align	2
+ 907              		.global	sysSetLocalInterrupt
+ 908              		.syntax unified
+ 909              		.arm
+ 910              		.fpu softvfp
+ 912              	sysSetLocalInterrupt:
+ 913              	.LFB22:
+ 436:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** //OK
+ 437:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** ERRCODE sysSetLocalInterrupt(INT32 nIntState)
+ 438:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 914              		.loc 1 438 0
+ 915              		.cfi_startproc
+ 916              		@ args = 0, pretend = 0, frame = 0
+ 917              		@ frame_needed = 0, uses_anonymous_args = 0
+ 918              		@ link register save eliminated.
+ 919              	.LVL60:
+ 439:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 440:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 441:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** # else
+ 442:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****     INT32 temp;
+ 443:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #endif
+ 444:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 445:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	switch (nIntState)
+ 920              		.loc 1 445 0
+ 921 0000 7F0050E3 		cmp	r0, #127
+ 922 0004 0E00000A 		beq	.L108
+ 923 0008 070000CA 		bgt	.L109
+ 924 000c 3F0050E3 		cmp	r0, #63
+ 925 0010 0B00000A 		beq	.L108
+ 926 0014 400050E3 		cmp	r0, #64
+ 927              	.L130:
+ 928 0018 0C00001A 		bne	.L107
+ 929              	.L110:
+ 446:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 447:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case ENABLE_IRQ:
+ 448:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case ENABLE_FIQ:
+ 449:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case ENABLE_FIQ_IRQ:
+ 450:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 451:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			__asm
+ 452:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****             (
+ 453:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                 "mrs    r0, CPSR  \n"
+ 454:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                 "bic    r0, r0, #0x80  \n"
+ 455:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                 "msr    CPSR_c, r0  \n"
+ 456:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****             );
+ 457:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #else
+ 458:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			__asm
+ 459:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			{
+ 460:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			   MRS    temp, CPSR
+ 461:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			   AND    temp, temp, nIntState
+ 462:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			   MSR    CPSR_c, temp
+ 463:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			}
+ 464:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #endif
+ 465:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		break;
+ 466:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 467:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case DISABLE_IRQ:
+ 468:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case DISABLE_FIQ:
+ 469:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		case DISABLE_FIQ_IRQ:
+ 470:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #if defined ( __GNUC__ ) && !(__CC_ARM)
+ 471:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			__asm
+ 930              		.loc 1 471 0
+ 931              		.syntax divided
+ 932              	@ 471 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_aic.c" 1
+ 933 001c 00000FE1 		MRS    r0, CPSR  
+ 934 0020 800080E3 	ORR    r0, r0, #0x80  
+ 935 0024 00F021E1 	MSR    CPSR_c, r0  
+ 936              	
+ 937              	@ 0 "" 2
+ 472:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****             (
+ 473:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                 "MRS    r0, CPSR  \n"
+ 474:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                 "ORR    r0, r0, #0x80  \n"
+ 475:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****                 "MSR    CPSR_c, r0  \n"
+ 476:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****             );
+ 477:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #else
+ 478:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			__asm
+ 479:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			{
+ 480:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			   MRS    temp, CPSR
+ 481:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			   ORR    temp, temp, nIntState
+ 482:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			   MSR    CPSR_c, temp
+ 483:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 			}
+ 484:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #endif
+ 485:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   break;
+ 938              		.loc 1 485 0
+ 939              		.arm
+ 940              		.syntax unified
+ 941 0028 080000EA 		b	.L107
+ 942              	.L109:
+ 445:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 943              		.loc 1 445 0
+ 944 002c BF0050E3 		cmp	r0, #191
+ 945 0030 0300000A 		beq	.L108
+ 946 0034 C00050E3 		cmp	r0, #192
+ 947 0038 F7FFFF0A 		beq	.L110
+ 948 003c 800050E3 		cmp	r0, #128
+ 949 0040 F4FFFFEA 		b	.L130
+ 950              	.L108:
+ 451:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****             (
+ 951              		.loc 1 451 0
+ 952              		.syntax divided
+ 953              	@ 451 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_aic.c" 1
+ 954 0044 00000FE1 		mrs    r0, CPSR  
+ 955 0048 8000C0E3 	bic    r0, r0, #0x80  
+ 956 004c 00F021E1 	msr    CPSR_c, r0  
+ 957              	
+ 958              	@ 0 "" 2
+ 959              		.arm
+ 960              		.syntax unified
+ 961              	.L107:
+ 486:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 487:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		default:
+ 488:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		   	;
+ 489:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 490:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return Successful;
+ 491:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 962              		.loc 1 491 0
+ 963 0050 0000A0E3 		mov	r0, #0
+ 964              	.LVL61:
+ 965 0054 1EFF2FE1 		bx	lr
+ 966              		.cfi_endproc
+ 967              	.LFE22:
+ 969              		.section	.text.sysSetAIC2SWMode,"ax",%progbits
+ 970              		.align	2
+ 971              		.global	sysSetAIC2SWMode
+ 972              		.syntax unified
+ 973              		.arm
+ 974              		.fpu softvfp
+ 976              	sysSetAIC2SWMode:
+ 977              	.LFB23:
+ 492:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** //OK
+ 493:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** ERRCODE sysSetAIC2SWMode()
+ 494:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 978              		.loc 1 494 0
+ 979              		.cfi_startproc
+ 980              		@ args = 0, pretend = 0, frame = 0
+ 981              		@ frame_needed = 0, uses_anonymous_args = 0
+ 982              		@ link register save eliminated.
+ 495:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	_sys_bIsHWMode = FALSE;
+ 983              		.loc 1 495 0
+ 984 0000 08309FE5 		ldr	r3, .L132
+ 985 0004 0000A0E3 		mov	r0, #0
+ 986 0008 0000C3E5 		strb	r0, [r3]
+ 496:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	return Successful;
+ 497:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 987              		.loc 1 497 0
+ 988 000c 1EFF2FE1 		bx	lr
+ 989              	.L133:
+ 990              		.align	2
+ 991              	.L132:
+ 992 0010 00000000 		.word	.LANCHOR0
+ 993              		.cfi_endproc
+ 994              	.LFE23:
+ 996              		.section	.text.sysGetInterruptEnableStatus,"ax",%progbits
+ 997              		.align	2
+ 998              		.global	sysGetInterruptEnableStatus
+ 999              		.syntax unified
+ 1000              		.arm
+ 1001              		.fpu softvfp
+ 1003              	sysGetInterruptEnableStatus:
+ 1004              	.LFB24:
+ 498:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 
+ 499:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** //OK
+ 500:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** UINT32	sysGetInterruptEnableStatus(void)
+ 501:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 1005              		.loc 1 501 0
+ 1006              		.cfi_startproc
+ 1007              		@ args = 0, pretend = 0, frame = 0
+ 1008              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1009              		@ link register save eliminated.
+ 502:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****     	return (inpw(REG_AIC_IMR));
+ 1010              		.loc 1 502 0
+ 1011 0000 2E33A0E3 		mov	r3, #-1207959552
+ 1012 0004 280193E5 		ldr	r0, [r3, #296]
+ 503:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 1013              		.loc 1 503 0
+ 1014 0008 1EFF2FE1 		bx	lr
+ 1015              		.cfi_endproc
+ 1016              	.LFE24:
+ 1018              		.section	.text.sysGetInterruptHighEnableStatus,"ax",%progbits
+ 1019              		.align	2
+ 1020              		.global	sysGetInterruptHighEnableStatus
+ 1021              		.syntax unified
+ 1022              		.arm
+ 1023              		.fpu softvfp
+ 1025              	sysGetInterruptHighEnableStatus:
+ 1026              	.LFB25:
+ 504:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** UINT32	sysGetInterruptHighEnableStatus(void)
+ 505:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 1027              		.loc 1 505 0
+ 1028              		.cfi_startproc
+ 1029              		@ args = 0, pretend = 0, frame = 0
+ 1030              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1031              		@ link register save eliminated.
+ 506:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****     	return (inpw(REG_AIC_IMRH));
+ 1032              		.loc 1 506 0
+ 1033 0000 2E33A0E3 		mov	r3, #-1207959552
+ 1034 0004 2C0193E5 		ldr	r0, [r3, #300]
+ 507:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 1035              		.loc 1 507 0
+ 1036 0008 1EFF2FE1 		bx	lr
+ 1037              		.cfi_endproc
+ 1038              	.LFE25:
+ 1040              		.section	.text.sysGetIBitState,"ax",%progbits
+ 1041              		.align	2
+ 1042              		.global	sysGetIBitState
+ 1043              		.syntax unified
+ 1044              		.arm
+ 1045              		.fpu softvfp
+ 1047              	sysGetIBitState:
+ 1048              	.LFB26:
+ 508:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** //OK
+ 509:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** BOOL sysGetIBitState()
+ 510:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** {
+ 1049              		.loc 1 510 0
+ 1050              		.cfi_startproc
+ 1051              		@ args = 0, pretend = 0, frame = 0
+ 1052              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1053              		@ link register save eliminated.
+ 511:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	INT32 temp;
+ 512:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #if defined (__GNUC__) && !(__CC_ARM)
+ 513:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	__asm
+ 1054              		.loc 1 513 0
+ 1055              		.syntax divided
+ 1056              	@ 513 "F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS/wb_aic.c" 1
+ 1057 0000 00000FE1 		MRS r0, CPSR   
+ 1058              	
+ 1059              	@ 0 "" 2
+ 1060              	.LVL62:
+ 514:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****     (
+ 515:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****         "MRS %0, CPSR   \n"
+ 516:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****         :"=r" (temp) : :
+ 517:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c ****     );
+ 518:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #else
+ 519:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	__asm
+ 520:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	{
+ 521:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		MRS	temp, CPSR
+ 522:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	}
+ 523:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** #endif
+ 524:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	if (temp & 0x80)
+ 1061              		.loc 1 524 0
+ 1062              		.arm
+ 1063              		.syntax unified
+ 1064 0004 A003A0E1 		lsr	r0, r0, #7
+ 1065              	.LVL63:
+ 1066 0008 010020E2 		eor	r0, r0, #1
+ 525:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		return FALSE;
+ 526:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 	else
+ 527:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** 		return TRUE;
+ 528:F:/ARM_Project/W55FA92/N9H20/BSP/Driver/Source/SYS\wb_aic.c **** }
+ 1067              		.loc 1 528 0
+ 1068 000c 010000E2 		and	r0, r0, #1
+ 1069 0010 1EFF2FE1 		bx	lr
+ 1070              		.cfi_endproc
+ 1071              	.LFE26:
+ 1073              		.global	sysFiqHandlerTable
+ 1074              		.global	sysIrqHandlerTable
+ 1075              		.global	_sys_bIsHWMode
+ 1076              		.global	_sys_bIsAICInitial
+ 1077              		.section	.bss._sys_bIsAICInitial,"aw",%nobits
+ 1078              		.set	.LANCHOR3,. + 0
+ 1081              	_sys_bIsAICInitial:
+ 1082 0000 00       		.space	1
+ 1083              		.section	.data._sys_bIsHWMode,"aw",%progbits
+ 1084              		.set	.LANCHOR0,. + 0
+ 1087              	_sys_bIsHWMode:
+ 1088 0000 01       		.byte	1
+ 1089              		.section	.data.sysFiqHandlerTable,"aw",%progbits
+ 1090              		.align	2
+ 1091              		.set	.LANCHOR2,. + 0
+ 1094              	sysFiqHandlerTable:
+ 1095 0000 00000000 		.word	0
+ 1096 0004 00000000 		.word	WB_Interrupt_Shell
+ 1097 0008 00000000 		.word	WB_Interrupt_Shell
+ 1098 000c 00000000 		.word	WB_Interrupt_Shell
+ 1099 0010 00000000 		.word	WB_Interrupt_Shell
+ 1100 0014 00000000 		.word	WB_Interrupt_Shell
+ 1101 0018 00000000 		.word	WB_Interrupt_Shell
+ 1102 001c 00000000 		.word	WB_Interrupt_Shell
+ 1103 0020 00000000 		.word	WB_Interrupt_Shell
+ 1104 0024 00000000 		.word	WB_Interrupt_Shell
+ 1105 0028 00000000 		.word	WB_Interrupt_Shell
+ 1106 002c 00000000 		.word	WB_Interrupt_Shell
+ 1107 0030 00000000 		.word	WB_Interrupt_Shell
+ 1108 0034 00000000 		.word	WB_Interrupt_Shell
+ 1109 0038 00000000 		.word	WB_Interrupt_Shell
+ 1110 003c 00000000 		.word	WB_Interrupt_Shell
+ 1111 0040 00000000 		.word	WB_Interrupt_Shell
+ 1112 0044 00000000 		.word	WB_Interrupt_Shell
+ 1113 0048 00000000 		.word	WB_Interrupt_Shell
+ 1114 004c 00000000 		.word	WB_Interrupt_Shell
+ 1115 0050 00000000 		.word	WB_Interrupt_Shell
+ 1116 0054 00000000 		.word	WB_Interrupt_Shell
+ 1117 0058 00000000 		.word	WB_Interrupt_Shell
+ 1118 005c 00000000 		.word	WB_Interrupt_Shell
+ 1119 0060 00000000 		.word	WB_Interrupt_Shell
+ 1120 0064 00000000 		.word	WB_Interrupt_Shell
+ 1121 0068 00000000 		.word	WB_Interrupt_Shell
+ 1122 006c 00000000 		.word	WB_Interrupt_Shell
+ 1123 0070 00000000 		.word	WB_Interrupt_Shell
+ 1124 0074 00000000 		.word	WB_Interrupt_Shell
+ 1125 0078 00000000 		.word	WB_Interrupt_Shell
+ 1126 007c 00000000 		.word	WB_Interrupt_Shell
+ 1127 0080 00000000 		.word	WB_Interrupt_Shell
+ 1128 0084 00000000 		.word	WB_Interrupt_Shell
+ 1129 0088 00000000 		.word	WB_Interrupt_Shell
+ 1130 008c 00000000 		.word	WB_Interrupt_Shell
+ 1131 0090 00000000 		.word	WB_Interrupt_Shell
+ 1132 0094 00000000 		.word	WB_Interrupt_Shell
+ 1133 0098 00000000 		.word	WB_Interrupt_Shell
+ 1134 009c 00000000 		.word	WB_Interrupt_Shell
+ 1135 00a0 00000000 		.word	WB_Interrupt_Shell
+ 1136 00a4 00000000 		.word	WB_Interrupt_Shell
+ 1137 00a8 00000000 		.word	WB_Interrupt_Shell
+ 1138 00ac 00000000 		.word	WB_Interrupt_Shell
+ 1139 00b0 00000000 		.word	WB_Interrupt_Shell
+ 1140 00b4 00000000 		.word	WB_Interrupt_Shell
+ 1141 00b8 00000000 		.word	WB_Interrupt_Shell
+ 1142 00bc 00000000 		.word	WB_Interrupt_Shell
+ 1143              		.section	.data.sysIrqHandlerTable,"aw",%progbits
+ 1144              		.align	2
+ 1145              		.set	.LANCHOR1,. + 0
+ 1148              	sysIrqHandlerTable:
+ 1149 0000 00000000 		.word	0
+ 1150 0004 00000000 		.word	WB_Interrupt_Shell
+ 1151 0008 00000000 		.word	WB_Interrupt_Shell
+ 1152 000c 00000000 		.word	WB_Interrupt_Shell
+ 1153 0010 00000000 		.word	WB_Interrupt_Shell
+ 1154 0014 00000000 		.word	WB_Interrupt_Shell
+ 1155 0018 00000000 		.word	WB_Interrupt_Shell
+ 1156 001c 00000000 		.word	WB_Interrupt_Shell
+ 1157 0020 00000000 		.word	WB_Interrupt_Shell
+ 1158 0024 00000000 		.word	WB_Interrupt_Shell
+ 1159 0028 00000000 		.word	WB_Interrupt_Shell
+ 1160 002c 00000000 		.word	WB_Interrupt_Shell
+ 1161 0030 00000000 		.word	WB_Interrupt_Shell
+ 1162 0034 00000000 		.word	WB_Interrupt_Shell
+ 1163 0038 00000000 		.word	WB_Interrupt_Shell
+ 1164 003c 00000000 		.word	WB_Interrupt_Shell
+ 1165 0040 00000000 		.word	WB_Interrupt_Shell
+ 1166 0044 00000000 		.word	WB_Interrupt_Shell
+ 1167 0048 00000000 		.word	WB_Interrupt_Shell
+ 1168 004c 00000000 		.word	WB_Interrupt_Shell
+ 1169 0050 00000000 		.word	WB_Interrupt_Shell
+ 1170 0054 00000000 		.word	WB_Interrupt_Shell
+ 1171 0058 00000000 		.word	WB_Interrupt_Shell
+ 1172 005c 00000000 		.word	WB_Interrupt_Shell
+ 1173 0060 00000000 		.word	WB_Interrupt_Shell
+ 1174 0064 00000000 		.word	WB_Interrupt_Shell
+ 1175 0068 00000000 		.word	WB_Interrupt_Shell
+ 1176 006c 00000000 		.word	WB_Interrupt_Shell
+ 1177 0070 00000000 		.word	WB_Interrupt_Shell
+ 1178 0074 00000000 		.word	WB_Interrupt_Shell
+ 1179 0078 00000000 		.word	WB_Interrupt_Shell
+ 1180 007c 00000000 		.word	WB_Interrupt_Shell
+ 1181 0080 00000000 		.word	WB_Interrupt_Shell
+ 1182 0084 00000000 		.word	WB_Interrupt_Shell
+ 1183 0088 00000000 		.word	WB_Interrupt_Shell
+ 1184 008c 00000000 		.word	WB_Interrupt_Shell
+ 1185 0090 00000000 		.word	WB_Interrupt_Shell
+ 1186 0094 00000000 		.word	WB_Interrupt_Shell
+ 1187 0098 00000000 		.word	WB_Interrupt_Shell
+ 1188 009c 00000000 		.word	WB_Interrupt_Shell
+ 1189 00a0 00000000 		.word	WB_Interrupt_Shell
+ 1190 00a4 00000000 		.word	WB_Interrupt_Shell
+ 1191 00a8 00000000 		.word	WB_Interrupt_Shell
+ 1192 00ac 00000000 		.word	WB_Interrupt_Shell
+ 1193 00b0 00000000 		.word	WB_Interrupt_Shell
+ 1194 00b4 00000000 		.word	WB_Interrupt_Shell
+ 1195 00b8 00000000 		.word	WB_Interrupt_Shell
+ 1196 00bc 00000000 		.word	WB_Interrupt_Shell
+ 1197              		.text
+ 1198              	.Letext0:
+ 1199              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 1200              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 1201              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\lib\\gcc\\arm-none-eab
+ 1202              		.file 5 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 1203              		.file 6 "f:\\arm_project\\w55fa92\\n9h20\\bsp\\driver\\include\\wbtypes.h"
+ 1204              		.file 7 "f:\\arm_project\\w55fa92\\n9h20\\bsp\\driver\\include\\wblib.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 wb_aic.c
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:16     .text.sysIrqHandler:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:21     .text.sysIrqHandler:00000000 sysIrqHandler
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:160    .text.sysIrqHandler:0000011c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:167    .text.sysFiqHandler:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:172    .text.sysFiqHandler:00000000 sysFiqHandler
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:309    .text.sysFiqHandler:0000011c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:316    .text.WB_Interrupt_Shell:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:322    .text.WB_Interrupt_Shell:00000000 WB_Interrupt_Shell
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:335    .text.sysInitializeAIC:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:341    .text.sysInitializeAIC:00000000 sysInitializeAIC
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:383    .text.sysInitializeAIC:0000003c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:390    .text.sysDisableInterrupt:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:396    .text.sysDisableInterrupt:00000000 sysDisableInterrupt
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:435    .text.sysDisableInterrupt:0000003c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:440    .text.sysEnableInterrupt:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:446    .text.sysEnableInterrupt:00000000 sysEnableInterrupt
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:485    .text.sysEnableInterrupt:0000003c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:490    .text.sysInstallExceptionHandler:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:496    .text.sysInstallExceptionHandler:00000000 sysInstallExceptionHandler
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:509    .text.sysInstallExceptionHandler:0000000c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:515    .text.sysInstallExceptionHandler:0000001c $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:560    .text.sysInstallFiqHandler:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:566    .text.sysInstallFiqHandler:00000000 sysInstallFiqHandler
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:588    .text.sysInstallIrqHandler:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:594    .text.sysInstallIrqHandler:00000000 sysInstallIrqHandler
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:616    .text.sysInstallISR:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:622    .text.sysInstallISR:00000000 sysInstallISR
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:714    .text.sysInstallISR:0000008c $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:721    .text.sysSetGlobalInterrupt:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:727    .text.sysSetGlobalInterrupt:00000000 sysSetGlobalInterrupt
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:770    .text.sysSetInterruptPriorityLevel:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:776    .text.sysSetInterruptPriorityLevel:00000000 sysSetInterruptPriorityLevel
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:831    .text.sysSetInterruptPriorityLevel:00000050 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:836    .text.sysSetInterruptType:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:842    .text.sysSetInterruptType:00000000 sysSetInterruptType
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:901    .text.sysSetInterruptType:00000054 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:906    .text.sysSetLocalInterrupt:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:912    .text.sysSetLocalInterrupt:00000000 sysSetLocalInterrupt
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:970    .text.sysSetAIC2SWMode:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:976    .text.sysSetAIC2SWMode:00000000 sysSetAIC2SWMode
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:992    .text.sysSetAIC2SWMode:00000010 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:997    .text.sysGetInterruptEnableStatus:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1003   .text.sysGetInterruptEnableStatus:00000000 sysGetInterruptEnableStatus
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1019   .text.sysGetInterruptHighEnableStatus:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1025   .text.sysGetInterruptHighEnableStatus:00000000 sysGetInterruptHighEnableStatus
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1041   .text.sysGetIBitState:00000000 $a
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1047   .text.sysGetIBitState:00000000 sysGetIBitState
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1094   .data.sysFiqHandlerTable:00000000 sysFiqHandlerTable
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1148   .data.sysIrqHandlerTable:00000000 sysIrqHandlerTable
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1087   .data._sys_bIsHWMode:00000000 _sys_bIsHWMode
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1081   .bss._sys_bIsAICInitial:00000000 _sys_bIsAICInitial
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1082   .bss._sys_bIsAICInitial:00000000 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1090   .data.sysFiqHandlerTable:00000000 $d
+C:\Users\¢á¢å¢Ñ~1\AppData\Local\Temp\ccGyXeC6.s:1144   .data.sysIrqHandlerTable:00000000 $d
+
+UNDEFINED SYMBOLS
+sysGetCacheState
+sysFlushCache

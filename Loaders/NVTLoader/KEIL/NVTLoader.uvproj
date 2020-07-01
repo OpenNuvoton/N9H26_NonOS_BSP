@@ -151,7 +151,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K5_NVTloader.ini</InitializationFile>
+            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K6_NVTloader.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -788,7 +788,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K5_NVTloader.ini</InitializationFile>
+            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K6_NVTloader.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -1407,7 +1407,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K5_NVTloader.ini</InitializationFile>
+            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K6_NVTloader.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -2044,7 +2044,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K5_NVTloader.ini</InitializationFile>
+            <InitializationFile>..\..\..\BSP\Script\N9H26\N9H26K6_NVTloader.ini</InitializationFile>
             <Driver>Segger\JLTAgdi.dll</Driver>
           </TargetDlls>
         </DebugOption>
