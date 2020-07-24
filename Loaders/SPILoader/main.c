@@ -49,7 +49,7 @@ void Timer0_300msCallback(void)
 }
 
 #define __DDR2__
-#define E_CLKSKEW   0x0088ff00
+#define E_CLKSKEW   0x00888800
 
 void initClock(void)
 {
