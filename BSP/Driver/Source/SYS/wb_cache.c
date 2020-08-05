@@ -132,7 +132,7 @@ tci_loop
 
 VOID sysDisableCache()
 {
-	volatile int temp;
+	int temp;
 
 	sys_flush_and_clean_dcache();
 #if defined (__GNUC__) && !(__CC_ARM)
@@ -260,7 +260,7 @@ VOID sysFlushCache(INT32 nCacheType)
 
 VOID sysInvalidCache()
 {
-	int temp;
+	volatile int temp;
 
 #if defined (__GNUC__) && !(__CC_ARM)
     __asm volatile

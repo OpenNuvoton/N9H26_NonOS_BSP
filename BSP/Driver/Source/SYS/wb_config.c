@@ -1791,6 +1791,7 @@ void _dramClockSwitchStart(E_SYS_SRC_CLK eSrcClk,
 	UINT32 u32DramClock			DDR clock (2* SDIC) 
 
 */
+extern BOOL _sys_bIsUARTInitial;
 UINT32 sysSetDramClock(E_SYS_SRC_CLK eSrcClk, UINT32 u32PLLClockHz, UINT32 u32DdrClock)
 {
 	UINT32 u32FinHz, u32DramDiv;
@@ -1798,6 +1799,20 @@ UINT32 sysSetDramClock(E_SYS_SRC_CLK eSrcClk, UINT32 u32PLLClockHz, UINT32 u32Dd
 	UINT32 u32CpuFreq, u32Hclk1Frq, u32Hclk234;
 	UINT32 u32DramClock = u32DdrClock/2;
 	UINT32 u32sysSrc = (inp32(REG_CLKDIV0)&SYSTEM_S)>>3;
+	WB_UART_T uart;
+
+	if (!_sys_bIsUARTInitial)
+	{//Default use external clock 12MHz as source clock. 
+		sysUartPort(1);
+		uart.uart_no = WB_UART_1;
+		uart.uiFreq = sysGetExternalClock();
+		uart.uiBaudrate = 115200;
+		uart.uiDataBits = WB_DATA_BITS_8;
+		uart.uiStopBits = WB_STOP_BITS_1;
+		uart.uiParity = WB_PARITY_NONE;
+		uart.uiRxTriggerLevel = LEVEL_1_BYTE;
+		sysInitializeUART(&uart);
+	}
 	
 	/* Judge MCLK > HCLK1 */ 
 	u32CpuFreq = sysGetCPUClock();
