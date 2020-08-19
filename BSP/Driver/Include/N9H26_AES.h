@@ -1,13 +1,12 @@
-/***************************************************************************
- * Copyright (c) 2011 Nuvoton Technology. All rights reserved.
+/**************************************************************************//**
+ * @file     N9H26_AES.h
+ * @version  V3.00
+ * @brief    N9H26 series AES driver header file
  *
- * FILENAME
- *     aes.h
- * DESCRIPTION
- *     The header file of AES library.
- * FUNCTIONS
- *     None
- **************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
+
 #ifndef _AES_H
 #define _AES_H
 

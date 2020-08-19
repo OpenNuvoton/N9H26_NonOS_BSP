@@ -1,13 +1,11 @@
-/****************************************************************************
- * @file     mass_storage_class.h
- * @version  V1.00
- * $Revision: 4 $
- * $Date: 18/04/25 11:43a $
- * @brief    Mass Storage Device driver header file
+/**************************************************************************//**
+ * @file     N9H26_MSC.h
+ * @version  V3.00
+ * @brief    N9H26 series MSC driver header file
  *
- * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *****************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 #include "N9H26_GNAND.h"
 
 typedef void (*PFN_MSCD_CDROM_CALLBACK)(PUINT32 pu32address, UINT32 u32Offset, UINT32 u32LengthInByte);

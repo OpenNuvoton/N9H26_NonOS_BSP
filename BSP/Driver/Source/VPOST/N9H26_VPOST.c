@@ -1,37 +1,12 @@
-/***************************************************************************
- *                                                                         *
- * Copyright (c) 2007 - 2009 Nuvoton Technology Corp. All rights reserved.*
- *                                                                         *
- ***************************************************************************/
+/**************************************************************************//**
+ * @file     N9H26_VPOST.c
+ * @version  V3.00
+ * @brief    N9H26 series VPOST driver source file
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+ *****************************************************************************/
 
-/****************************************************************************
- * 
- * FILENAME
- *     N9H26_VPOST.c
- *
- * VERSION
- *     0.1 
- *
- * DESCRIPTION
- *
- *
- *
- *
- * DATA STRUCTURES
- *     None
- *
- * FUNCTIONS
- *
- *
- *     
- * HISTORY
- *
- *
- * REMARK
- *     None
- *
- *
- **************************************************************************/
 #include "wblib.h"
 #include <stdio.h>
 #include "N9H26_VPOST.h"

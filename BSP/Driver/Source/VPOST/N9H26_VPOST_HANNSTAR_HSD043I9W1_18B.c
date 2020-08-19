@@ -1,38 +1,12 @@
-/***************************************************************************
- *                                                                         *
- * Copyright (c) 2007 - 2009 Nuvoton Technology Corp. All rights reserved.*
- *                                                                         *
- ***************************************************************************/
- 
-/****************************************************************************
- * 
- * FILENAME
- *     N9H26K_VPOST_HANNSTAR_HSD043I9W1_18B.c
+/**************************************************************************//**
+ * @file     N9H26_VPOST_HANNSTAR_HSD043I9W1_18B.c
+ * @version  V3.00
+ * @brief    Panel driver file
  *
- * VERSION
- *     0.1 
- *
- * DESCRIPTION
- *
- *
- *
- *
- * DATA STRUCTURES
- *     None
- *
- * FUNCTIONS
- *
- *
- *     
- * HISTORY
- *     2010.09.21		Created by xxx
- *
- *
- * REMARK
- *     None
- *
- *
- **************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+ *****************************************************************************/
+
 #include "stdio.h"
 #include "stdlib.h"
 #include "wblib.h"

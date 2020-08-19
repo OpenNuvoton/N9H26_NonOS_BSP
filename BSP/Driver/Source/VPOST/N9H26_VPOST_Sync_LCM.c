@@ -1,38 +1,12 @@
-/***************************************************************************
- *                                                                         *
- * Copyright (c) 2007 - 2009 Nuvoton Technology Corp. All rights reserved.*
- *                                                                         *
- ***************************************************************************/
- 
-/****************************************************************************
- * 
- * FILENAME
- *     N9H26_VPOST_Sync_LCM.c
+/**************************************************************************//**
+ * @file     N9H26_VPOST_Sync_LCM.c
+ * @version  V3.00
+ * @brief    Panel driver file
  *
- * VERSION
- *     0.1 
- *
- * DESCRIPTION
- *
- *
- *
- *
- * DATA STRUCTURES
- *     None
- *
- * FUNCTIONS
- *
- *
- *     
- * HISTORY
- *     2018.11.15		Created by Men-Huang Kuo
- *
- *
- * REMARK
- *     None
- *
- *
- **************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+ *****************************************************************************/
+
 #include "stdio.h"
 #include "stdlib.h"
 #include "N9H26_VPOST.h"

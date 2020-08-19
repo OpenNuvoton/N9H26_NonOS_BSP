@@ -1,14 +1,15 @@
-/****************************************************************************
- * @file     jpegcodec.c
- * @version  V1.00
- * $Revision: 4 $
- * $Date: 18/04/25 11:43a $
- * @brief     Demo how to use JPEG driver to encode & decode JPEG file
+/**************************************************************************//**
+ * @file     main.c
+ * @brief    Demo how to use JPEG driver to encode & decode JPEG file
  *
- * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *****************************************************************************/
-
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "N9H26.h"
+#include "jpegSample.h"
 
 /*-----------------------------------------------------------------------*/
 /*  JPEG Demo Code ReadMe                                                */
@@ -35,12 +36,6 @@
 /*  write to the input file name with file name exetension ".dat" into   */
 /*  SD card root folder                                                  */ 
 /*-----------------------------------------------------------------------*/
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "N9H26.h"
-#include "jpegSample.h"
 
 BOOL g_bDecPanelTest = FALSE, g_bDecIpwTest = FALSE, g_bDecOpwTest = FALSE, g_bEncUpTest = FALSE, g_bEncSwReserveTest = FALSE;
 

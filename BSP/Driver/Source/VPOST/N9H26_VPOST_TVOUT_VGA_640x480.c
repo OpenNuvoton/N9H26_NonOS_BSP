@@ -1,37 +1,12 @@
-/***************************************************************************
- *                                                                         *
- * Copyright (c) 2007 - 2010 Nuvoton Technology Corp. All rights reserved.*
- *                                                                         *
- ***************************************************************************/
- 
-/****************************************************************************
- * 
- * FILENAME
- *     N9H26K_VPOST_TVOUT_640x480.c
+/**************************************************************************//**
+ * @file     N9H26_VPOST_TVOUT_VGA_640x480.c
+ * @version  V3.00
+ * @brief    TV driver file
  *
- * VERSION
- *     0.1 
- *
- * DESCRIPTION
- *
- *
- *
- *
- * DATA STRUCTURES
- *     None
- *
- * FUNCTIONS
- *
- *
- *     
- * HISTORY
- *
- *
- * REMARK
- *     None
- *
- *
- **************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+ *****************************************************************************/
+
 #include "stdio.h"
 #include "stdlib.h"
 #include "N9H26_VPOST.h"

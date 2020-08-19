@@ -1,14 +1,11 @@
-/****************************************************************************
- * @file     Secureic.c
- * @version  V1.00
- * $Revision: 4 $
- * $Date: 18/04/25 11:43a $
- * @brief    SPI Securic driver source file
+/**************************************************************************//**
+ * @file     SecureIC.c
+ * @version  V3.00
+ * @brief    N9H26 series SPI Securic driver source file
  *
- * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *****************************************************************************/
-
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 #include "N9H26_SPI_SecureIC.h"
 #include "SecureIC.h"
 #include "string.h"

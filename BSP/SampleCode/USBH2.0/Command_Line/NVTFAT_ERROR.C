@@ -1,15 +1,10 @@
-/****************************************************************************
+/**************************************************************************//**
  * @file     NVTFAT_ERROR.c
- * @version  V1.00
- * $Revision: 4 $
- * $Date: 18/04/25 11:43a $
  * @brief    Get szDescription of the error nErrCode
  *
- * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *****************************************************************************/
-   
- 
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 #ifdef ECOS 
 #include "stdio.h"
 #include "string.h"

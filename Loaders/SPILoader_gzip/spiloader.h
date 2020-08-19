@@ -1,13 +1,10 @@
-/****************************************************************************
+/**************************************************************************//**
  * @file     spiloader.h
- * @version  V1.00
- * $Revision: 4 $
- * $Date: 18/04/25 11:43a $
- * @brief    SpiLoader header file
+ * @brief    Spiloader header file
  *
- * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *****************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 
 /* Enable 4 bit mode */
 //#define __OTP_4BIT__

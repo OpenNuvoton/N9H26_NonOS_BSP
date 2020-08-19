@@ -1,3 +1,11 @@
+/**************************************************************************//**
+ * @file     main.c
+ * @version  V3.00
+ * @brief    N9H26 series I2S demo code
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+ *****************************************************************************/
 
 #include <stdio.h>
 #include "wbio.h"

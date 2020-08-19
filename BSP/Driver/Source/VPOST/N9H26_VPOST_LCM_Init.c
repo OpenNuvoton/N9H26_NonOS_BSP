@@ -1,3 +1,12 @@
+/**************************************************************************//**
+ * @file     N9H26_VPOST_LCM_Init.c
+ * @version  V3.00
+ * @brief    Panel driver file
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+ *****************************************************************************/
+
 #include <string.h>
 #include "wblib.h"
 //#include "w55fa92_reg.h"
