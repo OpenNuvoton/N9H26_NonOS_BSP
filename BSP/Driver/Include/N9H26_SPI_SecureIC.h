@@ -1,11 +1,15 @@
-/**************************************************************************//**
- * @file     N9H26_SPI_SecureIC.h
- * @version  V3.00
- * @brief    N9H26 series SPI Securic driver header file
- *
- * SPDX-License-Identifier: Apache-2.0
- * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
-*****************************************************************************/
+/**
+  ******************************************************************************
+  * @file    N9H26_SPI_SecureIC.h
+  * @author  Winbond FAE YY Huang, FAE Steam Lin
+  * @version V1.0.0
+  * @date    09-December-2015
+  * @brief   This code provide the Demo code for RPMC operation. Please do not copy the rootkey generate method directly.
+		     Rootkey generate method should be keep in secret and should not exposed.		 
+			 
+  *            
+  * COPYRIGHT 2015 Winbond Electronics Corporation.
+*/
 #include "wblib.h"
 unsigned int RPMC_ReadCounterData(void);
 unsigned int RPMC_ReadRPMCstatus(unsigned int checkall);

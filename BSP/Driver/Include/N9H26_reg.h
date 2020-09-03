@@ -1,9 +1,11 @@
-/*
+/**************************************************************************//**
+ * @file     N9H26_reh.h
+ * @version  V3.00
+ * @brief    N9H26 series SYS driver header file
  *
- * Copyright (c) 2011 Nuvoton technology corporation
- * All rights reserved.
- *
- */
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 
 #ifndef _N9H26K_REG_H
 #define _N9H26K_REG_H

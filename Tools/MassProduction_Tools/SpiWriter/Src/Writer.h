@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * @file     Writer.c
+ * @file     Writer.h
  * @brief    SpiWriter header file
  *
  * SPDX-License-Identifier: Apache-2.0

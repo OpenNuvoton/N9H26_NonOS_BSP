@@ -1,3 +1,11 @@
+/**************************************************************************//**
+ * @file     Smpl_OV7670.c
+ * @brief    Initialize OV7670 sample code
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
+
 #include "N9H26.h"
 #include "DrvI2C.h"
 #include "demo.h"

@@ -1,10 +1,11 @@
-/*-----------------------------------------------------------------------------------*/
-/* Nuvoton Technology Corporation confidential                                       */
-/*                                                                                   */
-/* Copyright (c) 2013 by Nuvoton Technology Corporation                              */
-/* All rights reserved                                                               */
-/*                                                                                   */
-/*-----------------------------------------------------------------------------------*/
+/**************************************************************************//**
+ * @file     sdio_sic.c
+ * @version  V3.00
+ * @brief    N9H26 series SIC/SDIO driver source file
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 
 #include <stdio.h>
 #include <string.h>

@@ -1,3 +1,10 @@
+/**************************************************************************//**
+ * @file     demo.h
+ * @brief    N9H26 series VideoIn sample header file
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 #ifndef _VIDEOIN_DEMO
 #define _VIDEOIN_DEMO
 #include "N9H26.h"

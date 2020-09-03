@@ -1,29 +1,11 @@
-/****************************************************************************
-*                                                                           *
-* Copyright (c) 2009 Nuvoton Tech. Corp. All rights reserved.               *
-*                                                                           *
+/**************************************************************************//**
+ * @file     N9H26_GPIO.h
+ * @version  V3.00
+ * @brief    N9H26 series GPIO driver header file
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
-
-/****************************************************************************
-* FILENAME
-*   N9H26K_GPIO.h
-*
-* VERSION
-*   1.0
-*
-* DESCRIPTION
-*   GPIO library header file
-*
-* DATA STRUCTURES
-*   None
-*
-* FUNCTIONS
-*
-* HISTORY
-*
-* REMARK
-*   None
-****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

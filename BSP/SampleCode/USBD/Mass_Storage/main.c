@@ -3,6 +3,7 @@
  * @brief    Demo how to use USB Device & MSC driver to implement MSC Device with
  *           - NAND
  *           - NAND & SD
+ *           - SD Port 0 
  *           - SD Port 0 & Port 1
  *           - Ram Disk
  *           - SPI

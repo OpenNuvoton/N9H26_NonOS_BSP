@@ -1,3 +1,10 @@
+/**************************************************************************//**
+ * @file     file_name.h
+ * @brief    N9H26 series sample header file
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 #undef DBG_PRINTF
 #define DBG_PRINTF		sysprintf
 //#define DBG_PRINTF(...)

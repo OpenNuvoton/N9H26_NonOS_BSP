@@ -1,3 +1,11 @@
+/**************************************************************************//**
+ * @file     N9H26TouchPanel.c
+ * @brief    N9H26 series emWin touch flow
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
+
 #include "GUI.h"
 #include "N9H26.h"
 #include "N9H26TouchPanel.h"

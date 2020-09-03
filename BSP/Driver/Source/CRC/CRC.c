@@ -1,13 +1,11 @@
-/***************************************************************************
- * Copyright (c) 2012 Nuvoton Technology. All rights reserved.
+/**************************************************************************//**
+ * @file     CRC.c
+ * @version  V3.00
+ * @brief    N9H26 series CRC driver source file
  *
- * FILENAME
- *	DrvCRC.c
- * DESCRIPTION
- *	The library for CRC.
- * FUNCTIONS
- *	None
- **************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 
 #include <stdio.h>
 #include <string.h>

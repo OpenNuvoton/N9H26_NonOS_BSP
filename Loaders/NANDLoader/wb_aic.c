@@ -1,27 +1,12 @@
-/***************************************************************************
- *                                                                         									     *
- * Copyright (c) 2008 Nuvoton Technolog. All rights reserved.              					     *
- *                                                                         									     *
- ***************************************************************************/
- 
-/****************************************************************************
-* FILENAME
-*   wb_aic.c
-*
-* VERSION
-*   1.0
-*
-* DESCRIPTION
-*   The AIC related functions of Nuvoton ARM9 MCU
-*
-* HISTORY
-*   2008-06-25  Ver 1.0 draft by Min-Nan Cheng
-* Modification
-*   2011-06-01  Ver 1.1 draft by Shih-Wen Chou
-*
-* REMARK
-*   None
- **************************************************************************/
+/**************************************************************************//**
+ * @file     wb_aic.c
+ * @version  V3.00
+ * @brief    The AIC related functions of Nuvoton ARM9 MCU
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
+
 #include <stdio.h>
 #include "wblib.h"
 #define WB_MIN_INT_SOURCE  1
@@ -81,7 +66,7 @@ sys_pvFunPtr sysIrqHandlerTable[] = { 0,                /* 0 */
                                   WB_Interrupt_Shell,	/* 34 */
                                   WB_Interrupt_Shell,	/* 35 */
                                   WB_Interrupt_Shell,	/* 36 */
-                                  WB_Interrupt_Shell,	/* 37 */  
+                                  WB_Interrupt_Shell,	/* 37 */
                                   WB_Interrupt_Shell,	/* 38 */
                                   WB_Interrupt_Shell,	/* 39 */
                                   WB_Interrupt_Shell,	/* 40 */
@@ -131,7 +116,7 @@ sys_pvFunPtr sysFiqHandlerTable[] = { 0,
                                   WB_Interrupt_Shell,	/* 34 */
                                   WB_Interrupt_Shell,	/* 35 */
                                   WB_Interrupt_Shell,	/* 36 */
-                                  WB_Interrupt_Shell,	/* 37 */  
+                                  WB_Interrupt_Shell,	/* 37 */
                                   WB_Interrupt_Shell,	/* 38 */
                                   WB_Interrupt_Shell,	/* 39 */
                                   WB_Interrupt_Shell,	/* 40 */
@@ -167,12 +152,12 @@ __irq VOID sysIrqHandler()
 
 		_mIPER = inpw(REG_AIC_IPER) >> 2;
 		//outpw(REG_AIC_IPER,0); //For test mode
-		
+
 		_mISNR = inpw(REG_AIC_ISNR);
 		if (_mISNR != 0)
 			if (_mIPER == _mISNR)
 				(*sysIrqHandlerTable[_mIPER])();
-		outpw(REG_AIC_EOSCR, 1);					
+		outpw(REG_AIC_EOSCR, 1);
 	}
 	else
 	{
@@ -182,12 +167,12 @@ __irq VOID sysIrqHandler()
 		for (i=1; i<32; i++)
 			if (_mISR & (1 << i))
 				(*sysIrqHandlerTable[i])();
-				
-		_mISR = inpw(REG_AIC_ISRH);				
+
+		_mISR = inpw(REG_AIC_ISRH);
 		for (i=32; i<WB_NUM_OF_AICREG; i++)
 			if (_mISR & (1 << (i-32)))
-				(*sysIrqHandlerTable[i])();				
-		
+				(*sysIrqHandlerTable[i])();
+
 	}
 }
 #endif
@@ -207,7 +192,7 @@ __irq VOID sysFiqHandler()
 		if (_mISNR != 0)
 			if (_mIPER == _mISNR)
 				(*sysFiqHandlerTable[_mIPER])();
-		outpw(REG_AIC_EOSCR, 1);	
+		outpw(REG_AIC_EOSCR, 1);
 
 	}
 	else
@@ -218,11 +203,11 @@ __irq VOID sysFiqHandler()
 		for (i=1; i<32; i++)
 			if (_mISR & (1 << i))
 				(*sysFiqHandlerTable[i])();
-				
-		_mISR = inpw(REG_AIC_ISRH);				
+
+		_mISR = inpw(REG_AIC_ISRH);
 		for (i=32; i<WB_NUM_OF_AICREG; i++)
 			if (_mISR & (1 << (i-32)))
-				(*sysFiqHandlerTable[i])();					
+				(*sysFiqHandlerTable[i])();
 	}
 }
 
@@ -236,7 +221,7 @@ VOID sysInitializeAIC()
 	//PVOID _mOldIrqVect, _mOldFiqVect;
 
 	*((unsigned volatile *)0x18) = 0xe59ff018;
-	*((unsigned volatile *)0x1C) = 0xe59ff018;   
+	*((unsigned volatile *)0x1C) = 0xe59ff018;
 
 #ifndef __FreeRTOS__
 	//_mOldIrqVect = *(PVOID volatile *)0x38;
@@ -277,7 +262,7 @@ ERRCODE sysEnableInterrupt(INT_SOURCE_E eIntNo)
 	  	return (ERRCODE)WB_PM_INVALID_IRQ_NUM;
 
 	if (eIntNo > 31)
-		outpw(REG_AIC_MECRH, (1 << (eIntNo-32)));	
+		outpw(REG_AIC_MECRH, (1 << (eIntNo-32)));
 	else
 		outpw(REG_AIC_MECR, (1 << eIntNo));
 	return Successful;
@@ -372,7 +357,7 @@ PVOID sysInstallISR(INT32 nIntTypeLevel, INT_SOURCE_E eIntNo, PVOID pvNewISR)
 		default:
 		   ;
 	}
-	return _mOldVect;	
+	return _mOldVect;
 }
 //OK
 ERRCODE sysSetGlobalInterrupt(INT32 nIntState)
@@ -386,7 +371,7 @@ ERRCODE sysSetGlobalInterrupt(INT32 nIntState)
 
 		case DISABLE_ALL_INTERRUPTS:
 		   	outpw(REG_AIC_MDCR, 0xFFFFFFFF);
-		   	outpw(REG_AIC_MDCRH, 0xFFFF);	
+		   	outpw(REG_AIC_MDCRH, 0xFFFF);
 		break;
 
 		default:
@@ -401,21 +386,21 @@ ERRCODE sysSetInterruptPriorityLevel(INT_SOURCE_E eIntNo, UINT32 uIntLevel)
 
 	if ((eIntNo > WB_MAX_INT_SOURCE) || (eIntNo < WB_MIN_INT_SOURCE))
 	  	return (ERRCODE)WB_PM_INVALID_IRQ_NUM;
-	
+
 	_mRegValue = AICRegRead(REG_AIC_SCR1, (eIntNo/4));
 	_mRegValue = _mRegValue & ( 0xFFFFFFF8<<((eIntNo%4)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
 	_mRegValue = _mRegValue | uIntLevel<<((eIntNo%4)*8);
 	AICRegWrite(REG_AIC_SCR1, (eIntNo/4), _mRegValue);
 
-	return Successful;		
+	return Successful;
 }
 //OK
 /*
-typedef enum 
+typedef enum
 {
-	eDRVAIC_LOW_LEVEL, 
-	eDRVAIC_HIGH_LEVEL, 
-	eDRVAIC_FALLING, 
+	eDRVAIC_LOW_LEVEL,
+	eDRVAIC_HIGH_LEVEL,
+	eDRVAIC_FALLING,
 	eDRVAIC_RISING
 }E_DRVAIC_INT_TYPE;
 */
@@ -430,7 +415,7 @@ ERRCODE sysSetInterruptType(INT_SOURCE_E eIntNo, UINT32 uIntSourceType)
 	_mRegValue = _mRegValue & ( 0xFFFFFF3F<<((eIntNo & 0x3)*8) | ( (1<<((eIntNo%4)*8))-1 ) );
 	_mRegValue = _mRegValue | ( uIntSourceType<<((eIntNo & 0x3)*8 + 6) );
 	AICRegWrite(REG_AIC_SCR1, (eIntNo >> 2), _mRegValue );
-   
+
 	return Successful;
 }
 //OK

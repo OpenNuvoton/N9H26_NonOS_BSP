@@ -1,7 +1,7 @@
 /**************************************************************************//**
- * @file     N9H26_USBH20.c
+ * @file     N9H26_USBH20.h
  * @version  V3.00
- * @brief    N9H26 series USB Host 2.0 driver source file
+ * @brief    N9H26 series USB Host 2.0 driver header file
  *
  * SPDX-License-Identifier: Apache-2.0
  * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.

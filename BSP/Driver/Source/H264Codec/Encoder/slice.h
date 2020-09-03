@@ -1,3 +1,12 @@
+/**************************************************************************//**
+ * @file     slice.h
+ * @version  V3.00
+ * @brief    N9H26 series H.264 driver header file
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
+
 #ifndef _SLICE_H_
 #define _SLICE_H_
 

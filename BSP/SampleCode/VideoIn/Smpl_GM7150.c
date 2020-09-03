@@ -1,3 +1,11 @@
+/**************************************************************************//**
+ * @file     Smpl_GM7150.c
+ * @brief    Initialize GM7150 sample code
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
+
 #include "N9H26.h"
 #include "demo.h"
 #include "DrvI2C.h"

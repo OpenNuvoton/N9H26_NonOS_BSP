@@ -1,8 +1,10 @@
-/*----------------------------------------------------------------------------------*/
-/* Copyright (c) 2013 by Nuvoton Technology Corporation.  All rights reserved.      */
-/*                                                                                  */
-/* Description: The main program of SDWriter.                                       */
-/*----------------------------------------------------------------------------------*/
+/**************************************************************************//**
+ * @file     main.c
+ * @brief    SdWriter source code.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>

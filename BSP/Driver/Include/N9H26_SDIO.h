@@ -1,13 +1,12 @@
-/***************************************************************************
- * Copyright (c) 2013 Nuvoton Technology. All rights reserved.
+/**************************************************************************//**
+ * @file     N9H26_SDIO.h
+ * @version  V3.00
+ * @brief    N9H26 series SIC/SDIO driver header file
  *
- * FILENAME
- *     N9H26_sdio.h
- * DESCRIPTION
- *     The header file of SIC/SDIO library.
- * FUNCTIONS
- *     None
- **************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
+
 #ifndef _N9H26_SDIO_H
 #define _N9H26_SDIO_H
 

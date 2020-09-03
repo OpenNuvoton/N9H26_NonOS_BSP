@@ -1,11 +1,14 @@
-/***************************************************************
- *                                                             *
- * Copyright (c) Nuvoton Technology Corp. All rights reserved. *
- *                                                             *
- ***************************************************************/
+/**************************************************************************//**
+ * @file     N9H26_RF.h
+ * @version  V3.00
+ * @brief    N9H26 series I2C driver header file
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/ 
  
-#ifndef __DRVRF_H__
-#define __DRVRF_H__
+#ifndef _N9H26_RF_H_
+#define _N9H26_RF_H_
 
 #include "wblib.h"
 

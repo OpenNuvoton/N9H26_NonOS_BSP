@@ -7,9 +7,10 @@
  * @version  V0.10
  * $Revision: 2 $
  * $Date: 15/05/27 2:06p $
- * @brief    Demonstrate SPI(N9H20) to Uart(mini58) 
+ * @brief    Demonstrate SPI(N9H26) to Uart(mini58) 
  *
  * @note
+ * SPDX-License-Identifier: Apache-2.0 
  * Copyright (C) 2015 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include <stdio.h>
