@@ -1,3 +1,10 @@
+/**************************************************************************//**
+ * @file     main_vpe.c
+ * @brief    Demonstrate VPE functions
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 #include "N9H26.h"
 
 #define LCD_WIDTH   320

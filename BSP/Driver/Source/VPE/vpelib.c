@@ -1,30 +1,11 @@
-/***************************************************************************
- *                                                                         *
- * Copyright (c) 2018 Nuvoton Technology. All rights reserved.             *
- *                                                                         *
- ***************************************************************************/
-
-/****************************************************************************
+/**************************************************************************//**
+ * @file     vpelib.c
+ * @version  V3.00
+ * @brief    N9H26 series VPE driver source file
  *
- * FILENAME
- *     vpelib.c
- *
- * VERSION
- *     1.0
- *
- * DESCRIPTION
- *     The header file of N9H26 vpe library.
- *
- * DATA STRUCTURES
- *     None
- *
- * FUNCTIONS
- *     None
- *
- *
- * REMARK
- *     None
- **************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 #include "wblib.h"
 #include "N9H26_VPE.h"
 

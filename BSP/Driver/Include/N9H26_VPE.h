@@ -1,3 +1,11 @@
+/**************************************************************************//**
+ * @file     N9H26_VPE.h
+ * @version  V3.00
+ * @brief    N9H26 series VPE driver header file
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 #ifndef __N9H26_VPE_H__
 #define __N9H26_VPE_H__
 #ifdef  __cplusplus

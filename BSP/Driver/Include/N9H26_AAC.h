@@ -1,9 +1,12 @@
-/****************************************************************
- *                                                              *
- * Copyright (c) Nuvoton Technology Corp. All rights reserved.  *
- *                                                              *
- ****************************************************************/
-
+/**************************************************************************//**
+ * @file     N9H26_AAC.h
+ * @version  V3.00
+ * @brief    N9H26 series AAC driver header file
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
+ 
 #ifndef _DRVACC_H
 #define _DRVACC_H
  

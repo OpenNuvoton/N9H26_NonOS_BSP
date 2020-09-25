@@ -1,30 +1,11 @@
-/***************************************************************************
- *                                                                         *
- * Copyright (c) 2018 Nuvoton Technology. All rights reserved.             *
- *                                                                         *
- ***************************************************************************/
-
-/****************************************************************************
+/**************************************************************************//**
+ * @file     vpeIoctl.c
+ * @version  V3.00
+ * @brief    N9H26 series VPE io control source file
  *
- * FILENAME
- *     vpeIoctl.c
- *
- * VERSION
- *     1.0
- *
- * DESCRIPTION
- *     The file for io control
- *
- * DATA STRUCTURES
- *     None
- *
- * FUNCTIONS
- *     None
- *
- *
- * REMARK
- *     None
- **************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+*****************************************************************************/
 #include "string.h"
 #include "wblib.h"
 #include "N9H26_VPE.h"

@@ -1,3 +1,10 @@
+;/**************************************************************************//**
+; * @file     wb_init.s
+; * @brief    N9H26 series startup code
+; *
+; * SPDX-License-Identifier: Apache-2.0
+; * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+; *****************************************************************************/
 
 
 	AREA WB_INIT, CODE, READONLY
@@ -19,7 +26,7 @@ F_BIT		EQU		0x40
 ;----------------------------
 ; System / User Stack Memory
 ;----------------------------
-RAM_Limit       EQU     0x4000000          	; For unexpanded hardware board
+RAM_Limit       EQU     0x2000000          	; For unexpanded hardware board
 
 UND_Stack		EQU		RAM_Limit
 Abort_Stack		EQU		RAM_Limit-256
