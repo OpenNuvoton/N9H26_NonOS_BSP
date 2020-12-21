@@ -226,7 +226,7 @@ VOID fmiSM_Initial(FMI_SM_INFO_T *pSM)
     //--- Set register to disable Mask ECC feature
     outpw(REG_SMREAREA_CTL, inpw(REG_SMREAREA_CTL) & ~SMRE_MECC);
 
-    //--- Set registers that depend on page size. According to N9H26 sepc, the correct order is
+    //--- Set registers that depend on page size. According to the sepc, the correct order is
     //--- 1. SMCR_BCH_TSEL  : to support T24, MUST set SMCR_BCH_TSEL before SMCR_PSIZE.
     //--- 2. SMCR_PSIZE     : set SMCR_PSIZE will auto change SMRE_REA128_EXT to default value.
     //--- 3. SMRE_REA128_EXT: to use non-default value, MUST set SMRE_REA128_EXT after SMCR_PSIZE.
@@ -377,7 +377,9 @@ INT fmiSM_ReadID(FMI_SM_INFO_T *pSM, NDISK_T *NDISK_info)
     NDISK_info->vendor_ID = tempID[0];
     NDISK_info->device_ID = tempID[1];
 
-    if (tempID[0] == 0xC2)
+    if (((tempID[0] == 0xC2) && (tempID[1] == 0x79)) ||
+        ((tempID[0] == 0xC2) && (tempID[1] == 0x76)))
+        // Don't support ECC for NAND Interface ROM
         pSM->bIsCheckECC = FALSE;
     else
         pSM->bIsCheckECC = TRUE;
@@ -564,6 +566,29 @@ INT fmiSM_ReadID(FMI_SM_INFO_T *pSM, NDISK_T *NDISK_info)
             break;
 
         case 0xdc:  // 512M
+            // 2020/10/08, support Micron MT29F4G08ABAEA 512MB NAND flash
+            if ((tempID[0]==0x2C)&&(tempID[2]==0x90)&&(tempID[3]==0xA6)&&(tempID[4]==0x54))
+            {
+                pSM->uBlockPerFlash  = 2047;        // block index with 0-base. = physical blocks - 1
+                pSM->uPagePerBlock   = 64;
+                pSM->nPageSize       = NAND_PAGE_4KB;
+                pSM->uSectorPerBlock = pSM->nPageSize / 512 * pSM->uPagePerBlock;
+                pSM->bIsMLCNand      = FALSE;
+                pSM->bIsMulticycle   = TRUE;
+                pSM->bIsNandECC24    = TRUE;
+
+                NDISK_info->NAND_type     = (pSM->bIsMLCNand ? NAND_TYPE_MLC : NAND_TYPE_SLC);
+                NDISK_info->write_page_in_seq = NAND_TYPE_PAGE_IN_SEQ;
+                NDISK_info->nZone         = 1;      // number of zones
+                NDISK_info->nBlockPerZone = pSM->uBlockPerFlash + 1;   // blocks per zone
+                NDISK_info->nPagePerBlock = pSM->uPagePerBlock;
+                NDISK_info->nPageSize     = pSM->nPageSize;
+                NDISK_info->nLBPerZone    = 2000;   // logical blocks per zone
+
+                pSM->uSectorPerFlash = pSM->uSectorPerBlock * NDISK_info->nLBPerZone / 1000 * 999;
+                break;
+            }
+
             // 2017/9/19, To support both Maker Founder MP4G08JAA
             //                        and Toshiba TC58NVG2S0HTA00 512MB NAND flash
             if ((tempID[0]==0x98)&&(tempID[2]==0x90)&&(tempID[3]==0x26)&&(tempID[4]==0x76))
@@ -582,7 +607,7 @@ INT fmiSM_ReadID(FMI_SM_INFO_T *pSM, NDISK_T *NDISK_info)
                 NDISK_info->nBlockPerZone = pSM->uBlockPerFlash + 1;   // blocks per zone
                 NDISK_info->nPagePerBlock = pSM->uPagePerBlock;
                 NDISK_info->nPageSize     = pSM->nPageSize;
-                NDISK_info->nLBPerZone    = 4000;   // logical blocks per zone
+                NDISK_info->nLBPerZone    = 2000;   // logical blocks per zone
 
                 pSM->uSectorPerFlash = pSM->uSectorPerBlock * NDISK_info->nLBPerZone / 1000 * 999;
                 break;
@@ -1683,7 +1708,7 @@ INT fmiSM_Write_large_page_ALC(FMI_SM_INFO_T *pSM, UINT32 uSector, UINT32 ucColA
  *  and then check the ECC error.
  *  Support page size 2K / 4K / 8K.
  *---------------------------------------------------------------------------*/
-INT fmiSM_Read_move_data_ecc_check(FMI_SM_INFO_T *pSM, UINT32 uDAddr)
+INT fmiSM_Read_move_data_ecc_check(FMI_SM_INFO_T *pSM, UINT32 uDAddr, UINT32 uPage)
 {
     UINT32 uStatus;
     UINT32 uErrorCnt, ii, jj;
@@ -1764,7 +1789,7 @@ INT fmiSM_Read_move_data_ecc_check(FMI_SM_INFO_T *pSM, UINT32 uDAddr)
                             // 2011/8/17, mask uErrorCnt since Fx_ECNT just has 5 valid bits
                             uErrorCnt = (uStatus >> 2) & 0x1F;
                             fmiSM_CorrectData_BCH(jj*4+ii, uErrorCnt, (UINT8*)uDAddr);
-                            DBG_PRINTF("Warning: Field %d have %d BCH error. Corrected!!\n", jj*4+ii, uErrorCnt);
+                            ERR_PRINTF("Warning: Page %d Field %d have %d BCH error. Corrected!!\n", uPage, jj*4+ii, uErrorCnt);
                             break;
                         }
                         else if (((uStatus & ECCST_F1_STAT)==0x02) ||
@@ -1834,7 +1859,7 @@ INT fmiSM_Read_large_page(FMI_SM_INFO_T *pSM, UINT32 uPage, UINT32 uDAddr)
     result = fmiSM2BufferM_large_page(pSM, uPage, 0);
     if (result != 0)
         return result;  // fail for FMI_SM_RB_ERR
-    result = fmiSM_Read_move_data_ecc_check(pSM, uDAddr);
+    result = fmiSM_Read_move_data_ecc_check(pSM, uDAddr, uPage);
     return result;
 }
 
