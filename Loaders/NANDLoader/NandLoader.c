@@ -12,9 +12,9 @@
 
 // define DATE CODE and show it when running to make maintaining easy.
 #ifdef __USER_DEFINE_FUNC
-#define DATE_CODE   "20201214_Logo"
+#define DATE_CODE   "20210315_Logo"
 #else
-#define DATE_CODE   "20201214"
+#define DATE_CODE   "20210315"
 #endif
 
 /* global variable */
