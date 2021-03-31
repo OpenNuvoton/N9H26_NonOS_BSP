@@ -883,9 +883,9 @@
 #define REG_MPURD	 			(VPOST_BA+0x0c)		// Reserved
 
 #define REG_LCM_TCON1 			(VPOST_BA+0x10)		// R/W: Timing Control Register 1
-	#define TCON1_HSPW   			NVTBIT(23,16)		// Horizontal sync pulse width determines the HSYNC pulse's high level width by counting the number of the LCD Pixel Clock.
-	#define TCON1_HBPD   			NVTBIT(15,8)		// Horizontal back porch is the number of LCD Pixel Clock periods between the falling edge of HSYNC and the start of active data.
-	#define TCON1_HFPD   			NVTBIT(7,0)			// Horizontal front porch is the number of LCD Pixel Clock periods between the end of active data and the rising edge of HSYNC.
+	#define TCON1_HSPW   			NVTBIT(31,24)		// Horizontal sync pulse width determines the HSYNC pulse's high level width by counting the number of the LCD Pixel Clock.
+	#define TCON1_HBPD   			NVTBIT(23,12)		// Horizontal back porch is the number of LCD Pixel Clock periods between the falling edge of HSYNC and the start of active data.
+	#define TCON1_HFPD   			NVTBIT(11,0)			// Horizontal front porch is the number of LCD Pixel Clock periods between the end of active data and the rising edge of HSYNC.
 
 #define REG_LCM_TCON2 			(VPOST_BA+0x14)		// R/W: Timing Control Register 2
 	#define TCON2_VSPW				NVTBIT(23,16)		// Vertical sync pulse width determines the VSYNC pulse's high level width by counting the number of inactive lines.
