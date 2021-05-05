@@ -34,7 +34,7 @@ int main()
 {
     WB_UART_T uart;
     UINT32 u32Item, u32ExtFreq;
-    UINT32 u32PllOutKHz;
+    UINT32 u32PllOutHz;
 
     u32ExtFreq = sysGetExternalClock();
     uart.uart_no = WB_UART_1;
@@ -47,13 +47,13 @@ int main()
     sysInitializeUART(&uart);
     sysSetLocalInterrupt(ENABLE_FIQ_IRQ);
 
-    u32PllOutKHz = sysGetPLLOutputHz(eSYS_UPLL, u32ExtFreq);
-    DBG_PRINTF("Power on UPLL out frequency %d Khz\n", u32PllOutKHz);
-    u32PllOutKHz = sysGetPLLOutputHz(eSYS_MPLL, u32ExtFreq);
-    DBG_PRINTF("Power on MPLL out frequency %d Khz\n", u32PllOutKHz);
+    u32PllOutHz = sysGetPLLOutputHz(eSYS_UPLL, u32ExtFreq);
+    DBG_PRINTF("Power on UPLL out frequency %d Khz\n", u32PllOutHz);
+    u32PllOutHz = sysGetPLLOutputHz(eSYS_MPLL, u32ExtFreq);
+    DBG_PRINTF("Power on MPLL out frequency %d Khz\n", u32PllOutHz);
 
-    u32PllOutKHz = sysGetAPBClock();
-    DBG_PRINTF("APB %d Khz\n", u32PllOutKHz);
+    u32PllOutHz = sysGetAPBClock();
+    DBG_PRINTF("APB %d Hz\n", u32PllOutHz);
 
     /**********************************************************************************************
      * Clock Constraints:
@@ -86,8 +86,8 @@ int main()
      *********************************************************************************************/
     sysSetDramClock(eSYS_MPLL, 360000000, 360000000);
     sysSetSystemClock(eSYS_UPLL,            //E_SYS_SRC_CLK eSrcClk,
-                      240000000,            //UINT32 u32PllKHz,
-                      240000000);           //UINT32 u32SysKHz,
+                      240000000,            //UINT32 u32PllHz,
+                      240000000);           //UINT32 u32SysHz,
     sysSetCPUClock(240000000/2);
 #endif
 
@@ -115,8 +115,8 @@ int main()
 
         DBG_PRINTF("REG_CLKDIV0 = 0x%x\n", inp32(REG_CLKDIV0));
         DBG_PRINTF("REG_CLKDIV3 = 0x%x\n", inp32(REG_CLKDIV3));
-        DBG_PRINTF("DRAM frequency %d Khz\n", sysGetDramClock());
-        DBG_PRINTF("SYS frequency %d Khz\n", sysGetSystemClock());
+        DBG_PRINTF("DRAM frequency %d Hz\n", sysGetDramClock());
+        DBG_PRINTF("SYS frequency %d Hz\n", sysGetSystemClock());
 
         //outp32(0xb0000084, 0x03);
         //outp32(0xb0000230, 0x85);

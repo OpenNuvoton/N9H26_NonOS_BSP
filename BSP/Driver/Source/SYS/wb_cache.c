@@ -115,12 +115,11 @@ INT32 sysEnableCache(UINT32 uCacheOpMode)
 #pragma GCC optimize ("O0")
 void sys_flush_and_clean_dcache(void)
 {
-    volatile register int reg2;
     __asm volatile(
-        " tci_loop100:                              \n"
-        "     MRC p15, #0, r15, c7, c14, #3         \n"     /* test clean and invalidate */
-        "     BNE tci_loop100                       \n"
-        : : : "memory");
+        "tci_loop:  \n\t"
+        "MRC p15, #0, r15, c7, c14, #3  \n\t" // test clean and invalidate
+        "BNE tci_loop  \n\t"
+    );
 }
 #pragma GCC pop_options
 #else
@@ -185,7 +184,7 @@ VOID sysDisableCache()
 
 VOID sysFlushCache(INT32 nCacheType)
 {
-    volatile int temp;
+    int temp;
 
     switch (nCacheType)
     {
@@ -263,7 +262,7 @@ VOID sysFlushCache(INT32 nCacheType)
 
 VOID sysInvalidCache()
 {
-    volatile int temp;
+    int temp;
 
 #if defined (__GNUC__) && !(__CC_ARM)
     __asm volatile

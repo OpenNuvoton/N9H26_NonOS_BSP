@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * @file     Depop.c
+ * @file     depop.c
  * @brief    NandLoader source code for depop.
  *
  * SPDX-License-Identifier: Apache-2.0

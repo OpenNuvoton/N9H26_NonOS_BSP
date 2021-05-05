@@ -1,13 +1,13 @@
 ;/*****************************************************************************
-; * @file     GCC.ld
-; * @brief    N32926 link file
+; * @file     gcc_arm_SRAM_Loader.ld
+; * @brief    N9H26 link file for Loader
 ; *
 ; * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
 ; *****************************************************************************/
-#if defined(N9H26K6_64MB)
-    #define MEMSIZE 0x4000000
-    #define EXEADDR 0x900000
-#endif 
+
+#define MEMSIZE 0x4000000
+#define EXEADDR 0x900000    
+ 
 
 ENTRY(__vector)
 /*
@@ -19,17 +19,10 @@ stack_size = 0x9000;
 /* define beginning and ending of stack */
 _stack_start = ORIGIN(RAM)+LENGTH(RAM);
 _stack_end = _stack_start - stack_size;
-
-
 MEMORY
 {
     RAM  (rwx)   : ORIGIN = EXEADDR, LENGTH = MEMSIZE
 }
-
-
-
-PROVIDE ( _Heap_Begin = __heap_start__ ) ;
-PROVIDE ( _Heap_Limit = __heap_end__ ) ;
 
 SECTIONS
 {
@@ -51,72 +44,52 @@ SECTIONS
         *(.rodata*);
         . = ALIGN(4);
 
-        /* etext = .; */
+        etext = .;
 
         PROVIDE(__text_end = .);
     } > RAM
 
     . = ALIGN(4);
-    _etext = .;
+    _etext = . ;
+    PROVIDE (etext = .);
+
     .data : AT (_etext)
     {
-		__data_start__ = .;
-		/* *(vtable) */
-		/* *(.data*)*/
-	
-		. = ALIGN(4);
-		/* preinit data */
-		PROVIDE_HIDDEN (__preinit_array_start = .);
-		KEEP(*(.preinit_array))
-		PROVIDE_HIDDEN (__preinit_array_end = .);
-	
-		. = ALIGN(4);
-		/* init data */
-		PROVIDE_HIDDEN (__init_array_start = .);
-		KEEP(*(SORT(.init_array.*)))
-		KEEP(*(.init_array))
-		PROVIDE_HIDDEN (__init_array_end = .);
-	
-	
-		. = ALIGN(4);
-		/* finit data */
-		PROVIDE_HIDDEN (__fini_array_start = .);
-		KEEP(*(SORT(.fini_array.*)))
-		KEEP(*(.fini_array))
-		PROVIDE_HIDDEN (__fini_array_end = .);
-	
-		KEEP(*(.jcr*))
-		. = ALIGN(4);
-		/* All data end */
-		__data_end__ = .;
-	
+        PROVIDE(__data_start__ = .);
+        _data = . ;
+        *(.data)
+        . = ALIGN(4);
+        PROVIDE(__data_end__ = .);
     } > RAM
 
-    /* Uninitialized data section */
     . = ALIGN(4);
+    _edata = . ;
+    PROVIDE (edata = .);
+
+    sbss = .;
     .bss :
     {
-    /*  Used by the startup in order to initialize the .bss secion */
-        _sbss = .;         /* define a global symbol at bss start */
-        __bss_start__ = _sbss;
+        PROVIDE (__bss_start__ = .);
         *(.bss)
-        *(.bss*)
+        *(.bss.**)
         *(COMMON)
-
         . = ALIGN(4);
-        _ebss = .;         /* define a global symbol at bss end */
-        __bss_end__ = _ebss;
-    } >RAM
+        PROVIDE (__bss_end__ = .);
+    }>RAM
     bss_size = __bss_end__ - __bss_start__;
     heap_size = _stack_start - __bss_end__;
-    . = ALIGN(4);
-    free_memory_start = .;
+    ebss = .;
+    bss_size = ebss - sbss;
+
+    . = ALIGN(8);	
     .heap :
     {
-    	__heap_start__ = .; 
+        PROVIDE (__heap_start__ = .);
         . = . + heap_size;
-        __heap_end__ = .;  
-    } > RAM
-
+        end = .;
+        PROVIDE (__heap_end__ = .);
+    } >RAM
+    
+    __end__ =.;
 }
 

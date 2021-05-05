@@ -498,6 +498,11 @@
               <FileType>1</FileType>
               <FilePath>..\tslib\N9H26TouchPanel.c</FilePath>
             </File>
+            <File>
+              <FileName>N9H26TouchPanel.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\tslib\N9H26TouchPanel.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -517,6 +522,11 @@
               <FileName>GUIConf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\ThirdParty\emWin\Config\GUIConf.c</FilePath>
+            </File>
+            <File>
+              <FileName>GUIConf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\..\ThirdParty\emWin\Config\GUIConf.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1034,6 +1044,11 @@
               <FileType>1</FileType>
               <FilePath>..\tslib\N9H26TouchPanel.c</FilePath>
             </File>
+            <File>
+              <FileName>N9H26TouchPanel.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\tslib\N9H26TouchPanel.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1053,6 +1068,11 @@
               <FileName>GUIConf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\ThirdParty\emWin\Config\GUIConf.c</FilePath>
+            </File>
+            <File>
+              <FileName>GUIConf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\..\ThirdParty\emWin\Config\GUIConf.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1570,6 +1590,11 @@
               <FileType>1</FileType>
               <FilePath>..\tslib\N9H26TouchPanel.c</FilePath>
             </File>
+            <File>
+              <FileName>N9H26TouchPanel.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\tslib\N9H26TouchPanel.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1589,6 +1614,11 @@
               <FileName>GUIConf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\ThirdParty\emWin\Config\GUIConf.c</FilePath>
+            </File>
+            <File>
+              <FileName>GUIConf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\..\ThirdParty\emWin\Config\GUIConf.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -7,8 +7,8 @@
 *****************************************************************************/
 #include "N9H26.h"
 
-#define LCD_WIDTH   320
-#define LCD_HEIGHT  240
+#define LCD_WIDTH   800
+#define LCD_HEIGHT  480
 #define VPE_SOURCE_PATTERN_WIDTH    468
 #define VPE_SOURCE_PATTERN_HEIGHT   88
 
@@ -16,9 +16,9 @@ extern unsigned char g_au8VpeSrcPattern[];
 
 #ifdef __ICCARM__
 #pragma data_alignment = 256
-UINT8 s_VpostFrameBufferPool[320*240*2];
+UINT8 s_VpostFrameBufferPool[LCD_WIDTH * LCD_HEIGHT * 4];
 #else
-UINT8 s_VpostFrameBufferPool[320*240*2] __attribute__((aligned(256)));
+UINT8 s_VpostFrameBufferPool[LCD_WIDTH * LCD_HEIGHT * 4] __attribute__((aligned(256)));
 #endif
 
 void init(void)
@@ -39,6 +39,42 @@ void init(void)
     uart.uart_no = WB_UART_1;
     sysInitializeUART(&uart);
 
+    /**********************************************************************************************
+     * Clock Constraints:
+     * (a) If Memory Clock > System Clock, the source clock of Memory and System can come from
+     *     different clock source. Suggestion MPLL for Memory Clock, UPLL for System Clock
+     * (b) For Memory Clock = System Clock, the source clock of Memory and System must come from
+     *     same clock source
+     *********************************************************************************************/
+#if 0
+    /**********************************************************************************************
+     * Slower down system and memory clock procedures:
+     * If current working clock fast than desired working clock, Please follow the procedure below
+     * 1. Change System Clock first
+     * 2. Then change Memory Clock
+     *
+     * Following example shows the Memory Clock = System Clock case. User can specify different
+     * Memory Clock and System Clock depends on DRAM bandwidth or power consumption requirement.
+     *********************************************************************************************/
+    sysSetSystemClock(eSYS_EXT, 12000000, 12000000);
+    sysSetDramClock(eSYS_EXT, 12000000, 12000000);
+#else
+    /**********************************************************************************************
+     * Speed up system and memory clock procedures:
+     * If current working clock slower than desired working clock, Please follow the procedure below
+     * 1. Change Memory Clock first
+     * 2. Then change System Clock
+     *
+     * Following example shows to speed up clock case. User can specify different
+     * Memory Clock and System Clock depends on DRAM bandwidth or power consumption requirement.
+     *********************************************************************************************/
+    sysSetDramClock(eSYS_MPLL, 360000000, 360000000);
+    sysSetSystemClock(eSYS_UPLL,            //E_SYS_SRC_CLK eSrcClk,
+                      240000000,            //UINT32 u32PllKHz,
+                      240000000);           //UINT32 u32SysKHz,
+#endif
+
+    memset(s_VpostFrameBufferPool, 0x00, (LCD_WIDTH * LCD_HEIGHT * 4));
     lcdFormat.ucVASrcFormat = DRVVPOST_FRAME_RGBx888;
     lcdFormat.nScreenWidth = LCD_WIDTH;
     lcdFormat.nScreenHeight = LCD_HEIGHT;
@@ -79,7 +115,7 @@ void vpe_demo(void)
             if (j == 0)
             {
                 j = 1;
-                k = 320;
+                k = LCD_WIDTH;
             }
             else
             {

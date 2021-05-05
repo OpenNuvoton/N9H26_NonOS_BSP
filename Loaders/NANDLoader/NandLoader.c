@@ -12,9 +12,9 @@
 
 // define DATE CODE and show it when running to make maintaining easy.
 #ifdef __USER_DEFINE_FUNC
-#define DATE_CODE   "20210315_Logo"
+#define DATE_CODE   "20210427_Logo"
 #else
-#define DATE_CODE   "20210315"
+#define DATE_CODE   "20210427"
 #endif
 
 /* global variable */
@@ -151,20 +151,20 @@ _read_:
 
             sys_flush_and_clean_dcache();
 #if defined (__GNUC__) && !(__CC_ARM)
-			__asm
-			(
-				/*----- flush I, D cache & write buffer -----*/
-				"MOV %0, #0x0				\n\t"
-				"MCR p15, 0, %0, c7, c5, #0 	\n\t" /* flush I cache */
-				"MCR p15, 0, %0, c7, c6, #0  \n\t" /* flush D cache */
-				"MCR p15, 0, %0, c7, c10,#4  \n\t" /* drain write buffer */
-
-				/*----- disable Protection Unit -----*/
-				"MRC p15, 0, %0, c1, c0, #0   \n\t" /* read Control register */
-				"BIC %0, %0, #0x01            \n\t"
-				"MCR p15, 0, %0, c1, c0, #0   \n\t" /* write Control register */
-				: :"r"(temp) : "memory"
-			);
+        	__asm volatile
+            (
+                /*----- flush I, D cache & write buffer -----*/
+                "MOV %0, #0x0				\n\t"
+                "MCR p15, 0, %0, c7, c5, #0 	\n\t" /* flush I cache */
+                "MCR p15, 0, %0, c7, c6, #0  \n\t" /* flush D cache */
+                "MCR p15, 0, %0, c7, c10,#4  \n\t" /* drain write buffer */
+        
+                /*----- disable Protection Unit -----*/
+                "MRC p15, 0, %0, c1, c0, #0   \n\t" /* read Control register */
+                "BIC %0, %0, #0x01            \n\t"
+                "MCR p15, 0, %0, c1, c0, #0   \n\t" /* write Control register */
+        		: :"r"(temp) : "memory"
+            );
 #else
             __asm
             {
@@ -190,6 +190,15 @@ _read_:
     return 0;
 }
 
+
+#if defined (__GNUC__)
+    UINT8 image_buffer[8192] __attribute__((aligned (32)));
+#else
+    __align(32) UINT8 image_buffer[8192];
+#endif
+
+unsigned char *imagebuf;
+unsigned int *pImageList;
 
 #define __DDR2__
 #define E_CLKSKEW   0x00888800
@@ -220,7 +229,7 @@ void initClock(void)
     //--- support UPLL 192MHz, MPLL 288MHz, APLL 432MHz
     outp32(REG_CKDQSDS, E_CLKSKEW);
     #ifdef __DDR2__
-        outp32(REG_SDTIME, 0x2A38F726);     // REG_SDTIME for N9H26 288MHz SDRAM clock
+        outp32(REG_SDTIME, 0x2A38F726);     // REG_SDTIME for 288MHz SDRAM clock
         outp32(REG_SDMR, 0x00000432);
         outp32(REG_MISC_SSEL, 0x00000155);  // set MISC_SSEL to Reduced Strength to improve EMI
     #endif
@@ -291,15 +300,6 @@ void initClock(void)
 }
 
 
-#if defined (__GNUC__)
-    UINT8 image_buffer[8192] __attribute__((aligned (32)));
-#else
-    __align(32) UINT8 image_buffer[8192];
-#endif
-
-unsigned char *imagebuf;
-unsigned int *pImageList;
-
 int main()
 {
     NVT_NAND_INFO_T image;
@@ -347,7 +347,7 @@ int main()
     sysprintf("REG_CLKDIV4=0x%08X, HCLK234=0x%X\n", inp32(REG_CLKDIV4), (inp32(REG_CLKDIV4) & HCLK234_N)>>4);
 #endif
 
-    outp32(REG_APBCLK, inp32(REG_APBCLK) | RTC_CKE);     // enable RTC clock since N9H26 IBR disable it.
+    outp32(REG_APBCLK, inp32(REG_APBCLK) | RTC_CKE);     // enable RTC clock since IBR disable it.
     RTC_Check();    // waiting for RTC registers ready for access
 
     // RTC H/W Power Off Function Configuration

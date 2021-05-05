@@ -109,41 +109,43 @@ void initClock(void)
         outp32(REG_SDREF, 0x80C0);
     }
 
-#ifdef __UPLL_NOT_SET__
-    /* 2012/3/7 by CJChen1@nuvoton.com, don't change anything that include */
-    /*      System clock, clock skew, REG_DQSODS and REG_SDTIME. */
-    /*      System clock will follow IBR setting. */
-    sysprintf("SD Loader DONOT set anything and follow IBR setting !!\n");
-#endif  /* __UPLL_NOT_SET__ */
 
-#ifdef __UPLL_240__
-    outp32(REG_CKDQSDS, E_CLKSKEW);
-    #ifdef __DDR2__
-        outp32(REG_SDTIME, 0x2AA9394A);     /* REG_SDTIME for 240MHz system clock */
-        outp32(REG_SDMR, 0x00000432);
-        outp32(REG_MISC_SSEL, 0x00000155);  /* set MISC_SSEL to Reduced Strength to improve EMI */
-    #endif
+    /**********************************************************************************************
+     * Clock Constraints:
+     * (a) If Memory Clock > System Clock, the source clock of Memory and System can come from
+     *     different clock source. Suggestion MPLL for Memory Clock, UPLL for System Clock
+     * (b) For Memory Clock = System Clock, the source clock of Memory and System must come from
+     *     same clock source
+     *********************************************************************************************/
+#if 0
+    /**********************************************************************************************
+     * Slower down system and memory clock procedures:
+     * If current working clock fast than desired working clock, Please follow the procedure below
+     * 1. Change System Clock first
+     * 2. Then change Memory Clock
+     *
+     * Following example shows the Memory Clock = System Clock case. User can specify different
+     * Memory Clock and System Clock depends on DRAM bandwidth or power consumption requirement.
+     *********************************************************************************************/
+    sysSetSystemClock(eSYS_EXT, 12000000, 12000000);
+    sysSetDramClock(eSYS_EXT, 12000000, 12000000);
+#else
+    /**********************************************************************************************
+     * Speed up system and memory clock procedures:
+     * If current working clock slower than desired working clock, Please follow the procedure below
+     * 1. Change Memory Clock first
+     * 2. Then change System Clock
+     *
+     * Following example shows to speed up clock case. User can specify different
+     * Memory Clock and System Clock depends on DRAM bandwidth or power consumption requirement.
+     *********************************************************************************************/
+    sysSetDramClock(eSYS_MPLL, 360000000, 360000000);
+    sysSetSystemClock(eSYS_UPLL,            //E_SYS_SRC_CLK eSrcClk,
+                      240000000,            //UINT32 u32PllKHz,
+                      240000000);           //UINT32 u32SysKHz,
+    sysSetCPUClock(240000000/2);
+#endif
 
-    /* initial DRAM clock BEFORE inital system clock since we change it from low (216MHz by IBR) to high (360MHz) */
-    sysSetDramClock(eSYS_MPLL, 360000000, 360000000);   // change from 216MHz (IBR) to 360MHz,
-
-    /* initial system clock */
-    sysSetSystemClock(eSYS_UPLL,
-                    240000000,      /* Specified the APLL/UPLL clock, unit Hz */
-                    240000000);     /* Specified the system clock, unit Hz */
-    sysSetCPUClock (240000000);     /* Unit Hz */
-    sysSetAPBClock ( 60000000);     /* Unit Hz */
-#endif  /* __UPLL_240__ */
-
-    /* always set APLL to 432MHz */
-    sysSetPllClock(eSYS_APLL, 432000000);
-
-    /* always set HCLK234 to 0 */
-    reg_tmp = inp32(REG_CLKDIV4) | CHG_APB;     /* MUST set CHG_APB to HIGH when configure CLKDIV4 */
-    outp32(REG_CLKDIV4, reg_tmp & (~HCLK234_N));
-
-    u32ExtFreq = sysGetExternalClock();        /* Hz unit */    
-    
     uart.uiFreq = u32ExtFreq;
     uart.uiBaudrate = 115200;
     uart.uiDataBits = WB_DATA_BITS_8;    

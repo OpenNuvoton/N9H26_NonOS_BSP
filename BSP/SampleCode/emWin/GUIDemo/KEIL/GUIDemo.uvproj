@@ -498,6 +498,11 @@
               <FileType>1</FileType>
               <FilePath>..\tslib\N9H26TouchPanel.c</FilePath>
             </File>
+            <File>
+              <FileName>N9H26TouchPanel.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\tslib\N9H26TouchPanel.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -512,11 +517,6 @@
               <FileName>GUI_X.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\ThirdParty\emWin\Config\GUI_X.c</FilePath>
-            </File>
-            <File>
-              <FileName>LCDConf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\ThirdParty\emWin\Config\LCDConf.h</FilePath>
             </File>
             <File>
               <FileName>GUIConf.h</FileName>
@@ -1164,6 +1164,11 @@
               <FileType>1</FileType>
               <FilePath>..\tslib\N9H26TouchPanel.c</FilePath>
             </File>
+            <File>
+              <FileName>N9H26TouchPanel.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\tslib\N9H26TouchPanel.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1178,11 +1183,6 @@
               <FileName>GUI_X.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\ThirdParty\emWin\Config\GUI_X.c</FilePath>
-            </File>
-            <File>
-              <FileName>LCDConf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\ThirdParty\emWin\Config\LCDConf.h</FilePath>
             </File>
             <File>
               <FileName>GUIConf.h</FileName>
@@ -1830,6 +1830,11 @@
               <FileType>1</FileType>
               <FilePath>..\tslib\N9H26TouchPanel.c</FilePath>
             </File>
+            <File>
+              <FileName>N9H26TouchPanel.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\tslib\N9H26TouchPanel.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1844,11 +1849,6 @@
               <FileName>GUI_X.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\ThirdParty\emWin\Config\GUI_X.c</FilePath>
-            </File>
-            <File>
-              <FileName>LCDConf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\ThirdParty\emWin\Config\LCDConf.h</FilePath>
             </File>
             <File>
               <FileName>GUIConf.h</FileName>

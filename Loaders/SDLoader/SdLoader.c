@@ -11,7 +11,7 @@
 #include "turbowriter.h"
 
 // define DATE CODE and show it when running to make maintaining easy.
-#define DATE_CODE   "20200713"
+#define DATE_CODE   "20210427"
 
 /* global variable */
 typedef struct sd_info

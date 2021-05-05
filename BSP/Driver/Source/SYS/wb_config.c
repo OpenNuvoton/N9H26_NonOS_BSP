@@ -1088,26 +1088,27 @@ void _dramClockSwitch(register E_SYS_SRC_CLK eSrcClk,
 
 
     //Set Pll clock
-    if(eSrcClk == eSYS_MPLL)
+    if(inp32(SRAM_SRCClk) == eSYS_MPLL)
     {
-        outp32(REG_MPLLCON, u32PllReg);
+        outp32(REG_MPLLCON, inp32(SRAM_PLLREG));
         while((inp32(REG_POR_LVRD)&MPLL_LKDT)==0);
     }
-    else if(eSrcClk == eSYS_APLL)
+    else if(inp32(SRAM_SRCClk)  == eSYS_APLL)
     {
-        outp32(REG_APLLCON, u32PllReg);
+        outp32(REG_APLLCON, inp32(SRAM_PLLREG));
         while((inp32(REG_POR_LVRD)&APLL_LKDT)==0);
     }
-    else if(eSrcClk == eSYS_UPLL)
+    else if(inp32(SRAM_SRCClk)  == eSYS_UPLL)
     {
-        outp32(REG_UPLLCON, u32PllReg);
+        outp32(REG_UPLLCON, inp32(SRAM_PLLREG));
         while((inp32(REG_POR_LVRD)&UPLL_LKDT)==0);
     }
 
 
 
     //Set DRAM clock divider and source
-    outp32(REG_CLKDIV7,  u32DramClkDiv);
+    //outp32(REG_CLKDIV7,  u32DramClkDiv);
+    outp32(REG_CLKDIV7, inp32(SRAM_DRAMDIVI));
 #if 0
     for(dly=0; dly<10; dly++);
 #else
@@ -1281,11 +1282,11 @@ void _dramClockSwitch(register E_SYS_SRC_CLK eSrcClk,
             }
 #endif
 #endif
+						
 #if 0
             dly = (inp32(REG_CHIPCFG)&SDRAMSEL)>>4;
-//#else
-#ifdef __GNUC__
-#if 0
+#else
+  #ifdef __GNUC__
             __asm
             (
                 "  MOV     %2, #0xb0000000  \n"
@@ -1295,18 +1296,9 @@ void _dramClockSwitch(register E_SYS_SRC_CLK eSrcClk,
                 "  MOV     %0, %2           \n"
                 : : "r"(reg2), "r"(reg1), "r"(reg0) :"memory"
             );
+  #endif
 #endif
-#else
-            __asm
-            {
-                MOV     reg0, #0xb0000000
-                LDR     reg0,[reg0, #4]
-                MOV     reg0, reg0, LSL #26
-                MOV     reg0, reg0, LSR #30
-                MOV     dly, reg0
-            }
-#endif
-#endif
+						
 #ifdef __GNUC__
             outp32(0x1FFFFF0, 0);
             if( inp32(SRAM_MEMTYPE) == 3)
@@ -1980,7 +1972,8 @@ UINT32 sysSetDramClock(E_SYS_SRC_CLK eSrcClk, UINT32 u32PLLClockHz, UINT32 u32Dd
     u32FinHz = sysGetExternalClock();
     g_i32REG_MPLL = _sysGetPLLControlRegister((u32FinHz/1000), u32PLLClockHz);
 
-    //sysprintf("Want to set DRAM DIV REG = 0x%x\n",u32DramClockReg);
+    //sysprintf("Set DRAM DIV REG = 0x%x\n",u32DramClockReg);//Offset 240
+    //sysprintf("Set DRAM PLL REG = 0x%x\n",g_i32REG_MPLL);//Offset 228
     _dramClockSwitchStart(eSrcClk,          /* PLL clock source */
                           g_i32REG_MPLL,  /* From MLL */
                           u32DdrClock/2,  /* SDIC clock to judge high or low frequency */
