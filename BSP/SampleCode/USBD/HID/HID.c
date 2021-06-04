@@ -487,16 +487,16 @@ void hidInit(void)
 
 #ifdef HID_MOUSE
     /* Set the HID report descriptor */
-    usbdInfo.pu32HIDRPTDescriptor =  (PUINT32) &g_HID_au8MouseReportDescriptor;
-    usbdInfo.u32HIDRPTDescriptorLen = g_HID_u32MouseReportDescriptorSize;
+    usbdInfo.pu32HIDRPTDescriptor[0] =  (PUINT32) &g_HID_au8MouseReportDescriptor;
+    usbdInfo.u32HIDRPTDescriptorLen[0] = g_HID_u32MouseReportDescriptorSize;
     usbdInfo.pfnEPACallBack = EPA_Handler;
     g_u8EPAReady = 1;
 #endif
 
 #ifdef HID_KEYBOARD
     /* Set the HID report descriptor */
-    usbdInfo.pu32HIDRPTDescriptor = (PUINT32) &g_HID_au8KeyboardReportDescriptor;
-    usbdInfo.u32HIDRPTDescriptorLen = g_HID_u32KeyboardReportDescriptorSize;
+    usbdInfo.pu32HIDRPTDescriptor[0] = (PUINT32) &g_HID_au8KeyboardReportDescriptor;
+    usbdInfo.u32HIDRPTDescriptorLen[0] = g_HID_u32KeyboardReportDescriptorSize;
 #endif
 
     usbdInfo.pu32StringDescriptor[0] = (PUINT32) &HID_StringDescriptor0;

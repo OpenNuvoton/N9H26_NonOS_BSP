@@ -160,5 +160,5 @@ INT jpegSetQTAB(
 
 INT jpegWait(VOID);
 VOID jpegIoctl(UINT32 cmd, UINT32 arg0, UINT32 arg1);
-
+BOOL jpegPollInt(UINT32 u32Intflag);
 #endif
