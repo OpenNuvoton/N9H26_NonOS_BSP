@@ -446,9 +446,9 @@
               <FilePath>..\..\..\BSP\Library\IPLib\N9H26_SYS.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_GIANTPLUS_GPM1006D.lib</FileName>
+              <FileName>N9H26_VPOST_FW050TFT_800x480.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_GIANTPLUS_GPM1006D.lib</FilePath>
+              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>
@@ -478,7 +478,7 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>240MHz_GiantPlus_QVGA</TargetName>
+      <TargetName>240MHz_FW050TFT_800x480_24B</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -514,14 +514,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\SpiLoader_gzip_Data\GIANTPLUS_GPM1006D0\</OutputDirectory>
-          <OutputName>N9H26_SpiLoader_gzip_240MHz_GiantPlus_QVGA</OutputName>
+          <OutputDirectory>.\SpiLoader_gzip_Data\FW050TFT_800x480_24B\</OutputDirectory>
+          <OutputName>N9H26_SpiLoader_gzip_240MHz_FW050TFT_800x480_24B</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\SpiLoader_gzip_Data\GIANTPLUS_GPM1006D0\</ListingPath>
+          <ListingPath>.\SpiLoader_gzip_Data\FW050TFT_800x480_24B\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -818,7 +818,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>__LCD_320x240__ __UPLL_240__</Define>
+              <Define>__LCM_800x480__ __UPLL_240__</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\BSP\Driver\Include;..\ziplib</IncludePath>
             </VariousControls>
@@ -917,9 +917,9 @@
               <FilePath>..\..\..\BSP\Library\IPLib\N9H26_SYS.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_GIANTPLUS_GPM1006D.lib</FileName>
+              <FileName>N9H26_VPOST_FW050TFT_800x480.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_GIANTPLUS_GPM1006D.lib</FilePath>
+              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib</FilePath>
             </File>
             <File>
               <FileName>N9H26_SPU.lib</FileName>
@@ -1370,9 +1370,9 @@
               <FilePath>..\..\..\BSP\Library\IPLib\N9H26_SYS.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_GIANTPLUS_GPM1006D.lib</FileName>
+              <FileName>N9H26_VPOST_FW050TFT_800x480.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_GIANTPLUS_GPM1006D.lib</FilePath>
+              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>
@@ -1402,7 +1402,7 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>264MHz_GiantPlus_QVGA</TargetName>
+      <TargetName>264MHz_FW050TFT_800x480_24B</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -1438,14 +1438,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\SpiLoader_gzip_Data\NoLCM\</OutputDirectory>
-          <OutputName>N9H26_SpiLoader_gzip_264MHz_GiantPlus_QVGA</OutputName>
+          <OutputDirectory>.\SpiLoader_gzip_Data\FW050TFT_800x480_24B\</OutputDirectory>
+          <OutputName>N9H26_SpiLoader_gzip_264MHz_FW050TFT_800x480_24B</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\SpiLoader_gzip_Data\NoLCM\</ListingPath>
+          <ListingPath>.\SpiLoader_gzip_Data\FW050TFT_800x480_24B\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -1742,7 +1742,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>__LCD_320x240__ __UPLL_264__</Define>
+              <Define>__LCM_800x480__ __UPLL_264__</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\BSP\Driver\Include;..\ziplib</IncludePath>
             </VariousControls>
@@ -1841,9 +1841,9 @@
               <FilePath>..\..\..\BSP\Library\IPLib\N9H26_SYS.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_GIANTPLUS_GPM1006D.lib</FileName>
+              <FileName>N9H26_VPOST_FW050TFT_800x480.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_GIANTPLUS_GPM1006D.lib</FilePath>
+              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>
@@ -2312,9 +2312,9 @@
               <FilePath>..\..\..\BSP\Library\IPLib\N9H26_SYS.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_GIANTPLUS_GPM1006D.lib</FileName>
+              <FileName>N9H26_VPOST_FW050TFT_800x480.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_GIANTPLUS_GPM1006D.lib</FilePath>
+              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>
@@ -2344,7 +2344,7 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>Not_Set_Clock_GiantPlus_QVGA</TargetName>
+      <TargetName>Not_Set_Clock_FW050TFT_800x480_24B</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -2380,14 +2380,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\SpiLoader_gzip_Data\NoLCM\</OutputDirectory>
-          <OutputName>N9H26_SpiLoader_gzip_GiantPlus_QVGA</OutputName>
+          <OutputDirectory>.\SpiLoader_gzip_Data\FW050TFT_800x480_24B\</OutputDirectory>
+          <OutputName>N9H26_SpiLoader_gzip_FW050TFT_800x480_24B</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\SpiLoader_gzip_Data\NoLCM\</ListingPath>
+          <ListingPath>.\SpiLoader_gzip_Data\FW050TFT_800x480_24B\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -2684,7 +2684,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>__LCD_320x240__ __UPLL_NOT_SET__</Define>
+              <Define>__LCM_800x480__ __UPLL_NOT_SET__</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\BSP\Driver\Include;..\ziplib</IncludePath>
             </VariousControls>
@@ -2783,9 +2783,9 @@
               <FilePath>..\..\..\BSP\Library\IPLib\N9H26_SYS.lib</FilePath>
             </File>
             <File>
-              <FileName>N9H26_GIANTPLUS_GPM1006D.lib</FileName>
+              <FileName>N9H26_VPOST_FW050TFT_800x480.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_GIANTPLUS_GPM1006D.lib</FilePath>
+              <FilePath>..\..\..\BSP\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>

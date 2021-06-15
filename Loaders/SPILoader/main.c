@@ -279,7 +279,7 @@ int main(void)
     #ifdef __RTC_HW_PWOFF__
     sysprintf("Enable HW Power Off\n");
     /* RTC H/W Power Off Function Configuration */
-    RTC_Check();    /* waiting for RTC regiesters ready for access */
+    RTC_Check();    /* waiting for RTC registers ready for access */
     outp32(PWRON, (inp32(PWRON) & ~PCLR_TIME) | 0x60005);   /* Press Power Key during 6 sec to Power off (0x'6'0005) */
     RTC_Check();
     outp32(RIIR, 0x4);
@@ -287,7 +287,7 @@ int main(void)
     outp32(REG_APBCLK, inp32(REG_APBCLK) & ~RTC_CKE);   /* disable RTC clock to save power */
     #else
     /* RTC H/W Power Off Function Configuration */
-    RTC_Check();    /* waiting for RTC regiesters ready for access */
+    RTC_Check();    /* waiting for RTC registers ready for access */
     outp32(PWRON, (inp32(PWRON) & ~PCLR_TIME) & ~0x4);   /* Press Power Key during 6 sec to Power off (0x'6'0005) */
     RTC_Check();
     outp32(RIIR, 0x4);
@@ -320,7 +320,7 @@ int main(void)
     imagebuf = (UINT8 *)((UINT32)image_buffer | 0x80000000);
     pImageList=((unsigned int *)(((unsigned int)image_buffer)|0x80000000));
 
-    /* Initial DMAC and NAND interface */
+    /* Initial SPI Flash interface */
     SPI_OpenSPI();
 #ifdef __Security__
     if ((RPMC_ReadUID(u8UID)) == -1)
@@ -332,7 +332,7 @@ int main(void)
     sysprintf("SPI flash uid [0x%02X%02X%02X%02X%02X%02X%02X%02X]\n",u8UID[0], u8UID[1],u8UID[2], u8UID[3],u8UID[4], u8UID[5],u8UID[6], u8UID[7]);
   
     /* first stage, initial rootkey */
-    RPMC_CreateRootKey((unsigned char *)u8UID,8, ROOTKey);    /* caculate ROOTKey with UID & ROOTKeyTag by SHA256 */
+    RPMC_CreateRootKey((unsigned char *)u8UID,8, ROOTKey);    /* calculate ROOTKey with UID & ROOTKeyTag by SHA256 */
 
     /* Second stage, update HMACKey after ever power on. without update HMACkey, Gneiss would not function */
     HMACMessage[0] = rand()%0x100;        /* Get random data for HMAC message, it can also be serial number, RTC information and so on. */

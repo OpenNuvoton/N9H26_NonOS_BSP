@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>N9H26_QVGA</TargetName>
+      <TargetName>N9H26_WVGA</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -43,14 +43,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\SpiWriter_Data\N32926_QVGA\</OutputDirectory>
-          <OutputName>SpiWriter(S)_QVGA</OutputName>
+          <OutputDirectory>.\SpiWriter_Data\N9H26_WVGA\</OutputDirectory>
+          <OutputName>N9H26_SpiWriter_WVGA</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\SpiWriter_Data\N32926_QVGA\</ListingPath>
+          <ListingPath>.\SpiWriter_Data\N9H26_WVGA\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -138,7 +138,7 @@
             <RestoreToolbox>1</RestoreToolbox>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>18</TargetSelection>
+          <TargetSelection>6</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -347,7 +347,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>_DEMO_QVGA_ __Security__</Define>
+              <Define>_DEMO_WVGA_ __Security__</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\..\BSP\Driver\Include</IncludePath>
             </VariousControls>
@@ -444,6 +444,24 @@
               <FileName>N9H26_GIANTPLUS_GPM1006D.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\..\..\..\..\BSP\Library\IPLib\N9H26_GIANTPLUS_GPM1006D.lib</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                </CommonProperty>
+                <FileArmAds/>
+              </FileOption>
             </File>
             <File>
               <FileName>N9H26_SYS.lib</FileName>
@@ -481,7 +499,7 @@
                   <RVCTZI>0</RVCTZI>
                   <RVCTOtherData>0</RVCTOtherData>
                   <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
+                  <IncludeInBuild>1</IncludeInBuild>
                   <AlwaysBuild>2</AlwaysBuild>
                   <GenerateAssemblyFile>2</GenerateAssemblyFile>
                   <AssembleAssemblyFile>2</AssembleAssemblyFile>
@@ -497,11 +515,34 @@
               <FileName>N9H26_Font_QVGA.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\..\..\..\..\BSP\Library\IPLib\N9H26_Font_QVGA.lib</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                </CommonProperty>
+                <FileArmAds/>
+              </FileOption>
             </File>
             <File>
               <FileName>N9H26_SPI_SecureIC.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\..\..\..\..\BSP\Library\IPLib\N9H26_SPI_SecureIC.lib</FilePath>
+            </File>
+            <File>
+              <FileName>N9H26_VPOST_FW050TFT_800x480.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\..\..\BSP\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib</FilePath>
             </File>
           </Files>
         </Group>
@@ -544,14 +585,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\SpiWriter_Data\N32926_QVGA\</OutputDirectory>
-          <OutputName>SpiWriter(S)</OutputName>
+          <OutputDirectory>.\SpiWriter_Data\N9H26_NoLCM\</OutputDirectory>
+          <OutputName>N9H26_SpiWriter</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\SpiWriter_Data\N32926_QVGA\</ListingPath>
+          <ListingPath>.\SpiWriter_Data\N9H26_NoLCM\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -639,7 +680,7 @@
             <RestoreToolbox>1</RestoreToolbox>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>18</TargetSelection>
+          <TargetSelection>6</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -1079,6 +1120,11 @@
               <FileName>N9H26_SPI_SecureIC.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\..\..\..\..\BSP\Library\IPLib\N9H26_SPI_SecureIC.lib</FilePath>
+            </File>
+            <File>
+              <FileName>N9H26_VPOST_FW050TFT_800x480.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\..\..\BSP\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib</FilePath>
             </File>
           </Files>
         </Group>
