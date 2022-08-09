@@ -11,7 +11,7 @@
 #include "turbowriter.h"
 
 // define DATE CODE and show it when running to make maintaining easy.
-#define DATE_CODE   "20210427"
+#define DATE_CODE   "20220805"
 
 /* global variable */
 typedef struct sd_info
@@ -165,7 +165,7 @@ void initClock(void)
     u32ExtFreq = sysGetExternalClock();     // Hz unit
     if(u32ExtFreq==12000000)
     {
-        outp32(REG_SDREF, 0x805A);
+        outp32(REG_SDREF, 0x802D);
     }
     else
     {
