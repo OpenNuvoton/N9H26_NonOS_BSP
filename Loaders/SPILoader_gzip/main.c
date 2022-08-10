@@ -64,7 +64,7 @@ void initClock(void)
 
     if(u32ExtFreq==12000000)
     {
-        outp32(REG_SDREF, 0x805A);
+        outp32(REG_SDREF, 0x802D);
     }
     else
     {
@@ -170,7 +170,6 @@ void init(void)
     uart.uiParity = WB_PARITY_NONE;
     uart.uiRxTriggerLevel = LEVEL_1_BYTE;
     sysInitializeUART(&uart);
-    sysprintf("SPI Loader gzip start (%s).\n", DATE_CODE);
 #ifdef __UPLL_240__
     sysprintf("SPI Loader gzip start 240MHz (%s)\n", DATE_CODE);
 #elif defined __UPLL_264__

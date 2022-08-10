@@ -57,7 +57,7 @@ void initClock(void)
 
     if(u32ExtFreq==12000000)
     {
-        outp32(REG_SDREF, 0x805A);
+        outp32(REG_SDREF, 0x802D);
     }
     else
     {
