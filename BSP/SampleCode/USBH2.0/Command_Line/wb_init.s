@@ -25,7 +25,7 @@ F_BIT       EQU        0x40
 ;----------------------------
 ; System / User Stack Memory
 ;----------------------------
-RAM_Limit       EQU     0x4000000              ; For unexpanded hardware board
+RAM_Limit       EQU     0x4000000           ; For unexpanded hardware board
 
 UND_Stack       EQU     RAM_Limit
 Abort_Stack     EQU     RAM_Limit-256
@@ -33,6 +33,12 @@ IRQ_Stack       EQU     RAM_Limit-512       ; followed by IRQ stack
 FIQ_Stack       EQU     RAM_Limit-768       ; followed by IRQ stack
 SVC_Stack       EQU     RAM_Limit-1024      ; SVC stack at top of memory
 USR_Stack       EQU     RAM_Limit
+
+;--------------------------------
+; AIC Control Registers
+;--------------------------------
+AIC_MDCR        EQU        0xB8000124 ; Mask Disable Control Register
+AIC_MASKALL     EQU        0xFFFFFFFE
 
 
     ENTRY
@@ -71,9 +77,7 @@ FIQ_Addr        DCD     FIQ_Handler
 Undefined_Handler
         B       Undefined_Handler
 SWI_Handler1
-;        B       SWI_Handler1     
-        mov     r0, #0
-        movs    pc, lr
+        B       SWI_Handler1     
 Prefetch_Handler
         B       Prefetch_Handler
 Abort_Handler
@@ -85,6 +89,29 @@ FIQ_Handler
 
     
 Reset_Go
+
+;-----------------------------------------
+; Disable Interrupt, This is for safe ...
+;-----------------------------------------
+    LDR    r0, =AIC_MDCR
+    LDR    r1, =AIC_MASKALL
+    STR    r1, [r0]
+    MRS    r0, CPSR
+    ORR    r0, r0, #0xC0
+    MSR    CPSR_c, r0
+;------------------------------------------------------
+; Set mode to SVC, interrupts disabled (just paranoid)
+;------------------------------------------------------
+    MRS   r0, cpsr
+    BIC   r0, r0, #0x1F
+    ORR   r0, r0, #0xD3
+    MSR   cpsr_fc, r0
+;------------------------------------------------------
+; Set the normal exception vector of CP15 control bit    
+;------------------------------------------------------    
+    MRC    p15, 0, r0 , c1, c0       ; r0 := cp15 register 1
+    BIC r0, r0, #0x2000        ; Clear bit13 in r1
+    MCR p15, 0, r0 , c1, c0     ; cp15 register 1 := r0
 
 ;--------------------------------
 ; Initial Stack Pointer register
@@ -108,13 +135,6 @@ Reset_Go
  MSR    CPSR_c, #SVC_MODE :OR: I_BIT :OR: F_BIT
  LDR     SP, =SVC_Stack
 
-;------------------------------------------------------
-; Set the normal exception vector of CP15 control bit    
-;------------------------------------------------------    
-    MRC    p15, 0, r0 , c1, c0       ; r0 := cp15 register 1
-    BIC r0, r0, #0x2000        ; Clear bit13 in r1
-    MCR p15, 0, r0 , c1, c0     ; cp15 register 1 := r0
-    
  IF :DEF:SYS_INIT
 ;-----------------------------
 ; system initialization 

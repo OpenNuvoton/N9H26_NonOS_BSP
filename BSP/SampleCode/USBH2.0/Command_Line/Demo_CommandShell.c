@@ -1093,9 +1093,6 @@ int main()
     uart.uiParity = WB_PARITY_NONE;
     uart.uiRxTriggerLevel = LEVEL_1_BYTE;
     sysInitializeUART(&uart);
-    sysSetTimerReferenceClock (TIMER0, u32ExtFreq);
-    sysStartTimer(TIMER0, 100, PERIODIC_MODE);    
-
 
     /**********************************************************************************************
      * Clock Constraints:
@@ -1133,6 +1130,8 @@ int main()
     sysSetCPUClock(240000000/2);
 #endif
 
+    sysSetTimerReferenceClock (TIMER0, u32ExtFreq);
+    sysStartTimer(TIMER0, 100, PERIODIC_MODE);    
     sysprintf("USB Host 2.0\n");
     
     fsInitFileSystem();
