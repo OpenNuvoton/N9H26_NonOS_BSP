@@ -1,0 +1,10 @@
+.\hid_transfer_firmwareupdate\spiflash.o: ..\spiflash.c
+.\hid_transfer_firmwareupdate\spiflash.o: C:\Keil\ARM\ARMCC\INCLUDE\stdio.h
+.\hid_transfer_firmwareupdate\spiflash.o: C:\Keil\ARM\ARMCC\INCLUDE\stdlib.h
+.\hid_transfer_firmwareupdate\spiflash.o: C:\Keil\ARM\ARMCC\INCLUDE\string.h
+.\hid_transfer_firmwareupdate\spiflash.o: ..\..\..\..\..\Driver\Include\wblib.h
+.\hid_transfer_firmwareupdate\spiflash.o: ..\..\..\..\..\Driver\Include\N9H26_reg.h
+.\hid_transfer_firmwareupdate\spiflash.o: ..\..\..\..\..\Driver\Include\wberrcode.h
+.\hid_transfer_firmwareupdate\spiflash.o: ..\..\..\..\..\Driver\Include\wbio.h
+.\hid_transfer_firmwareupdate\spiflash.o: ..\..\..\..\..\Driver\Include\wbtypes.h
+.\hid_transfer_firmwareupdate\spiflash.o: ..\..\..\..\..\Driver\Include\N9H26_SPI.h

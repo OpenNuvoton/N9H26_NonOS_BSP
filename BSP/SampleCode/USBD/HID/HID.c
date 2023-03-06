@@ -27,7 +27,11 @@ extern USB_CMD_T  _usb_cmd_pkt;
 
 UINT32 volatile u32Ready = 0;
 #ifdef HID_MOUSE
+#if defined (__GNUC__)
 UINT8  g_HID_au8MouseReportDescriptor[] __attribute__((aligned(4))) =
+#else
+__align(4) UINT8  g_HID_au8MouseReportDescriptor[] =
+#endif
 {
     0x05, 0x01,         /* Usage Page(Generic Desktop Controls) */
     0x09, 0x02,         /* Usage(Mouse) */
@@ -66,7 +70,11 @@ UINT32 g_HID_u32MouseReportDescriptorSize = HID_MOUSE_REPORT_DESCRIPTOR_SIZE;
 
 #define HID_REPORT_DESCRIPTOR_SIZE HID_MOUSE_REPORT_DESCRIPTOR_SIZE
 
+#if defined (__GNUC__)
 UINT8 g_au8MouseReport[4] __attribute__((aligned(4)));
+#else
+__align(4) UINT8 g_au8MouseReport[4];
+#endif
 UINT32 g_u32MouseReportSize = sizeof(g_au8MouseReport) / sizeof(g_au8MouseReport[0]);
 
 #endif
@@ -74,7 +82,12 @@ UINT32 g_u32MouseReportSize = sizeof(g_au8MouseReport) / sizeof(g_au8MouseReport
 
 #ifdef HID_KEYBOARD
 /* keyboard 101keys */
-UINT8 g_HID_au8KeyboardReportDescriptor[] __attribute__((aligned(4))) = {
+#if defined (__GNUC__)
+UINT8 g_HID_au8KeyboardReportDescriptor[] __attribute__((aligned(4))) =
+#else
+__align(4) UINT8 g_HID_au8KeyboardReportDescriptor[] =
+#endif
+{
       0x05, 0x01,
       0x09, 0x06,
       0xA1, 0x01,
@@ -115,14 +128,22 @@ UINT32 g_HID_u32KeyboardReportDescriptorSize = HID_KEYBOARD_REPORT_DESCRIPTOR_SI
 
 # define HID_REPORT_DESCRIPTOR_SIZE HID_KEYBOARD_REPORT_DESCRIPTOR_SIZE
 
+#if defined (__GNUC__)
 UINT8 g_au8KeyboardReport[8] __attribute__((aligned(4)));
+#else
+__align(4) UINT8 g_au8KeyboardReport[8];
+#endif
 UINT32 g_u32KeyboardReportSize = sizeof(g_au8KeyboardReport) / sizeof(g_au8KeyboardReport[0]);
 
 #endif
 
 
 /* MSC Descriptor */
+#if defined (__GNUC__)
 UINT8 HID_DeviceDescriptor[] __attribute__((aligned(4))) =
+#else
+__align(4) UINT8 HID_DeviceDescriptor[] =
+#endif
 {
     LEN_DEVICE,     /* bLength */
     DESC_DEVICE,    /* bDescriptorType */
@@ -144,8 +165,13 @@ UINT8 HID_DeviceDescriptor[] __attribute__((aligned(4))) =
     0x01            /* bNumConfigurations */
 };
 
+#if defined (__GNUC__)
 static UINT8 HID_ConfigurationBlock[] __attribute__((aligned(4))) =
+#else
+__align(4) static UINT8 HID_ConfigurationBlock[] =
+#endif
 {
+
     LEN_CONFIG,     /* bLength */
     DESC_CONFIG,    /* bDescriptorType */
     /* wTotalLength */
@@ -191,7 +217,11 @@ static UINT8 HID_ConfigurationBlock[] __attribute__((aligned(4))) =
 };
 
 /* Identifier Language */
+#if defined (__GNUC__)
 static UINT8 HID_StringDescriptor0[4] __attribute__((aligned(4))) =
+#else
+__align(4) static UINT8 HID_StringDescriptor0[4] = 
+#endif
 {
     4,               /* bLength */
     USB_DT_STRING,   /* bDescriptorType */
@@ -199,7 +229,11 @@ static UINT8 HID_StringDescriptor0[4] __attribute__((aligned(4))) =
 };
 
 /* iManufacturer */
+#if defined (__GNUC__)
 UINT8 HID_StringDescriptor1[] __attribute__((aligned(4))) =
+#else
+__align(4) UINT8 HID_StringDescriptor1[] = 
+#endif
 {
     0x10,        /* bLength (Dafault Value is 0x10, the value will be set to actual value according to the Descriptor size wehn calling mscdInit) */
     0x03,        /* bDescriptorType */
@@ -207,7 +241,11 @@ UINT8 HID_StringDescriptor1[] __attribute__((aligned(4))) =
 };
 
 /* iProduct */
+#if defined (__GNUC__)
 UINT8 HID_StringDescriptor2[] __attribute__((aligned(4))) =
+#else
+__align(4) UINT8 HID_StringDescriptor2[] = 
+#endif
 {
     0x10,        /* bLength (Dafault Value is 0x10, the value will be set to actual value according to the Descriptor size wehn calling mscdInit) */
     0x03,        /* bDescriptorType */
@@ -215,7 +253,11 @@ UINT8 HID_StringDescriptor2[] __attribute__((aligned(4))) =
 };
 
 /* iSerialNumber */
+#if defined (__GNUC__)
 UINT8 HID_StringDescriptor3[] __attribute__((aligned(4))) =
+#else
+__align(4) UINT8 HID_StringDescriptor3[] = 
+#endif
 {
     0x1A,        /* bLength (Dafault Value is 0x1A, the value will be set to actual value according to the Descriptor size wehn calling mscdInit) */
     0x03,        /* bDescriptorType */
@@ -239,9 +281,7 @@ void hidClassOUT(void)
 {    
     if(_usb_cmd_pkt.bRequest == HID_SET_IDLE)
     {
-        outp32(CEP_CTRL_STAT, ZEROLEN);
-        sysprintf("Set IDLE\n");
-        outp32(CEP_IRQ_STAT, CEP_STACOM_IS);
+//        sysprintf("Set IDLE\n");
     }
     else if(_usb_cmd_pkt.bRequest == HID_SET_REPORT)
     {

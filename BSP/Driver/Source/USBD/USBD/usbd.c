@@ -14,10 +14,16 @@
 #include "wblib.h"
 #include "N9H26_USBD.h"
 
-#define DATA_CODE  "20220217"
+#define DATA_CODE  "20230109"
 
+#if defined (__GNUC__)
 volatile USBD_INFO_T usbdInfo  __attribute__((aligned(4))) = {0};
 volatile USBD_STATUS_T usbdStatus  __attribute__((aligned(4))) = {0};
+#else
+__align(4) volatile USBD_INFO_T usbdInfo = {0};
+__align(4) volatile USBD_STATUS_T usbdStatus = {0};
+#endif
+
 UINT32 g_u32Suspend_Flag = 0;
 PFN_USBD_CALLBACK pfnSuspend = NULL, pfnResume = NULL;
 
@@ -505,11 +511,9 @@ VOID usbd_control_packet(void)
             /* Class Data Out without Data */
             if(usbdInfo.pfnClassDataOUTCallBack != NULL)
                 usbdInfo.pfnClassDataOUTCallBack();
-
-            outp32(CEP_CTRL_STAT, ZEROLEN);
             outp32(CEP_IRQ_STAT, CEP_STACOM_IS);
-            outp32(CEP_IRQ_ENB, CEP_SETUP_PK_IE|CEP_STACOM_IE);     /* suppkt int ,status and in token */
             outp32(CEP_CTRL_STAT, CEP_NAK_CLEAR);    /* clear nak so that sts stage is complete */
+            outp32(CEP_IRQ_ENB,  (CEP_STACOM_IE|CEP_PING_IE|CEP_SETUP_PK_IE));    /* suppkt int enb/sts completion int */
         }
         else
             outp32(CEP_IRQ_ENB,  CEP_NAK_IE | CEP_DATA_RxED_IE); /* OUT_TK_IE */
@@ -966,6 +970,7 @@ VOID usbd_control_packet(void)
     {
         outp32(CEP_IRQ_ENB, (inp32(CEP_IRQ_ENB) | (CEP_SETUP_TK_IE |CEP_SETUP_PK_IE)));
         outp32(CEP_CTRL_STAT, CEP_SETUP_PK_IS);
+
     }
 }
 
@@ -1125,12 +1130,12 @@ VOID usbd_isr(void)
             int volatile test;
             usbdInfo._usbd_resume = 0;
             g_bHostAttached = TRUE;
-#ifdef __USBD_FULL_SPEED_MODE__
             outp32(USB_IRQ_ENB, (USB_RST_STS|USB_RESUME|VBUS_IE));
-#endif
 
+            outp32(USB_IRQ_STAT, SOF_IS);
+            outp32(CEP_IRQ_STAT, CEP_NAK_IS);
             test = inp32(PHY_CTL) & Vbus_status;
-            for(i=0;i<0x90000;i++)
+            for(i=0;i<0x40000;i++)
             {
                 if(test != (inp32(PHY_CTL) & Vbus_status))
                 {
@@ -1157,12 +1162,36 @@ VOID usbd_isr(void)
                         outp32(USB_IRQ_STAT, SUS_IS);    /* Suspend */
                     }
                     outp32(USB_IRQ_STAT, VBUS_IS);
-                    break;
+                    return;
+                }
+                if((inp32(CEP_IRQ_STAT) & CEP_NAK_IS) ||(inp32(USB_IRQ_STAT) & SOF_IS))
+                {
+                    outp32(CEP_IRQ_STAT, CEP_NAK_IS);
+                    outp32(USB_IRQ_STAT, SOF_IS);
+                    outp32(USB_IRQ_ENB, (USB_RST_STS|USB_RESUME|VBUS_IE|USB_SUS_REQ));
+                    outp32(USB_IRQ_STAT, SUS_IS);    /* Suspend */
+                    return;
                 }
             }
-            if(g_u32Suspend_Flag && (pfnSuspend != NULL))
-                pfnSuspend();
-            outp32(USB_IRQ_STAT, SUS_IS);        /* Suspend */
+            outp32(USB_IRQ_ENB, (USB_RST_STS|USB_RESUME|VBUS_IE|USB_SUS_REQ));
+            outp32(USB_IRQ_STAT, SUS_IS);    /* Suspend */
+
+            if(usbdInfo.u32UVC)
+            {
+                if(pfnSuspend !=NULL)
+                {
+                    pfnSuspend();
+                    g_u32Suspend_Flag = 0;
+                }
+            }
+            else
+            {
+                if(g_u32Suspend_Flag == 1 && pfnSuspend !=NULL)
+                {
+                    pfnSuspend();
+                    g_u32Suspend_Flag = 0;
+                }
+            }
             outp32(USB_IRQ_ENB, (USB_RST_STS|USB_RESUME|VBUS_IE));
         }
 

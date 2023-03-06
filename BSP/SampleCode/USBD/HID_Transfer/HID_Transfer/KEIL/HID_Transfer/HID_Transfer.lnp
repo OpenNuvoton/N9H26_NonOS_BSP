@@ -1,0 +1,15 @@
+--cpu ARM926EJ-S
+".\hid_transfer\standalone.o"
+".\hid_transfer\wb_init.o"
+".\hid_transfer\main.o"
+".\hid_transfer\jpegdec.o"
+"..\..\..\..\..\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib"
+"..\..\..\..\..\Library\IPLib\N9H26_JPEG.lib"
+"..\..\..\..\..\Library\IPLib\N9H26_UDC.lib"
+"..\..\..\..\..\Library\IPLib\N9H26_SYS.lib"
+".\hid_transfer\hid.o"
+--strict --scatter "..\..\..\..\..\Script\N9H26\N9H26K5.sct"
+
+--entry 0 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\HID_Transfer\HID_Transfer.map" -o .\HID_Transfer\HID_Transfer.axf

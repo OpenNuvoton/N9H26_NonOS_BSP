@@ -1,0 +1,18 @@
+--cpu ARM926EJ-S
+".\hid_transfer_firmwareupdate\standalone.o"
+".\hid_transfer_firmwareupdate\wb_init.o"
+".\hid_transfer_firmwareupdate\main.o"
+".\hid_transfer_firmwareupdate\jpegdec.o"
+"..\..\..\..\..\Library\IPLib\N9H26_VPOST_FW050TFT_800x480.lib"
+"..\..\..\..\..\Library\IPLib\N9H26_JPEG.lib"
+"..\..\..\..\..\Library\IPLib\N9H26_UDC.lib"
+"..\..\..\..\..\Library\IPLib\N9H26_SYS.lib"
+".\hid_transfer_firmwareupdate\hid.o"
+".\hid_transfer_firmwareupdate\spi.o"
+".\hid_transfer_firmwareupdate\spiflash.o"
+".\hid_transfer_firmwareupdate\spiread.o"
+--strict --scatter "..\..\..\..\..\Script\N9H26\N9H26K5.sct"
+
+--entry 0 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\HID_Transfer_FirmwareUpdate\HID_Transfer_FirmwareUpdate.map" -o .\HID_Transfer_FirmwareUpdate\HID_Transfer_FirmwareUpdate.axf

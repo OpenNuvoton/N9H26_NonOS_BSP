@@ -1,0 +1,13 @@
+.\hid_transfer\main.o: ..\main.c
+.\hid_transfer\main.o: C:\Keil\ARM\ARMCC\INCLUDE\stdio.h
+.\hid_transfer\main.o: C:\Keil\ARM\ARMCC\INCLUDE\stdlib.h
+.\hid_transfer\main.o: C:\Keil\ARM\ARMCC\INCLUDE\string.h
+.\hid_transfer\main.o: ..\..\..\..\..\Driver\Include\wblib.h
+.\hid_transfer\main.o: ..\..\..\..\..\Driver\Include\N9H26_reg.h
+.\hid_transfer\main.o: ..\..\..\..\..\Driver\Include\wberrcode.h
+.\hid_transfer\main.o: ..\..\..\..\..\Driver\Include\wbio.h
+.\hid_transfer\main.o: ..\..\..\..\..\Driver\Include\wbtypes.h
+.\hid_transfer\main.o: ..\HID.h
+.\hid_transfer\main.o: ..\Common.h
+.\hid_transfer\main.o: ..\..\..\..\..\Driver\Include\N9H26_VPOST.h
+.\hid_transfer\main.o: ..\..\..\..\..\Driver\Include\N9H26_JPEG.h
