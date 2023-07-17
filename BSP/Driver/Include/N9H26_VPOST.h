@@ -608,6 +608,8 @@ VOID vpostSetMPULCM_TimingConfig(S_DRVVPOST_MPULCM_TIMING *psTiming);
 VOID vpostSetMPULCM_BusModeSelect(E_DRVVPOST_MPULCM_DATABUS eBusMode);
 VOID vpostSetFrameBuffer_Size(S_DRVVPOST_FRAME_SIZE* psSize);
 
+INT vpostLCMInit_ST70IPS_1024x600(PLCDFORMATEX plcdformatex, UINT32 *pFramebuf);
+INT32 vpostLCMDeinit_ST70IPS_1024x600(VOID);
 INT vpostLCMInit_FW050TFT_800x480(PLCDFORMATEX plcdformatex, UINT32 *pFramebuf);
 INT32 vpostLCMDeinit_FW050TFT_800x480(VOID);
 

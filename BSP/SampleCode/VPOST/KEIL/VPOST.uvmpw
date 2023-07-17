@@ -19,6 +19,11 @@
 
   <project>
     <PathAndName>.\VPOST_N9H26_LCM.uvproj</PathAndName>
+    <NodeIsExpanded>1</NodeIsExpanded>
+  </project>
+
+  <project>
+    <PathAndName>.\VPOST_N9H26_ST70IPS_1024x600.uvproj</PathAndName>
     <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>

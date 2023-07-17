@@ -23,6 +23,10 @@ __attribute__ ((aligned (32))) UINT8 Vpost_Frame[]=
 __align(32) UINT8 Vpost_Frame[]=
 #endif
 {
+#ifdef __LCD_1024x600__
+	#include "mountain_1024x600_RGB565.dat"
+//	#include "mountain_1024x600_RGB888x.dat"
+#endif
 	
 #ifdef __LCD_800x600__
 	#include "roof_800x600_RGB565.dat"		// for SVGA size test
@@ -68,6 +72,11 @@ __align(32) UINT8 Vpost_Frame[]=
 #define OSD_VSIZE       480
 #endif
 
+#ifdef __LCD_1024x600__
+#define OSD_HSIZE       800
+#define OSD_VSIZE       480
+#endif
+
 #if defined(__LCD_320x240__)||defined(__LCD_800x480__)
 #define 	OPT_OSD_DEMO
 #endif 
@@ -85,6 +94,11 @@ __align (32) UINT8 OSD_Frame_Buffer[]=
 #ifdef __LCD_800x480__
 	#include "osd_800x480_RGB888x.dat"
 #endif
+
+#ifdef __LCD_1024x600__
+	#include "osd_800x480_RGB888x.dat"
+#endif
+
 };
 #endif
 

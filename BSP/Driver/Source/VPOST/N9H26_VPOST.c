@@ -118,6 +118,10 @@ INT32 vpostLCMInit(PLCDFORMATEX plcdformatex, UINT32 *pFramebuf)
     return vpostLCMInit_FW050TFT_800x480(plcdformatex, pFramebuf);
 #endif
 
+#ifdef __HAVE_ST70IPS_1024x600__
+	return vpostLCMInit_ST70IPS_1024x600(plcdformatex, pFramebuf);
+#endif
+
 }
 
 extern INT32 vpostLCMDeinit_GIANTPLUS_GPM1006D0(void);
@@ -223,6 +227,9 @@ INT32 vpostLCMDeinit(void)
     return vpostLCMDeinit_FW050TFT_800x480();
 #endif
 
+#ifdef __HAVE_ST70IPS_1024x600__
+    return vpostLCMDeinit_ST70IPS_1024x600();
+#endif
 }
 
 VOID* vpostGetFrameBuffer(void)
