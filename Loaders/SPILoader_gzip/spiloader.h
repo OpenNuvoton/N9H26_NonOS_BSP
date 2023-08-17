@@ -53,7 +53,10 @@
 #elif defined( __LCM_128x64__)
     #define PANEL_WIDTH        128
     #define PANEL_HEIGHT        64    
-#else     
+#elif defined(__LCM_1024x600__)
+    #define PANEL_WIDTH       1024
+    #define PANEL_HEIGHT       600
+#else
     #define PANEL_WIDTH     480
     #define PANEL_HEIGHT    272
 #endif
