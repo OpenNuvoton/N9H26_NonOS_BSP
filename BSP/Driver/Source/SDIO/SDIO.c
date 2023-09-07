@@ -120,6 +120,13 @@ INT fmiSDIOCmdAndRsp(FMI_SDIO_INFO_T *pSDIO, UINT8 ucCmd, UINT32 uArg, INT ntick
             fmiSDIO_CardStatus(pSDIO);
             if (pSDIO->bIsCardInsert == FALSE)
                 return FMISDIO_NO_SD_CARD;
+
+            if (inpw(REG_SDIOISR) & SDIOISR_RITO_IF)
+            {
+                outpw(REG_SDIOISR, SDIOISR_RITO_IF);
+                DBG_PRINTF("fmiSDIOCmdAndRsp: Response in timeout !\n");
+                return FMISDIO_SD_RITO_ERROR;
+            }
         }
     }
     else
@@ -129,6 +136,13 @@ INT fmiSDIOCmdAndRsp(FMI_SDIO_INFO_T *pSDIO, UINT8 ucCmd, UINT32 uArg, INT ntick
             fmiSDIO_CardStatus(pSDIO);
             if (pSDIO->bIsCardInsert == FALSE)
                 return FMISDIO_NO_SD_CARD;
+
+            if (inpw(REG_SDIOISR) & SDIOISR_RITO_IF)
+            {
+                outpw(REG_SDIOISR, SDIOISR_RITO_IF);
+                DBG_PRINTF("fmiSDIOCmdAndRsp: Response in timeout !\n");
+                return FMISDIO_SD_RITO_ERROR;
+            }
         }
     }
 
@@ -174,6 +188,13 @@ INT fmiSDIOCmdAndRsp2(FMI_SDIO_INFO_T *pSDIO, UINT8 ucCmd, UINT32 uArg, UINT *pu
         fmiSDIO_CardStatus(pSDIO);
         if (pSDIO->bIsCardInsert == FALSE)
             return FMISDIO_NO_SD_CARD;
+
+        if (inpw(REG_SDIOISR) & SDIOISR_RITO_IF)
+        {
+            outpw(REG_SDIOISR, SDIOISR_RITO_IF);
+            DBG_PRINTF("fmiSDIOCmdAndRsp2: Response in timeout !\n");
+            return FMISDIO_SD_RITO_ERROR;
+        }
     }
 
     if (inpw(REG_SDIOISR) & SDISR_CRC_7)
@@ -200,6 +221,13 @@ INT fmiSDIOCmdAndRspDataIn(FMI_SDIO_INFO_T *pSDIO, UINT8 ucCmd, UINT32 uArg)
         fmiSDIO_CardStatus(pSDIO);
         if (pSDIO->bIsCardInsert == FALSE)
             return FMISDIO_NO_SD_CARD;
+
+        if (inpw(REG_SDIOISR) & SDIOISR_RITO_IF)
+        {
+            outpw(REG_SDIOISR, SDIOISR_RITO_IF);
+            DBG_PRINTF("fmiSDIOCmdAndRspDataIn: Response in timeout !\n");
+            return FMISDIO_SD_RITO_ERROR;
+        }
     }
 
     while (inpw(REG_SDIOCR) & SDCR_DI_EN)
@@ -207,6 +235,13 @@ INT fmiSDIOCmdAndRspDataIn(FMI_SDIO_INFO_T *pSDIO, UINT8 ucCmd, UINT32 uArg)
         fmiSDIO_CardStatus(pSDIO);
         if (pSDIO->bIsCardInsert == FALSE)
             return FMISDIO_NO_SD_CARD;
+
+        if (inpw(REG_SDIOISR) & SDIOISR_DITO_IF)
+        {
+            outpw(REG_SDIOISR, SDIOISR_DITO_IF);
+            DBG_PRINTF("fmiSDIOCmdAndRspDataIn: Data in timeout !\n");
+            return FMISDIO_SD_DITO_ERROR;
+        }
     }
 
     if (!(inpw(REG_SDIOISR) & SDISR_CRC_7))       // check CRC7
@@ -759,6 +794,19 @@ INT fmiSDIO_Read_in_blksize(FMI_SDIO_INFO_T *pSDIO, UINT32 uSector, UINT32 uBufc
             if (pSDIO->bIsCardInsert == FALSE)
                 return FMISDIO_NO_SD_CARD;
 
+            if (inpw(REG_SDIOISR) & SDIOISR_DITO_IF)
+            {
+                outpw(REG_SDIOISR, SDIOISR_DITO_IF);
+                DBG_PRINTF("fmiSDIO_Read_in_blksize(): Data in timeout !\n");
+                return FMISDIO_SD_DITO_ERROR;
+            }
+            if (inpw(REG_SDIOISR) & SDIOISR_RITO_IF)
+            {
+                outpw(REG_SDIOISR, SDIOISR_RITO_IF);
+                DBG_PRINTF("fmiSDIO_Read_in_blksize(): Response in timeout !\n");
+                return FMISDIO_SD_RITO_ERROR;
+            }
+
             /* Call schedule() to release CPU power to other tasks during waiting SIC/DMA completed. */
             schedule();
         }
@@ -811,6 +859,19 @@ INT fmiSDIO_Read_in_blksize(FMI_SDIO_INFO_T *pSDIO, UINT32 uSector, UINT32 uBufc
             fmiSDIO_CardStatus(pSDIO);
             if (pSDIO->bIsCardInsert == FALSE)
                 return FMISDIO_NO_SD_CARD;
+
+            if (inpw(REG_SDIOISR) & SDIOISR_DITO_IF)
+            {
+                outpw(REG_SDIOISR, SDIOISR_DITO_IF);
+                DBG_PRINTF("fmiSDIO_Read_in_blksize(): Data in timeout !\n");
+                return FMISDIO_SD_DITO_ERROR;
+            }
+            if (inpw(REG_SDIOISR) & SDIOISR_RITO_IF)
+            {
+                outpw(REG_SDIOISR, SDIOISR_RITO_IF);
+                DBG_PRINTF("fmiSDIO_Read_in_blksize(): Response in timeout !\n");
+                return FMISDIO_SD_RITO_ERROR;
+            }
 
             /* Call schedule() to release CPU power to other tasks during waiting SIC/DMA completed. */
             schedule();
@@ -914,6 +975,13 @@ INT fmiSDIO_Write_in(FMI_SDIO_INFO_T *pSDIO, UINT32 uSector, UINT32 uBufcnt, UIN
             if (pSDIO->bIsCardInsert == FALSE)
                 return FMISDIO_NO_SD_CARD;
 
+            if (inpw(REG_SDIOISR) & SDIOISR_RITO_IF)
+            {
+                outpw(REG_SDIOISR, SDIOISR_RITO_IF);
+                DBG_PRINTF("fmiSDIO_Write_in(): Response in timeout !\n");
+                return FMISDIO_SD_RITO_ERROR;
+            }
+
             /* Call schedule() to release CPU power to other tasks during waiting SIC/DMA completed. */
             schedule();
         }
@@ -958,6 +1026,13 @@ INT fmiSDIO_Write_in(FMI_SDIO_INFO_T *pSDIO, UINT32 uSector, UINT32 uBufcnt, UIN
             fmiSDIO_CardStatus(pSDIO);
             if (pSDIO->bIsCardInsert == FALSE)
                 return FMISDIO_NO_SD_CARD;
+
+            if (inpw(REG_SDIOISR) & SDIOISR_RITO_IF)
+            {
+                outpw(REG_SDIOISR, SDIOISR_RITO_IF);
+                DBG_PRINTF("fmiSDIO_Write_in(): Response in timeout !\n");
+                return FMISDIO_SD_RITO_ERROR;
+            }
 
             /* Call schedule() to release CPU power to other tasks during waiting SIC/DMA completed. */
             schedule();

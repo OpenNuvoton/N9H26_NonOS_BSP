@@ -55,7 +55,6 @@ UINT32 _fmi_uR7_CMD=0;
     __align(4096) UCHAR _fmi_ucSDHCBuffer[512];
 #endif
 
-
 UINT8 *_fmi_pSDHCBuffer;
 
 //--- 2014/3/27, check the sector number is valid or not for current SD card.
@@ -127,6 +126,13 @@ INT fmiSDCmdAndRsp(FMI_SD_INFO_T *pSD, UINT8 ucCmd, UINT32 uArg, INT ntickCount)
                 DBG_PRINTF("NO SD CARD !\n");
                 return FMI_NO_SD_CARD;
             }
+
+            if (inpw(REG_SDISR) & SDISR_RITO_IF)
+            {
+                outpw(REG_SDISR, SDISR_RITO_IF);
+                DBG_PRINTF("Response in timeout !\n");
+                return FMI_SD_RITO_ERROR;
+            }
         }
     }
     else
@@ -139,6 +145,13 @@ INT fmiSDCmdAndRsp(FMI_SD_INFO_T *pSD, UINT8 ucCmd, UINT32 uArg, INT ntickCount)
             {
                 DBG_PRINTF("NO SD CARD !\n");
                 return FMI_NO_SD_CARD;
+            }
+
+            if (inpw(REG_SDISR) & SDISR_RITO_IF)
+            {
+                outpw(REG_SDISR, SDISR_RITO_IF);
+                DBG_PRINTF("Response in timeout !\n");
+                return FMI_SD_RITO_ERROR;
             }
         }
     }
@@ -197,6 +210,13 @@ INT fmiSDCmdAndRsp2(FMI_SD_INFO_T *pSD, UINT8 ucCmd, UINT32 uArg, UINT *puR2ptr)
             DBG_PRINTF("NO SD CARD !\n");
             return FMI_NO_SD_CARD;
         }
+
+        if (inpw(REG_SDISR) & SDISR_RITO_IF)
+        {
+            outpw(REG_SDISR, SDISR_RITO_IF);
+            DBG_PRINTF("Response in timeout !\n");
+            return FMI_SD_RITO_ERROR;
+        }
     }
 
     if (inpw(REG_SDISR) & SDISR_CRC_7)
@@ -232,6 +252,13 @@ INT fmiSDCmdAndRspDataIn(FMI_SD_INFO_T *pSD, UINT8 ucCmd, UINT32 uArg)
             DBG_PRINTF("NO SD CARD !\n");
             return FMI_NO_SD_CARD;
         }
+
+        if (inpw(REG_SDISR) & SDISR_RITO_IF)
+        {
+            outpw(REG_SDISR, SDISR_RITO_IF);
+            DBG_PRINTF("Response in timeout !\n");
+            return FMI_SD_RITO_ERROR;
+        }
     }
 
     while (inpw(REG_SDCR) & SDCR_DI_EN)
@@ -242,6 +269,13 @@ INT fmiSDCmdAndRspDataIn(FMI_SD_INFO_T *pSD, UINT8 ucCmd, UINT32 uArg)
         {
             DBG_PRINTF("NO SD CARD !\n");
             return FMI_NO_SD_CARD;
+        }
+
+        if (inpw(REG_SDISR) & SDISR_DITO_IF)
+        {
+            outpw(REG_SDISR, SDISR_DITO_IF);
+            DBG_PRINTF("Data in timeout !\n");
+            return FMI_SD_DITO_ERROR;
         }
     }
 
@@ -827,6 +861,17 @@ INT fmiSD_Read_in_blksize(FMI_SD_INFO_T *pSD, UINT32 uSector, UINT32 uBufcnt, UI
             if (pSD->bIsCardInsert == FALSE)
                 return FMI_NO_SD_CARD;
 
+            if (inpw(REG_SDISR) & SDISR_DITO_IF)
+            {
+                outpw(REG_SDISR, SDISR_DITO_IF);
+                return FMI_SD_DITO_ERROR;
+            }
+            if (inpw(REG_SDISR) & SDISR_RITO_IF)
+            {
+                outpw(REG_SDISR, SDISR_RITO_IF);
+                return FMI_SD_RITO_ERROR;
+            }
+
             /* Call schedule() to release CPU power to other tasks during waiting SIC/DMA completed. */
             schedule();
         }
@@ -880,6 +925,17 @@ INT fmiSD_Read_in_blksize(FMI_SD_INFO_T *pSD, UINT32 uSector, UINT32 uBufcnt, UI
                 fmiSD_CardStatus();
             if (pSD->bIsCardInsert == FALSE)
                 return FMI_NO_SD_CARD;
+
+            if (inpw(REG_SDISR) & SDISR_DITO_IF)
+            {
+                outpw(REG_SDISR, SDISR_DITO_IF);
+                return FMI_SD_DITO_ERROR;
+            }
+            if (inpw(REG_SDISR) & SDISR_RITO_IF)
+            {
+                outpw(REG_SDISR, SDISR_RITO_IF);
+                return FMI_SD_RITO_ERROR;
+            }
 
             /* Call schedule() to release CPU power to other tasks during waiting SIC/DMA completed. */
             schedule();
@@ -984,6 +1040,12 @@ INT fmiSD_Write_in(FMI_SD_INFO_T *pSD, UINT32 uSector, UINT32 uBufcnt, UINT32 uS
             if (pSD->bIsCardInsert == FALSE)
                 return FMI_NO_SD_CARD;
 
+            if (inpw(REG_SDISR) & SDISR_RITO_IF)
+            {
+                outpw(REG_SDISR, SDISR_RITO_IF);
+                return FMI_SD_RITO_ERROR;
+            }
+
             /* Call schedule() to release CPU power to other tasks during waiting SIC/DMA completed. */
             schedule();
         }
@@ -1029,6 +1091,12 @@ INT fmiSD_Write_in(FMI_SD_INFO_T *pSD, UINT32 uSector, UINT32 uBufcnt, UINT32 uS
                 fmiSD_CardStatus();
             if (pSD->bIsCardInsert == FALSE)
                 return FMI_NO_SD_CARD;
+
+            if (inpw(REG_SDISR) & SDISR_RITO_IF)
+            {
+                outpw(REG_SDISR, SDISR_RITO_IF);
+                return FMI_SD_RITO_ERROR;
+            }
 
             /* Call schedule() to release CPU power to other tasks during waiting SIC/DMA completed. */
             schedule();
