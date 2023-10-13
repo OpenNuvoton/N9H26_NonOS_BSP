@@ -12,9 +12,14 @@
 
 	#include "port.h"
 	#include "N9H26_avcodec.h"
-	
-	#define TRUE	1
-	#define FALSE	0
+
+    #ifndef FALSE
+        #define FALSE             (0)
+    #endif
+
+    #ifndef TRUE
+        #define TRUE              (1)
+    #endif
 
 	#define FRAME_DONE 0x1
 	#define HW_BS_EMPTY 0x2
@@ -39,7 +44,7 @@
 	AVCDec_InvalidBS (void * ptDecHandle);
 
 	AVCDEC_EXT AVC_RET
-	AVCDec_FillBuffer(void * ptDecHandle, uint8_t * ptBuf, uint32_t u32BufSize, bool bfitFrameSize);
+	AVCDec_FillBuffer(void * ptDecHandle, uint8_t * ptBuf, uint32_t u32BufSize, int bfitFrameSize);
 
 	AVCDEC_EXT void
 	AVCDec_EndOfData (void * ptDecHandle);
@@ -63,7 +68,7 @@
 	void* nv_malloc(int size, int alignment);
 	int nv_free(void* ptr);
 	
-	AVC_RET AVCDec_UpdateInform(void * ptDecHandle, uint32_t u32BufSize, bool bfitFrameSize);
+	AVC_RET AVCDec_UpdateInform(void * ptDecHandle, uint32_t u32BufSize, int bfitFrameSize);
 	
 	void decoder_fill_bs_reg(void * ptDecHandle, int size);
 	

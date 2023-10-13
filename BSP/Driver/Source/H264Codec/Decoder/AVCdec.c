@@ -40,7 +40,7 @@ AVCDec_QueryEmptyBuffer (void * ptDecHandle)
 }
 
 AVC_RET                                 
-AVCDec_FillBuffer(void * ptDecHandle, uint8_t * ptBuf, uint32_t u32BufSize, bool bfitFrameSize)
+AVCDec_FillBuffer(void * ptDecHandle, uint8_t * ptBuf, uint32_t u32BufSize, int bfitFrameSize)
 {
 	DECODER * dec = (DECODER *)ptDecHandle;
 	uint32_t size_after_fill = 0;

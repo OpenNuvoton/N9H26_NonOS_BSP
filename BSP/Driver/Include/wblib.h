@@ -308,6 +308,8 @@ extern int                          _uart_refcnt;
 
 
 
+#define DEF_CACHE_LINE_SIZE     32
+
 /* Define system library Timer functions */
 UINT32 sysGetTicks (INT32 nTimeNo);
 INT32  sysResetTicks (INT32 nTimeNo);
@@ -404,6 +406,11 @@ UINT32  sysGetAPBClock(VOID);   /* Unit HZ */
 
 UINT32 sysSetDramClock(E_SYS_SRC_CLK eSrcClk, UINT32 u32PLLClockHz, UINT32 u32DramClock); /* Unit HZ */
 UINT32 sysGetDramClock(VOID);
+
+VOID sysCleanInvalidatedDcache(UINT32 buffer, UINT32 size);
+VOID sysCleanDcache(UINT32 buffer, UINT32 size);
+VOID sysInvalidateDcache(UINT32 buffer, UINT32 size);
+VOID sysInvalidateDcacheAll(VOID);
 
 #ifdef __cplusplus
 }
