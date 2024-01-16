@@ -1,0 +1,12 @@
+--cpu ARM926EJ-S
+".\ptr_class\main.o"
+".\ptr_class\standalone.o"
+".\ptr_class\wb_init.o"
+".\ptr_class\ptr.o"
+"..\..\..\..\Library\IPLib\N9H26_UDC.lib"
+"..\..\..\..\Library\IPLib\N9H26_SYS.lib"
+--strict --scatter "..\..\..\..\Script\N9H26\N9H26K6.sct"
+
+--entry Reset_Go --summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\PTR_class\N9H26_PTR_class.map" -o .\PTR_class\N9H26_PTR_class.axf
