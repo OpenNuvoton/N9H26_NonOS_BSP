@@ -1,7 +1,7 @@
 .\hid_transfer_firmwareupdate\jpegdec.o: ..\jpegDec.c
-.\hid_transfer_firmwareupdate\jpegdec.o: C:\Keil\ARM\ARMCC\INCLUDE\stdio.h
-.\hid_transfer_firmwareupdate\jpegdec.o: C:\Keil\ARM\ARMCC\INCLUDE\stdlib.h
-.\hid_transfer_firmwareupdate\jpegdec.o: C:\Keil\ARM\ARMCC\INCLUDE\string.h
+.\hid_transfer_firmwareupdate\jpegdec.o: C:\Keil\ARM\ARMCC\include\stdio.h
+.\hid_transfer_firmwareupdate\jpegdec.o: C:\Keil\ARM\ARMCC\include\stdlib.h
+.\hid_transfer_firmwareupdate\jpegdec.o: C:\Keil\ARM\ARMCC\include\string.h
 .\hid_transfer_firmwareupdate\jpegdec.o: ..\..\..\..\..\Driver\Include\wbtypes.h
 .\hid_transfer_firmwareupdate\jpegdec.o: ..\..\..\..\..\Driver\Include\wblib.h
 .\hid_transfer_firmwareupdate\jpegdec.o: ..\..\..\..\..\Driver\Include\N9H26_reg.h

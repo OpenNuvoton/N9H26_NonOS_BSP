@@ -1,7 +1,7 @@
 .\ptr_class\ptr.o: ..\PTR.c
-.\ptr_class\ptr.o: C:\Keil\ARM\ARMCC\INCLUDE\stdio.h
-.\ptr_class\ptr.o: C:\Keil\ARM\ARMCC\INCLUDE\stdlib.h
-.\ptr_class\ptr.o: C:\Keil\ARM\ARMCC\INCLUDE\string.h
+.\ptr_class\ptr.o: C:\Keil\ARM\ARMCC\include\stdio.h
+.\ptr_class\ptr.o: C:\Keil\ARM\ARMCC\include\stdlib.h
+.\ptr_class\ptr.o: C:\Keil\ARM\ARMCC\include\string.h
 .\ptr_class\ptr.o: ..\..\..\..\Driver\Include\wblib.h
 .\ptr_class\ptr.o: ..\..\..\..\Driver\Include\N9H26_reg.h
 .\ptr_class\ptr.o: ..\..\..\..\Driver\Include\wberrcode.h
@@ -13,8 +13,8 @@
 .\ptr_class\ptr.o: ..\..\..\..\Driver\Include\DrvI2CH.h
 .\ptr_class\ptr.o: ..\..\..\..\Driver\Include\N9H26_avcodec.h
 .\ptr_class\ptr.o: ..\..\..\..\Driver\Include\port.h
-.\ptr_class\ptr.o: C:\Keil\ARM\ARMCC\INCLUDE\stdint.h
-.\ptr_class\ptr.o: C:\Keil\ARM\ARMCC\INCLUDE\stdbool.h
+.\ptr_class\ptr.o: C:\Keil\ARM\ARMCC\include\stdint.h
+.\ptr_class\ptr.o: C:\Keil\ARM\ARMCC\include\stdbool.h
 .\ptr_class\ptr.o: ..\..\..\..\Driver\Include\N9H26_version.h
 .\ptr_class\ptr.o: ..\..\..\..\Driver\Include\N9H26_Font.h
 .\ptr_class\ptr.o: ..\..\..\..\Driver\Include\N9H26_JPEG.h
