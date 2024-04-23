@@ -1,0 +1,20 @@
+v2.30.001 : 	Support N9H20, N9H26,  it is for HMI.
+		support [N9H20 USER_DEFINE] in ini file
+			[N9H26 USER_DEFINE] 
+v2.30.002 :	Support N9H20-G & N9H20-H
+v2.30.003 :	Fix Booting fail issue without USER DEFINE SETTING
+v2.30.004 :	Update Turbowriter.ini file
+
+[Note]
+2022/08/09      N3292/N9H26 : Update Turbowriter.ini for new embedded DDR2
+
+[N9H2X]
+2018/04/30-v05: Support N9H20, N9H26,  it is for HMI
+2019/04/18-v05: Modify NAND Bad Block check rule for UBIFS
+2019/10/15-v05: Fix unstable issue
+2020/11/10-v05: Support MT29F4G08ABAEAWP NAND flash
+2021/04/29-v05: Support NAND BCH Power On Setting for 2K Page NAND flash
+2022/08/09-v05: Remove code for set bad block as good block if all data is 0xFF after block erase
+
+Notice: If you want to fix the USB transfer speed in FullSpeed mode, please rename the file 
+	N9H20_musb_FullSpeed.bin to N9H20_musb.bin and replace the origrinal one.
