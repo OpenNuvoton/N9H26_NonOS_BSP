@@ -184,7 +184,7 @@ int ProcessOptionalINI(char *fileName)
         if (status < 0)     // read file error. Coulde be end of file.
             break;
 NextMark2:
-        if ((strcmp(Cmd, "[USER_DEFINE]") == 0) ||(strcmp(Cmd, "[N3292 USER_DEFINE]") == 0)  )
+        if ((strcmp(Cmd, "[USER_DEFINE]") == 0) ||(strcmp(Cmd, "[N9H26 USER_DEFINE]") == 0)  )
         {
             do {
                 status = readLine(FileHandle, Cmd);

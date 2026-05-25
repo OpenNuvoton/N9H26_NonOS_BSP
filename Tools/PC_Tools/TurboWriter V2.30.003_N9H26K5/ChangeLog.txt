@@ -11,6 +11,7 @@ v2.30.003 :	Fix Booting fail issue without USER DEFINE SETTING
 2020/11/10-v05: Support MT29F4G08ABAEAWP NAND flash
 2021/04/29-v05: Support NAND BCH Power On Setting for 2K Page NAND flash
 2022/08/09-v05: Remove code for set bad block as good block if all data is 0xFF after block erase
+2026/05/12-v05: Fix Verify Enable fail issue
 
 Notice: If you want to fix the USB transfer speed in FullSpeed mode, please rename the file 
 	N9H20_musb_FullSpeed.bin to N9H20_musb.bin and replace the origrinal one.
